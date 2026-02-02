@@ -36,6 +36,7 @@ import "../styles/chessboard.css";
       /** @type {"white" | "black"} */
       let currentTurn = "white";
 
+      /** @type {(Piece | null)[][]} */
       const initialBoard = [
         [
           { type: "rook", color: "black" },
@@ -74,9 +75,10 @@ import "../styles/chessboard.css";
 
       /**
        * @param {Piece | null} piece
+       * @returns {boolean}
        */
       function isPieceTurn(piece) {
-        return piece && piece.color === currentTurn;
+        return !!piece && piece.color === currentTurn;
       }
 
       function switchTurn() {
@@ -84,33 +86,27 @@ import "../styles/chessboard.css";
       }
 
       /**
-       * Activa dragstart en una pieza
        * @param {HTMLImageElement} img
        * @param {number} row
        * @param {number} col
        */
       function enableDrag(img, row, col) {
-        img.addEventListener("dragstart", (e) => {
+        img.addEventListener("dragstart", (e /** @type {DragEvent} */) => {
           if (!e.dataTransfer) return;
           e.dataTransfer.setData("text/plain", `${row},${col}`);
         });
       }
 
       /**
-        * Marca una casilla como seleccionada y limpia la anterior
-        * @param {HTMLElement | null} square
-        */
-        function highlightSquare(square) {
-        // quitar highlight previo
+       * @param {HTMLElement | null} square
+       */
+      function highlightSquare(square) {
         const prev = board.querySelector(".selected");
         if (prev) prev.classList.remove("selected");
-
-        // aplicar highlight nuevo
         if (square) square.classList.add("selected");
       }
 
       /**
-       * Mueve la pieza en el DOM sin redibujar el tablero
        * @param {number} fromRow
        * @param {number} fromCol
        * @param {number} toRow
@@ -133,13 +129,9 @@ import "../styles/chessboard.css";
         toSquare.appendChild(pieceImg);
         fromSquare.innerHTML = "";
 
-        // reactivar drag con la nueva posición
         enableDrag(pieceImg, toRow, toCol);
       }
 
-      /**
-       * Construye el tablero una sola vez
-       */
       for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
           const square = document.createElement("div");
@@ -165,10 +157,7 @@ import "../styles/chessboard.css";
           square.addEventListener("click", () => {
             const piece = initialBoard[row][col];
 
-            // Si no hay selección y haces click en una pieza que NO es de tu turno → ignorar
-            if (!selectedSquare && piece && !isPieceTurn(piece)) {
-              return;
-            }
+            if (!selectedSquare && piece && !isPieceTurn(piece)) return;
 
             if (selectedSquare) {
               const fromRow = Number(selectedSquare.dataset.row);
@@ -176,7 +165,6 @@ import "../styles/chessboard.css";
               const toRow = row;
               const toCol = col;
 
-              // Si haces click en la misma casilla → deseleccionar
               if (fromRow === toRow && fromCol === toCol) {
                 selectedSquare = null;
                 highlightSquare(null);
@@ -190,7 +178,7 @@ import "../styles/chessboard.css";
 
               selectedSquare = null;
               highlightSquare(null);
-
+              
               switchTurn();
             } else {
               if (square.querySelector("img")) {
@@ -200,24 +188,30 @@ import "../styles/chessboard.css";
             }
           });
 
-          square.addEventListener("dragover", (e) => e.preventDefault());
-
-          square.addEventListener("drop", (e) => {
+          square.addEventListener("dragover", (e /** @type {DragEvent} */) => {
             e.preventDefault();
+            square.classList.add("hover-target");
+          });
+
+          square.addEventListener("dragleave", () => {
+            square.classList.remove("hover-target");
+          });
+
+          square.addEventListener("drop", (e /** @type {DragEvent} */) => {
+            e.preventDefault();
+            square.classList.remove("hover-target");
+
             if (!e.dataTransfer) return;
 
             const data = e.dataTransfer.getData("text/plain");
             const [fromRow, fromCol] = data.split(",").map(Number);
 
             const piece = initialBoard[fromRow][fromCol];
-
-            // Si intentas arrastrar una pieza que no es de tu turno → ignorar
             if (!isPieceTurn(piece)) return;
 
             const toRow = row;
             const toCol = col;
 
-            // Si sueltas en la misma casilla → ignorar
             if (fromRow === toRow && fromCol === toCol) {
               selectedSquare = null;
               highlightSquare(null);
@@ -231,7 +225,6 @@ import "../styles/chessboard.css";
 
             selectedSquare = null;
             highlightSquare(null);
-
             switchTurn();
           });
 
