@@ -1,0 +1,28 @@
+---
+const { title = "Chess Platform" } = Astro.props;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+
+  <body class="min-h-screen bg-gray-100 text-gray-900">
+    <header class="bg-white shadow mb-6">
+      <nav class="max-w-5xl mx-auto flex gap-6 py-4">
+        <a href="/" class="hover:underline">Home</a>
+        <a href="/login" class="hover:underline">Login</a>
+        <a href="/register" class="hover:underline">Registro</a>
+        <a href="/play" class="hover:underline">Jugar</a>
+        <a href="/puzzles" class="hover:underline">Puzzles</a>
+        <a href="/profile" class="hover:underline">Perfil</a>
+      </nav>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4">
+      <slot />
+    </main>
+  </body>
+</html>
