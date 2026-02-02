@@ -24,11 +24,17 @@ import "../styles/chessboard.css";
     // @ts-check
 
     /**
-     * @typedef {{ type: string, color: string }} Piece
+     * @typedef {"pawn" | "rook" | "horse" | "bishop" | "queen" | "king"} PieceType
+     */
+
+    /**
+     * @typedef {{ type: PieceType, color: "white" | "black" }} Piece
      */
 
     window.addEventListener("load", () => {
-      const board = /** @type {HTMLElement} */ (document.getElementById("board"));
+      const board = /** @type {HTMLElement} */ (
+        document.getElementById("board")
+      );
 
       /** @type {HTMLElement | null} */
       let selectedSquare = null;
@@ -66,12 +72,23 @@ import "../styles/chessboard.css";
         ]
       ];
 
+      const castlingRights = {
+        whiteKingSide: true,
+        whiteQueenSide: true,
+        blackKingSide: true,
+        blackQueenSide: true
+      };
+
+      /** @type {{ row: number; col: number } | null} */
+      let enPassantTarget = null;
+
       /**
        * @param {Piece | null} piece
        * @returns {string}
        */
-      const getPieceImage = (piece) =>
-        piece ? `/pieces/${piece.color[0]}_${piece.type}.svg` : "";
+      function getPieceImage(piece) {
+        return piece ? `/pieces/${piece.color[0]}_${piece.type}.svg` : "";
+      }
 
       /**
        * @param {Piece | null} piece
@@ -107,6 +124,499 @@ import "../styles/chessboard.css";
       }
 
       /**
+       * @param {(Piece | null)[][]} boardState
+       * @param {"white" | "black"} color
+       * @returns {[number, number] | null}
+       */
+      function findKing(boardState, color) {
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const p = boardState[r][c];
+            if (p && p.type === "king" && p.color === color) {
+              return [r, c];
+            }
+          }
+        }
+        return null;
+      }
+
+      /**
+       * @param {(Piece | null)[][]} boardState
+       * @param {number} row
+       * @param {number} col
+       * @param {"white" | "black"} color
+       * @returns {boolean}
+       */
+      function isSquareAttacked(boardState, row, col, color) {
+        const enemy = color === "white" ? "black" : "white";
+
+        // Pawn attacks
+        const pawnDir = enemy === "white" ? -1 : 1;
+        for (const dc of [-1, 1]) {
+          const r = row + pawnDir;
+          const c = col + dc;
+          if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            const p = boardState[r][c];
+            if (p && p.color === enemy && p.type === "pawn") return true;
+          }
+        }
+
+        // Horse attacks
+        const horseDeltas = [
+          [-2, -1],
+          [-2, 1],
+          [-1, -2],
+          [-1, 2],
+          [1, -2],
+          [1, 2],
+          [2, -1],
+          [2, 1]
+        ];
+        for (const [dr, dc] of horseDeltas) {
+          const r = row + dr;
+          const c = col + dc;
+          if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            const p = boardState[r][c];
+            if (p && p.color === enemy && p.type === "horse") return true;
+          }
+        }
+
+        // Sliding pieces
+        const directions = [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1],
+          [-1, -1],
+          [-1, 1],
+          [1, -1],
+          [1, 1]
+        ];
+        for (const [dr, dc] of directions) {
+          let r = row + dr;
+          let c = col + dc;
+          while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            const p = boardState[r][c];
+            if (p) {
+              if (p.color === enemy) {
+                if (
+                  (p.type === "rook" && (dr === 0 || dc === 0)) ||
+                  (p.type === "bishop" && dr !== 0 && dc !== 0) ||
+                  p.type === "queen"
+                ) {
+                  return true;
+                }
+              }
+              break;
+            }
+            r += dr;
+            c += dc;
+          }
+        }
+
+        // King attacks
+        const kingDeltas = [
+          [-1, -1],
+          [-1, 0],
+          [-1, 1],
+          [0, -1],
+          [0, 1],
+          [1, -1],
+          [1, 0],
+          [1, 1]
+        ];
+        for (const [dr, dc] of kingDeltas) {
+          const r = row + dr;
+          const c = col + dc;
+          if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            const p = boardState[r][c];
+            if (p && p.color === enemy && p.type === "king") return true;
+          }
+        }
+
+        return false;
+      }
+
+      /**
+       * @param {(Piece | null)[][]} boardState
+       * @param {"white" | "black"} color
+       * @returns {boolean}
+       */
+      function isKingInCheck(boardState, color) {
+        const kingPos = findKing(boardState, color);
+        if (!kingPos) return false;
+        const [kr, kc] = kingPos;
+        return isSquareAttacked(boardState, kr, kc, color);
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @param {Piece} piece
+       * @returns {[number, number][]}
+       */
+      function getPseudoLegalMoves(row, col, piece) {
+        switch (piece.type) {
+          case "pawn":
+            return getPawnMoves(row, col, piece.color);
+          case "rook":
+            return getRookMoves(row, col);
+          case "horse":
+            return getHorseMoves(row, col);
+          case "bishop":
+            return getBishopMoves(row, col);
+          case "queen":
+            return getQueenMoves(row, col);
+          case "king":
+            return getKingMoves(row, col);
+          default:
+            return [];
+        }
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @param {Piece} piece
+       * @returns {[number, number][]}
+       */
+      function getLegalMoves(row, col, piece) {
+        const moves = /** @type {[number, number][]} */ ([]);
+        const pseudo = getPseudoLegalMoves(row, col, piece);
+
+        for (const [toRow, toCol] of pseudo) {
+          /** @type {(Piece | null)[][]} */
+          const boardCopy = [];
+          for (let r = 0; r < 8; r++) {
+            /** @type {(Piece | null)[]} */
+            const rowCopy = [];
+            for (let c = 0; c < 8; c++) {
+              rowCopy.push(initialBoard[r][c]);
+            }
+            boardCopy.push(rowCopy);
+          }
+
+          boardCopy[toRow][toCol] = boardCopy[row][col];
+          boardCopy[row][col] = null;
+
+          if (
+            piece.type === "pawn" &&
+            enPassantTarget &&
+            toRow === enPassantTarget.row &&
+            toCol === enPassantTarget.col
+          ) {
+            const dir = piece.color === "white" ? 1 : -1;
+            boardCopy[toRow + dir][toCol] = null;
+          }
+
+          if (!isKingInCheck(boardCopy, piece.color)) {
+            moves.push([toRow, toCol]);
+          }
+        }
+
+        if (piece.type === "king") {
+          const castleMoves = getCastlingMoves(row, col, piece.color);
+          for (const m of castleMoves) moves.push(m);
+        }
+
+        return moves;
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @param {"white" | "black"} color
+       * @returns {[number, number][]}
+       */
+      function getPawnMoves(row, col, color) {
+        const moves = /** @type {[number, number][]} */ ([]);
+        const dir = color === "white" ? -1 : 1;
+        const startRow = color === "white" ? 6 : 1;
+
+        if (
+          initialBoard[row + dir] &&
+          initialBoard[row + dir][col] === null
+        ) {
+          moves.push([row + dir, col]);
+
+          if (
+            row === startRow &&
+            initialBoard[row + 2 * dir][col] === null
+          ) {
+            moves.push([row + 2 * dir, col]);
+          }
+        }
+
+        for (const dc of [-1, 1]) {
+          const r = row + dir;
+          const c = col + dc;
+          if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            const target = initialBoard[r][c];
+            if (target && target.color !== color) {
+              moves.push([r, c]);
+            }
+          }
+        }
+
+        if (enPassantTarget) {
+          const r = enPassantTarget.row;
+          const c = enPassantTarget.col;
+          if (r === row + dir && Math.abs(c - col) === 1) {
+            moves.push([r, c]);
+          }
+        }
+
+        return moves;
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @returns {[number, number][]}
+       */
+      function getHorseMoves(row, col) {
+        const moves = /** @type {[number, number][]} */ ([]);
+        const deltas = [
+          [-2, -1],
+          [-2, 1],
+          [-1, -2],
+          [-1, 2],
+          [1, -2],
+          [1, 2],
+          [2, -1],
+          [2, 1]
+        ];
+        const piece = initialBoard[row][col];
+        if (!piece) return moves;
+        const color = piece.color;
+
+        for (const [dr, dc] of deltas) {
+          const r = row + dr;
+          const c = col + dc;
+          if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            const target = initialBoard[r][c];
+            if (!target || target.color !== color) {
+              moves.push([r, c]);
+            }
+          }
+        }
+
+        return moves;
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @param {[number, number][]} directions
+       * @returns {[number, number][]}
+       */
+      function rayMoves(row, col, directions) {
+        const moves = /** @type {[number, number][]} */ ([]);
+        const piece = initialBoard[row][col];
+        if (!piece) return moves;
+        const color = piece.color;
+
+        for (const [dr, dc] of directions) {
+          let r = row + dr;
+          let c = col + dc;
+          while (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            const target = initialBoard[r][c];
+            if (!target) {
+              moves.push([r, c]);
+            } else {
+              if (target.color !== color) moves.push([r, c]);
+              break;
+            }
+            r += dr;
+            c += dc;
+          }
+        }
+
+        return moves;
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @returns {[number, number][]}
+       */
+      function getRookMoves(row, col) {
+        return rayMoves(row, col, [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1]
+        ]);
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @returns {[number, number][]}
+       */
+      function getBishopMoves(row, col) {
+        return rayMoves(row, col, [
+          [-1, -1],
+          [-1, 1],
+          [1, -1],
+          [1, 1]
+        ]);
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @returns {[number, number][]}
+       */
+      function getQueenMoves(row, col) {
+        const moves = /** @type {[number, number][]} */ ([]);
+        for (const m of getRookMoves(row, col)) moves.push(m);
+        for (const m of getBishopMoves(row, col)) moves.push(m);
+        return moves;
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @returns {[number, number][]}
+       */
+      function getKingMoves(row, col) {
+        const moves = /** @type {[number, number][]} */ ([]);
+        const deltas = [
+          [-1, -1],
+          [-1, 0],
+          [-1, 1],
+          [0, -1],
+          [0, 1],
+          [1, -1],
+          [1, 0],
+          [1, 1]
+        ];
+        const piece = initialBoard[row][col];
+        if (!piece) return moves;
+        const color = piece.color;
+
+        for (const [dr, dc] of deltas) {
+          const r = row + dr;
+          const c = col + dc;
+          if (r >= 0 && r < 8 && c >= 0 && c < 8) {
+            const target = initialBoard[r][c];
+            if (!target || target.color !== color) {
+              moves.push([r, c]);
+            }
+          }
+        }
+
+        return moves;
+      }
+
+      /**
+       * @param {number} row
+       * @param {number} col
+       * @param {"white" | "black"} color
+       * @returns {[number, number][]}
+       */
+      function getCastlingMoves(row, col, color) {
+        const moves = /** @type {[number, number][]} */ ([]);
+        const kingRow = color === "white" ? 7 : 0;
+        if (row !== kingRow || col !== 4) return moves;
+        if (isKingInCheck(initialBoard, color)) return moves;
+
+        if (
+          (color === "white"
+            ? castlingRights.whiteKingSide
+            : castlingRights.blackKingSide) &&
+          initialBoard[kingRow][5] === null &&
+          initialBoard[kingRow][6] === null &&
+          !isSquareAttacked(initialBoard, kingRow, 5, color) &&
+          !isSquareAttacked(initialBoard, kingRow, 6, color)
+        ) {
+          moves.push([kingRow, 6]);
+        }
+
+        if (
+          (color === "white"
+            ? castlingRights.whiteQueenSide
+            : castlingRights.blackQueenSide) &&
+          initialBoard[kingRow][1] === null &&
+          initialBoard[kingRow][2] === null &&
+          initialBoard[kingRow][3] === null &&
+          !isSquareAttacked(initialBoard, kingRow, 3, color) &&
+          !isSquareAttacked(initialBoard, kingRow, 2, color)
+        ) {
+          moves.push([kingRow, 2]);
+        }
+
+        return moves;
+      }
+
+      /**
+       * @param {number} fromRow
+       * @param {number} fromCol
+       * @param {number} toRow
+       * @param {number} toCol
+       * @param {Piece} piece
+       */
+      function applySpecialMoves(fromRow, fromCol, toRow, toCol, piece) {
+        if (
+          piece.type === "pawn" &&
+          enPassantTarget &&
+          toRow === enPassantTarget.row &&
+          toCol === enPassantTarget.col
+        ) {
+          const dir = piece.color === "white" ? 1 : -1;
+          initialBoard[toRow + dir][toCol] = null;
+        }
+
+        enPassantTarget = null;
+        if (piece.type === "pawn" && Math.abs(toRow - fromRow) === 2) {
+          enPassantTarget = { row: (fromRow + toRow) / 2, col: fromCol };
+        }
+
+        if (piece.type === "king") {
+          if (piece.color === "white") {
+            castlingRights.whiteKingSide = false;
+            castlingRights.whiteQueenSide = false;
+          } else {
+            castlingRights.blackKingSide = false;
+            castlingRights.blackQueenSide = false;
+          }
+
+          if (fromCol === 4 && toCol === 6) {
+            initialBoard[toRow][5] = initialBoard[toRow][7];
+            initialBoard[toRow][7] = null;
+            movePieceDOM(toRow, 7, toRow, 5);
+          }
+
+          if (fromCol === 4 && toCol === 2) {
+            initialBoard[toRow][3] = initialBoard[toRow][0];
+            initialBoard[toRow][0] = null;
+            movePieceDOM(toRow, 0, toRow, 3);
+          }
+        }
+
+        if (piece.type === "rook") {
+          if (fromRow === 7 && fromCol === 0)
+            castlingRights.whiteQueenSide = false;
+          if (fromRow === 7 && fromCol === 7)
+            castlingRights.whiteKingSide = false;
+          if (fromRow === 0 && fromCol === 0)
+            castlingRights.blackQueenSide = false;
+          if (fromRow === 0 && fromCol === 7)
+            castlingRights.blackKingSide = false;
+        }
+
+        if (piece.type === "pawn") {
+          if (piece.color === "white" && toRow === 0) {
+            initialBoard[toRow][toCol] = { type: "queen", color: "white" };
+          }
+          if (piece.color === "black" && toRow === 7) {
+            initialBoard[toRow][toCol] = { type: "queen", color: "black" };
+          }
+        }
+      }
+
+      /**
        * @param {number} fromRow
        * @param {number} fromCol
        * @param {number} toRow
@@ -129,9 +639,10 @@ import "../styles/chessboard.css";
         toSquare.appendChild(pieceImg);
         fromSquare.innerHTML = "";
 
-        enableDrag(pieceImg, toRow, toCol);
+        enableDrag(/** @type {HTMLImageElement} */ (pieceImg), toRow, toCol);
       }
 
+      // Construcción del tablero y listeners
       for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
           const square = document.createElement("div");
@@ -155,9 +666,9 @@ import "../styles/chessboard.css";
           }
 
           square.addEventListener("click", () => {
-            const piece = initialBoard[row][col];
+            const pieceHere = initialBoard[row][col];
 
-            if (!selectedSquare && piece && !isPieceTurn(piece)) return;
+            if (!selectedSquare && pieceHere && !isPieceTurn(pieceHere)) return;
 
             if (selectedSquare) {
               const fromRow = Number(selectedSquare.dataset.row);
@@ -171,17 +682,30 @@ import "../styles/chessboard.css";
                 return;
               }
 
-              initialBoard[toRow][toCol] = initialBoard[fromRow][fromCol];
+              const movingPiece = initialBoard[fromRow][fromCol];
+              if (!movingPiece) return;
+
+              const legal = getLegalMoves(fromRow, fromCol, movingPiece);
+              const isLegal = legal.some(
+                ([r, c]) => r === toRow && c === toCol
+              );
+              if (!isLegal) return;
+
+              initialBoard[toRow][toCol] = movingPiece;
               initialBoard[fromRow][fromCol] = null;
 
+              applySpecialMoves(fromRow, fromCol, toRow, toCol, movingPiece);
               movePieceDOM(fromRow, fromCol, toRow, toCol);
 
               selectedSquare = null;
               highlightSquare(null);
-              
               switchTurn();
             } else {
-              if (square.querySelector("img")) {
+              if (
+                square.querySelector("img") &&
+                pieceHere &&
+                isPieceTurn(pieceHere)
+              ) {
                 selectedSquare = square;
                 highlightSquare(square);
               }
@@ -206,8 +730,8 @@ import "../styles/chessboard.css";
             const data = e.dataTransfer.getData("text/plain");
             const [fromRow, fromCol] = data.split(",").map(Number);
 
-            const piece = initialBoard[fromRow][fromCol];
-            if (!isPieceTurn(piece)) return;
+            const movingPiece = initialBoard[fromRow][fromCol];
+            if (!movingPiece || !isPieceTurn(movingPiece)) return;
 
             const toRow = row;
             const toCol = col;
@@ -218,9 +742,16 @@ import "../styles/chessboard.css";
               return;
             }
 
-            initialBoard[toRow][toCol] = initialBoard[fromRow][fromCol];
+            const legal = getLegalMoves(fromRow, fromCol, movingPiece);
+            const isLegal = legal.some(
+              ([r, c]) => r === toRow && c === toCol
+            );
+            if (!isLegal) return;
+
+            initialBoard[toRow][toCol] = movingPiece;
             initialBoard[fromRow][fromCol] = null;
 
+            applySpecialMoves(fromRow, fromCol, toRow, toCol, movingPiece);
             movePieceDOM(fromRow, fromCol, toRow, toCol);
 
             selectedSquare = null;
