@@ -33,6 +33,9 @@ import "../styles/chessboard.css";
       /** @type {HTMLElement | null} */
       let selectedSquare = null;
 
+      /** @type {"white" | "black"} */
+      let currentTurn = "white";
+
       const initialBoard = [
         [
           { type: "rook", color: "black" },
@@ -70,6 +73,17 @@ import "../styles/chessboard.css";
         piece ? `/pieces/${piece.color[0]}_${piece.type}.svg` : "";
 
       /**
+       * @param {Piece | null} piece
+       */
+      function isPieceTurn(piece) {
+        return piece && piece.color === currentTurn;
+      }
+
+      function switchTurn() {
+        currentTurn = currentTurn === "white" ? "black" : "white";
+      }
+
+      /**
        * Activa dragstart en una pieza
        * @param {HTMLImageElement} img
        * @param {number} row
@@ -80,6 +94,19 @@ import "../styles/chessboard.css";
           if (!e.dataTransfer) return;
           e.dataTransfer.setData("text/plain", `${row},${col}`);
         });
+      }
+
+      /**
+        * Marca una casilla como seleccionada y limpia la anterior
+        * @param {HTMLElement | null} square
+        */
+        function highlightSquare(square) {
+        // quitar highlight previo
+        const prev = board.querySelector(".selected");
+        if (prev) prev.classList.remove("selected");
+
+        // aplicar highlight nuevo
+        if (square) square.classList.add("selected");
       }
 
       /**
@@ -136,11 +163,25 @@ import "../styles/chessboard.css";
           }
 
           square.addEventListener("click", () => {
+            const piece = initialBoard[row][col];
+
+            // Si no hay selección y haces click en una pieza que NO es de tu turno → ignorar
+            if (!selectedSquare && piece && !isPieceTurn(piece)) {
+              return;
+            }
+
             if (selectedSquare) {
               const fromRow = Number(selectedSquare.dataset.row);
               const fromCol = Number(selectedSquare.dataset.col);
               const toRow = row;
               const toCol = col;
+
+              // Si haces click en la misma casilla → deseleccionar
+              if (fromRow === toRow && fromCol === toCol) {
+                selectedSquare = null;
+                highlightSquare(null);
+                return;
+              }
 
               initialBoard[toRow][toCol] = initialBoard[fromRow][fromCol];
               initialBoard[fromRow][fromCol] = null;
@@ -148,8 +189,14 @@ import "../styles/chessboard.css";
               movePieceDOM(fromRow, fromCol, toRow, toCol);
 
               selectedSquare = null;
+              highlightSquare(null);
+
+              switchTurn();
             } else {
-              if (square.querySelector("img")) selectedSquare = square;
+              if (square.querySelector("img")) {
+                selectedSquare = square;
+                highlightSquare(square);
+              }
             }
           });
 
@@ -162,13 +209,30 @@ import "../styles/chessboard.css";
             const data = e.dataTransfer.getData("text/plain");
             const [fromRow, fromCol] = data.split(",").map(Number);
 
+            const piece = initialBoard[fromRow][fromCol];
+
+            // Si intentas arrastrar una pieza que no es de tu turno → ignorar
+            if (!isPieceTurn(piece)) return;
+
             const toRow = row;
             const toCol = col;
+
+            // Si sueltas en la misma casilla → ignorar
+            if (fromRow === toRow && fromCol === toCol) {
+              selectedSquare = null;
+              highlightSquare(null);
+              return;
+            }
 
             initialBoard[toRow][toCol] = initialBoard[fromRow][fromCol];
             initialBoard[fromRow][fromCol] = null;
 
             movePieceDOM(fromRow, fromCol, toRow, toCol);
+
+            selectedSquare = null;
+            highlightSquare(null);
+
+            switchTurn();
           });
 
           board.appendChild(square);

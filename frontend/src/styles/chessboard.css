@@ -53,6 +53,11 @@
   overflow: hidden;
 }
 
+.square.selected {
+  outline: 3px solid #f6f669;
+  outline-offset: -3px;
+}
+
 .piece {
   width: 90%;
   height: 90%;
