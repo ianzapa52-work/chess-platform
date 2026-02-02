@@ -1,7 +1,179 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/chessboard.css";
 ---
 
 <BaseLayout title="Jugar">
-  <h1 class="text-2xl font-bold mb-4">Jugar</h1>
+  <h1 class="text-2xl font-bold mb-4">Tablero de Ajedrez</h1>
+
+  <div class="board-wrapper">
+    <div class="coords-top">
+      <span>A</span><span>B</span><span>C</span><span>D</span>
+      <span>E</span><span>F</span><span>G</span><span>H</span>
+    </div>
+
+    <div class="coords-left">
+      <span>8</span><span>7</span><span>6</span><span>5</span>
+      <span>4</span><span>3</span><span>2</span><span>1</span>
+    </div>
+
+    <div id="board" class="board"></div>
+  </div>
+
+  <script is:inline>
+    // @ts-check
+
+    /**
+     * @typedef {{ type: string, color: string }} Piece
+     */
+
+    window.addEventListener("load", () => {
+      const board = /** @type {HTMLElement} */ (document.getElementById("board"));
+
+      /** @type {HTMLElement | null} */
+      let selectedSquare = null;
+
+      const initialBoard = [
+        [
+          { type: "rook", color: "black" },
+          { type: "horse", color: "black" },
+          { type: "bishop", color: "black" },
+          { type: "queen", color: "black" },
+          { type: "king", color: "black" },
+          { type: "bishop", color: "black" },
+          { type: "horse", color: "black" },
+          { type: "rook", color: "black" }
+        ],
+        Array.from({ length: 8 }, () => ({ type: "pawn", color: "black" })),
+        Array(8).fill(null),
+        Array(8).fill(null),
+        Array(8).fill(null),
+        Array(8).fill(null),
+        Array.from({ length: 8 }, () => ({ type: "pawn", color: "white" })),
+        [
+          { type: "rook", color: "white" },
+          { type: "horse", color: "white" },
+          { type: "bishop", color: "white" },
+          { type: "queen", color: "white" },
+          { type: "king", color: "white" },
+          { type: "bishop", color: "white" },
+          { type: "horse", color: "white" },
+          { type: "rook", color: "white" }
+        ]
+      ];
+
+      /**
+       * @param {Piece | null} piece
+       * @returns {string}
+       */
+      const getPieceImage = (piece) =>
+        piece ? `/pieces/${piece.color[0]}_${piece.type}.svg` : "";
+
+      /**
+       * Activa dragstart en una pieza
+       * @param {HTMLImageElement} img
+       * @param {number} row
+       * @param {number} col
+       */
+      function enableDrag(img, row, col) {
+        img.addEventListener("dragstart", (e) => {
+          if (!e.dataTransfer) return;
+          e.dataTransfer.setData("text/plain", `${row},${col}`);
+        });
+      }
+
+      /**
+       * Mueve la pieza en el DOM sin redibujar el tablero
+       * @param {number} fromRow
+       * @param {number} fromCol
+       * @param {number} toRow
+       * @param {number} toCol
+       */
+      function movePieceDOM(fromRow, fromCol, toRow, toCol) {
+        const fromSquare = board.querySelector(
+          `[data-row="${fromRow}"][data-col="${fromCol}"]`
+        );
+        const toSquare = board.querySelector(
+          `[data-row="${toRow}"][data-col="${toCol}"]`
+        );
+
+        if (!fromSquare || !toSquare) return;
+
+        const pieceImg = fromSquare.querySelector("img");
+        if (!pieceImg) return;
+
+        toSquare.innerHTML = "";
+        toSquare.appendChild(pieceImg);
+        fromSquare.innerHTML = "";
+
+        // reactivar drag con la nueva posición
+        enableDrag(pieceImg, toRow, toCol);
+      }
+
+      /**
+       * Construye el tablero una sola vez
+       */
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const square = document.createElement("div");
+          square.classList.add("square");
+          square.dataset.row = String(row);
+          square.dataset.col = String(col);
+
+          const isDark = (row + col) % 2 === 1;
+          square.style.backgroundColor = isDark ? "#769656" : "#eeeed2";
+
+          const piece = initialBoard[row][col];
+          if (piece) {
+            const img = document.createElement("img");
+            img.src = getPieceImage(piece);
+            img.className = "piece";
+            img.draggable = true;
+
+            enableDrag(img, row, col);
+
+            square.appendChild(img);
+          }
+
+          square.addEventListener("click", () => {
+            if (selectedSquare) {
+              const fromRow = Number(selectedSquare.dataset.row);
+              const fromCol = Number(selectedSquare.dataset.col);
+              const toRow = row;
+              const toCol = col;
+
+              initialBoard[toRow][toCol] = initialBoard[fromRow][fromCol];
+              initialBoard[fromRow][fromCol] = null;
+
+              movePieceDOM(fromRow, fromCol, toRow, toCol);
+
+              selectedSquare = null;
+            } else {
+              if (square.querySelector("img")) selectedSquare = square;
+            }
+          });
+
+          square.addEventListener("dragover", (e) => e.preventDefault());
+
+          square.addEventListener("drop", (e) => {
+            e.preventDefault();
+            if (!e.dataTransfer) return;
+
+            const data = e.dataTransfer.getData("text/plain");
+            const [fromRow, fromCol] = data.split(",").map(Number);
+
+            const toRow = row;
+            const toCol = col;
+
+            initialBoard[toRow][toCol] = initialBoard[fromRow][fromCol];
+            initialBoard[fromRow][fromCol] = null;
+
+            movePieceDOM(fromRow, fromCol, toRow, toCol);
+          });
+
+          board.appendChild(square);
+        }
+      }
+    });
+  </script>
 </BaseLayout>
