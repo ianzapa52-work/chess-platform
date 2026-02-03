@@ -23,6 +23,11 @@ import "../styles/chessboard.css";
       </div>
 
       <div id="board" class="board"></div>
+
+      <div id="captured-area" class="mt-4 flex justify-between">
+        <div id="captured-white" class="flex flex-wrap gap-1"></div>
+        <div id="captured-black" class="flex flex-wrap gap-1"></div>
+      </div>
     </div>
 
     <div class="move-history">
@@ -123,6 +128,21 @@ import "../styles/chessboard.css";
        */
       function getPieceImage(piece) {
         return piece ? `/pieces/${piece.color[0]}_${piece.type}.svg` : "";
+      }
+
+      /**
+       * @param {Piece} piece
+       */
+      function registerCapture(piece) {
+        const containerId = piece.color === "white" ? "captured-white" : "captured-black";
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const img = document.createElement("img");
+        img.src = getPieceImage(piece);
+        img.alt = piece.type;
+        img.classList.add("w-8", "h-8");
+        container.appendChild(img);
       }
 
       /**
@@ -840,14 +860,18 @@ import "../styles/chessboard.css";
               return;
             }
 
+            if (!selectedPiece) return;
+
+            if (pieceHere && pieceHere.color !== selectedPiece.color) {
+              registerCapture(pieceHere);
+            }
+
             if (fromRow === row && fromCol === col) {
               selectedSquare = null;
               highlightSquare(null);
               clearLegalMoves();
               return;
             }
-
-            if (!selectedPiece) return;
 
             const legal = getLegalMoves(fromRow, fromCol, selectedPiece);
             const isLegal = legal.some(([r, c]) => r === row && c === col);
@@ -971,11 +995,13 @@ import "../styles/chessboard.css";
             const isLegal = legal.some(([r, c]) => r === toRow && c === toCol);
             if (!isLegal) return;
 
-            // --- CAPTURA: detectar ANTES de mover ---
             const targetPiece = initialBoard[toRow][toCol];
             const isCapture = targetPiece !== null && targetPiece.color !== movingPiece.color;
 
-            // --- MOVER PIEZA ---
+            if (targetPiece && targetPiece.color !== movingPiece.color) {
+              registerCapture(targetPiece);
+            }
+
             initialBoard[toRow][toCol] = movingPiece;
             initialBoard[fromRow][fromCol] = null;
 
