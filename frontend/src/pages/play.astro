@@ -6,18 +6,34 @@ import "../styles/chessboard.css";
 <BaseLayout title="Jugar">
   <h1 class="text-2xl font-bold mb-4">Tablero de Ajedrez</h1>
 
-  <div class="board-wrapper">
-    <div class="coords-top">
-      <span>A</span><span>B</span><span>C</span><span>D</span>
-      <span>E</span><span>F</span><span>G</span><span>H</span>
+  <div class="game-layout">
+    <div class="game-status">
+      <p id="game-status" class="text-lg font-semibold">Turno de las blancas</p>
     </div>
 
-    <div class="coords-left">
-      <span>8</span><span>7</span><span>6</span><span>5</span>
-      <span>4</span><span>3</span><span>2</span><span>1</span>
+    <div class="board-wrapper">
+      <div class="coords-top">
+        <span>A</span><span>B</span><span>C</span><span>D</span>
+        <span>E</span><span>F</span><span>G</span><span>H</span>
+      </div>
+
+      <div class="coords-left">
+        <span>8</span><span>7</span><span>6</span><span>5</span>
+        <span>4</span><span>3</span><span>2</span><span>1</span>
+      </div>
+
+      <div id="board" class="board"></div>
     </div>
 
-    <div id="board" class="board"></div>
+    <div class="move-history">
+      <h2 class="text-xl font-bold mb-2">Historial</h2>
+      <table class="text-sm border-collapse w-full">
+        <thead>
+          <tr><th>#</th><th>Blancas</th><th>Negras</th></tr>
+        </thead>
+        <tbody id="move-body"></tbody>
+      </table>
+    </div>
   </div>
 
   <script is:inline>
@@ -35,6 +51,22 @@ import "../styles/chessboard.css";
       const board = /** @type {HTMLElement} */ (
         document.getElementById("board")
       );
+
+      const moveBody = /** @type {HTMLTableSectionElement | null} */ (
+        document.getElementById("move-body")
+      );
+
+      if (moveBody) {
+        for (let i = 0; i < 60; i++) {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${i + 1}</td><td></td><td></td>`;
+          moveBody.appendChild(row);
+        }
+      }
+
+
+      /** @type {string[][]} */
+      const moveHistory = [];
 
       /** @type {HTMLElement | null} */
       let selectedSquare = null;
@@ -91,6 +123,78 @@ import "../styles/chessboard.css";
        */
       function getPieceImage(piece) {
         return piece ? `/pieces/${piece.color[0]}_${piece.type}.svg` : "";
+      }
+
+      /**
+       * @param {"white" | "black"} color
+       * @returns {boolean}
+       */
+      function playerHasLegalMoves(color) {
+        for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            const piece = initialBoard[r][c];
+            if (piece && piece.color === color) {
+              const legal = getLegalMoves(r, c, piece);
+              if (legal.length > 0) return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      function updateGameStatus() {
+        const statusEl = document.getElementById("game-status");
+        if (!statusEl) return;
+
+        const turn = currentTurn;
+        const enemy = turn === "white" ? "black" : "white";
+
+        const inCheck = isKingInCheck(initialBoard, turn);
+
+        const hasMoves = playerHasLegalMoves(turn);
+
+        if (!hasMoves) {
+          if (inCheck) {
+            statusEl.textContent = `Jaque mate: ganan las ${enemy === "white" ? "blancas" : "negras"}`;
+          } else {
+            statusEl.textContent = "Tablas por ahogado";
+          }
+          return;
+        }
+
+        if (inCheck) {
+          statusEl.textContent = `Jaque a las ${turn === "white" ? "blancas" : "negras"}`;
+        } else {
+          statusEl.textContent = `Turno de las ${turn === "white" ? "blancas" : "negras"}`;
+        }
+      }
+
+      /**
+       * @param {string} notation
+       */
+      function recordMove(notation) {
+        if (!moveBody) return;
+
+        if (currentTurn === "white") {
+          moveHistory.push([notation, ""]);
+        } else {
+          const last = moveHistory[moveHistory.length - 1];
+          if (last) last[1] = notation;
+        }
+
+        const rows = moveBody.querySelectorAll("tr");
+        moveHistory.forEach((pair, i) => {
+          const cells = rows[i]?.querySelectorAll("td");
+          if (cells?.length === 3) {
+            cells[1].textContent = pair[0];
+            cells[2].textContent = pair[1];
+          }
+        });
+
+        moveBody.parentElement?.scrollTo({
+          top: moveBody.scrollHeight,
+          behavior: "smooth"
+        });
       }
 
       /**
@@ -175,7 +279,6 @@ import "../styles/chessboard.css";
       function isSquareAttacked(boardState, row, col, color) {
         const enemy = color === "white" ? "black" : "white";
 
-        // Pawn attacks
         const pawnDir = enemy === "white" ? -1 : 1;
         for (const dc of [-1, 1]) {
           const r = row + pawnDir;
@@ -186,7 +289,6 @@ import "../styles/chessboard.css";
           }
         }
 
-        // Horse attacks
         const horseDeltas = [
           [-2, -1],
           [-2, 1],
@@ -206,7 +308,6 @@ import "../styles/chessboard.css";
           }
         }
 
-        // Sliding pieces
         const directions = [
           [-1, 0],
           [1, 0],
@@ -239,7 +340,6 @@ import "../styles/chessboard.css";
           }
         }
 
-        // King attacks
         const kingDeltas = [
           [-1, -1],
           [-1, 0],
@@ -667,7 +767,6 @@ import "../styles/chessboard.css";
         enableDrag(/** @type {HTMLImageElement} */ (pieceImg), toRow, toCol);
       }
 
-      // Construcción del tablero y listeners
       for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
           const square = document.createElement("div");
@@ -748,10 +847,26 @@ import "../styles/chessboard.css";
             applySpecialMoves(fromRow, fromCol, row, col, selectedPiece);
             movePieceDOM(fromRow, fromCol, row, col);
 
+            const pieceSymbol = {
+              pawn: "",
+              rook: "R",
+              horse: "N",
+              bishop: "B",
+              queen: "Q",
+              king: "K"
+            }[selectedPiece.type];
+
+            const file = String.fromCharCode(97 + col);
+            const rank = 8 - row;
+
+            const moveNotation = `${pieceSymbol}${file}${rank}`;
+            recordMove(moveNotation);
+
             selectedSquare = null;
             highlightSquare(null);
             clearLegalMoves();
             switchTurn();
+            updateGameStatus();
           });
 
           square.addEventListener("dragover", (e /** @type {DragEvent} */) => {
@@ -796,10 +911,26 @@ import "../styles/chessboard.css";
             applySpecialMoves(fromRow, fromCol, toRow, toCol, movingPiece);
             movePieceDOM(fromRow, fromCol, toRow, toCol);
 
+            const pieceSymbol = {
+              pawn: "",
+              rook: "R",
+              horse: "N",
+              bishop: "B",
+              queen: "Q",
+              king: "K"
+            }[movingPiece.type];
+
+            const file = String.fromCharCode(97 + toCol);
+            const rank = 8 - toRow;
+
+            const moveNotation = `${pieceSymbol}${file}${rank}`;
+            recordMove(moveNotation);
+
             clearLegalMoves();
             selectedSquare = null;
             highlightSquare(null);
             switchTurn();
+            updateGameStatus();
           });
 
           board.appendChild(square);

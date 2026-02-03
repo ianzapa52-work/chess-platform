@@ -1,8 +1,23 @@
+.game-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.game-status {
+  width: 160px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-top: 1rem;
+}
+
 .board-wrapper {
   position: relative;
   width: 640px;
   height: 640px;
-  margin: 0 auto;
+  flex-shrink: 0;
+  margin: 0;
 }
 
 .coords-top {
@@ -42,6 +57,28 @@
   width: 640px;
   height: 640px;
   border: 4px solid #333;
+}
+
+.move-history {
+  width: 220px;
+  height: 640px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  background-color: #f9f9f9;
+  flex-shrink: 0;
+}
+
+.move-history table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.move-history th,
+.move-history td {
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  text-align: center;
 }
 
 .square {
