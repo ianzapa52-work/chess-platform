@@ -215,9 +215,22 @@ import "../styles/chessboard.css";
        * @param {number} col
        */
       function enableDrag(img, row, col) {
-        img.addEventListener("dragstart", (e /** @type {DragEvent} */) => {
+        img.addEventListener("dragstart", (e) => {
           if (!e.dataTransfer) return;
           e.dataTransfer.setData("text/plain", `${row},${col}`);
+
+          const piece = initialBoard[row][col];
+          if (!piece || !isPieceTurn(piece)) return;
+
+          // Seleccionar la casilla actual
+          selectedSquare = board.querySelector(
+            `[data-row="${row}"][data-col="${col}"]`
+          );
+          highlightSquare(selectedSquare);
+
+          // Calcular y mostrar movimientos legales
+          const legal = getLegalMoves(row, col, piece);
+          highlightLegalMoves(legal);
         });
       }
 
@@ -805,7 +818,6 @@ import "../styles/chessboard.css";
 
             if (!selectedSquare) {
               if (pieceHere && isPieceTurn(pieceHere)) {
-                // Seleccionar pieza
                 selectedSquare = square;
                 highlightSquare(square);
 
@@ -847,7 +859,25 @@ import "../styles/chessboard.css";
             applySpecialMoves(fromRow, fromCol, row, col, selectedPiece);
             movePieceDOM(fromRow, fromCol, row, col);
 
-            const pieceSymbol = {
+            // NOTACIÓN AVANZADA
+
+            // 1. Enroque
+            if (selectedPiece.type === "king" && Math.abs(fromCol - col) === 2) {
+              const notation = col === 6 ? "O-O" : "O-O-O";
+              recordMove(notation);
+              selectedSquare = null;
+              highlightSquare(null);
+              clearLegalMoves();
+              switchTurn();
+              updateGameStatus();
+              return;
+            }
+
+            // 2. Captura
+            const isCapture = pieceHere !== null && pieceHere.color !== selectedPiece.color;
+
+            // 3. Símbolo de pieza
+            let pieceSymbol = {
               pawn: "",
               rook: "R",
               horse: "N",
@@ -856,11 +886,49 @@ import "../styles/chessboard.css";
               king: "K"
             }[selectedPiece.type];
 
+            // 4. Archivo y fila destino
             const file = String.fromCharCode(97 + col);
             const rank = 8 - row;
 
-            const moveNotation = `${pieceSymbol}${file}${rank}`;
-            recordMove(moveNotation);
+            // 5. Construcción base de la notación
+            let notation = "";
+
+            // Peón capturando → exd5
+            if (selectedPiece.type === "pawn" && isCapture) {
+              const fromFile = String.fromCharCode(97 + fromCol);
+              notation = `${fromFile}x${file}${rank}`;
+            }
+            // Peón moviendo normal → e4
+            else if (selectedPiece.type === "pawn") {
+              notation = `${file}${rank}`;
+            }
+            // Pieza capturando → Nxf3
+            else if (isCapture) {
+              notation = `${pieceSymbol}x${file}${rank}`;
+            }
+            // Pieza moviendo normal → Nf3
+            else {
+              notation = `${pieceSymbol}${file}${rank}`;
+            }
+
+            // 6. Promoción
+            if (selectedPiece.type === "pawn" && (row === 0 || row === 7)) {
+              notation += "=Q";
+            }
+
+            // 7. Jaque / Mate
+            const enemy = currentTurn === "white" ? "black" : "white";
+            const enemyInCheck = isKingInCheck(initialBoard, enemy);
+            const enemyHasMoves = playerHasLegalMoves(enemy);
+
+            if (enemyInCheck && !enemyHasMoves) {
+              notation += "#";
+            } else if (enemyInCheck) {
+              notation += "+";
+            }
+
+            // 8. Registrar movimiento
+            recordMove(notation);
 
             selectedSquare = null;
             highlightSquare(null);
@@ -900,18 +968,36 @@ import "../styles/chessboard.css";
             }
 
             const legal = getLegalMoves(fromRow, fromCol, movingPiece);
-            const isLegal = legal.some(
-              ([r, c]) => r === toRow && c === toCol
-            );
+            const isLegal = legal.some(([r, c]) => r === toRow && c === toCol);
             if (!isLegal) return;
 
+            // --- CAPTURA: detectar ANTES de mover ---
+            const targetPiece = initialBoard[toRow][toCol];
+            const isCapture = targetPiece !== null && targetPiece.color !== movingPiece.color;
+
+            // --- MOVER PIEZA ---
             initialBoard[toRow][toCol] = movingPiece;
             initialBoard[fromRow][fromCol] = null;
 
             applySpecialMoves(fromRow, fromCol, toRow, toCol, movingPiece);
             movePieceDOM(fromRow, fromCol, toRow, toCol);
 
-            const pieceSymbol = {
+            // --- NOTACIÓN AVANZADA ---
+
+            // 1. Enroque
+            if (movingPiece.type === "king" && Math.abs(fromCol - toCol) === 2) {
+              const notation = toCol === 6 ? "O-O" : "O-O-O";
+              recordMove(notation);
+              clearLegalMoves();
+              selectedSquare = null;
+              highlightSquare(null);
+              switchTurn();
+              updateGameStatus();
+              return;
+            }
+
+            // 2. Símbolo de pieza
+            let pieceSymbol = {
               pawn: "",
               rook: "R",
               horse: "N",
@@ -920,11 +1006,49 @@ import "../styles/chessboard.css";
               king: "K"
             }[movingPiece.type];
 
+            // 3. Archivo y fila destino
             const file = String.fromCharCode(97 + toCol);
             const rank = 8 - toRow;
 
-            const moveNotation = `${pieceSymbol}${file}${rank}`;
-            recordMove(moveNotation);
+            // 4. Construcción base de la notación
+            let notation = "";
+
+            // Peón capturando → exd5
+            if (movingPiece.type === "pawn" && isCapture) {
+              const fromFile = String.fromCharCode(97 + fromCol);
+              notation = `${fromFile}x${file}${rank}`;
+            }
+            // Peón moviendo normal → e4
+            else if (movingPiece.type === "pawn") {
+              notation = `${file}${rank}`;
+            }
+            // Pieza capturando → Nxf3
+            else if (isCapture) {
+              notation = `${pieceSymbol}x${file}${rank}`;
+            }
+            // Pieza moviendo normal → Nf3
+            else {
+              notation = `${pieceSymbol}${file}${rank}`;
+            }
+
+            // 5. Promoción
+            if (movingPiece.type === "pawn" && (toRow === 0 || toRow === 7)) {
+              notation += "=Q";
+            }
+
+            // 6. Jaque / Mate
+            const enemy = currentTurn === "white" ? "black" : "white";
+            const enemyInCheck = isKingInCheck(initialBoard, enemy);
+            const enemyHasMoves = playerHasLegalMoves(enemy);
+
+            if (enemyInCheck && !enemyHasMoves) {
+              notation += "#";
+            } else if (enemyInCheck) {
+              notation += "+";
+            }
+
+            // 7. Registrar movimiento
+            recordMove(notation);
 
             clearLegalMoves();
             selectedSquare = null;
@@ -932,7 +1056,6 @@ import "../styles/chessboard.css";
             switchTurn();
             updateGameStatus();
           });
-
           board.appendChild(square);
         }
       }
