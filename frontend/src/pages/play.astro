@@ -312,7 +312,7 @@ import "../styles/chessboard.css";
       function isSquareAttacked(boardState, row, col, color) {
         const enemy = color === "white" ? "black" : "white";
 
-        const pawnDir = enemy === "white" ? -1 : 1;
+        const pawnDir = enemy === "white" ? 1 : -1;
         for (const dc of [-1, 1]) {
           const r = row + pawnDir;
           const c = col + dc;
