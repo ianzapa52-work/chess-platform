@@ -39,6 +39,9 @@ import "../styles/chessboard.css";
       /** @type {HTMLElement | null} */
       let selectedSquare = null;
 
+      /** @type {[number, number][]} */
+      let currentLegalMoves = [];
+
       /** @type {"white" | "black"} */
       let currentTurn = "white";
 
@@ -121,6 +124,28 @@ import "../styles/chessboard.css";
         const prev = board.querySelector(".selected");
         if (prev) prev.classList.remove("selected");
         if (square) square.classList.add("selected");
+      }
+
+      /**
+       * @param {[number, number][]} moves
+       */
+      function highlightLegalMoves(moves) {
+        clearLegalMoves();
+        currentLegalMoves = moves;
+        for (const [r, c] of moves) {
+          const sq = board.querySelector(
+            `[data-row="${r}"][data-col="${c}"]`
+          );
+          if (sq) {
+            sq.classList.add("legal-move");
+          }
+        }
+      }
+
+      function clearLegalMoves() {
+        const prev = board.querySelectorAll(".legal-move");
+        prev.forEach((sq) => sq.classList.remove("legal-move"));
+        currentLegalMoves = [];
       }
 
       /**
@@ -662,54 +687,71 @@ import "../styles/chessboard.css";
 
             enableDrag(img, row, col);
 
+            img.addEventListener("dragstart", () => {
+            const piece = initialBoard[row][col];
+            if (!piece || !isPieceTurn(piece)) return;
+
+            selectedSquare = square;
+            highlightSquare(square);
+
+            const legal = getLegalMoves(row, col, piece);
+            highlightLegalMoves(legal);
+          });
+
             square.appendChild(img);
           }
 
           square.addEventListener("click", () => {
             const pieceHere = initialBoard[row][col];
 
-            if (!selectedSquare && pieceHere && !isPieceTurn(pieceHere)) return;
-
-            if (selectedSquare) {
-              const fromRow = Number(selectedSquare.dataset.row);
-              const fromCol = Number(selectedSquare.dataset.col);
-              const toRow = row;
-              const toCol = col;
-
-              if (fromRow === toRow && fromCol === toCol) {
-                selectedSquare = null;
-                highlightSquare(null);
-                return;
-              }
-
-              const movingPiece = initialBoard[fromRow][fromCol];
-              if (!movingPiece) return;
-
-              const legal = getLegalMoves(fromRow, fromCol, movingPiece);
-              const isLegal = legal.some(
-                ([r, c]) => r === toRow && c === toCol
-              );
-              if (!isLegal) return;
-
-              initialBoard[toRow][toCol] = movingPiece;
-              initialBoard[fromRow][fromCol] = null;
-
-              applySpecialMoves(fromRow, fromCol, toRow, toCol, movingPiece);
-              movePieceDOM(fromRow, fromCol, toRow, toCol);
-
-              selectedSquare = null;
-              highlightSquare(null);
-              switchTurn();
-            } else {
-              if (
-                square.querySelector("img") &&
-                pieceHere &&
-                isPieceTurn(pieceHere)
-              ) {
+            if (!selectedSquare) {
+              if (pieceHere && isPieceTurn(pieceHere)) {
+                // Seleccionar pieza
                 selectedSquare = square;
                 highlightSquare(square);
+
+                const legal = getLegalMoves(row, col, pieceHere);
+                highlightLegalMoves(legal);
               }
+              return;
             }
+
+            const fromRow = Number(selectedSquare.dataset.row);
+            const fromCol = Number(selectedSquare.dataset.col);
+            const selectedPiece = initialBoard[fromRow][fromCol];
+
+            if (pieceHere && isPieceTurn(pieceHere) && (fromRow !== row || fromCol !== col)) {
+              selectedSquare = square;
+              highlightSquare(square);
+
+              const legal = getLegalMoves(row, col, pieceHere);
+              highlightLegalMoves(legal);
+              return;
+            }
+
+            if (fromRow === row && fromCol === col) {
+              selectedSquare = null;
+              highlightSquare(null);
+              clearLegalMoves();
+              return;
+            }
+
+            if (!selectedPiece) return;
+
+            const legal = getLegalMoves(fromRow, fromCol, selectedPiece);
+            const isLegal = legal.some(([r, c]) => r === row && c === col);
+            if (!isLegal) return;
+
+            initialBoard[row][col] = selectedPiece;
+            initialBoard[fromRow][fromCol] = null;
+
+            applySpecialMoves(fromRow, fromCol, row, col, selectedPiece);
+            movePieceDOM(fromRow, fromCol, row, col);
+
+            selectedSquare = null;
+            highlightSquare(null);
+            clearLegalMoves();
+            switchTurn();
           });
 
           square.addEventListener("dragover", (e /** @type {DragEvent} */) => {
@@ -754,6 +796,7 @@ import "../styles/chessboard.css";
             applySpecialMoves(fromRow, fromCol, toRow, toCol, movingPiece);
             movePieceDOM(fromRow, fromCol, toRow, toCol);
 
+            clearLegalMoves();
             selectedSquare = null;
             highlightSquare(null);
             switchTurn();
