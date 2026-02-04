@@ -4,37 +4,29 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <BaseLayout title="Perfil">
   <div class="page-center">
-    <h1 class="text-2xl font-bold mb-4">Perfil</h1>
 
-    <div id="profileData" class="text-lg"></div>
+    <div class="flex justify-center mb-4">
+      <img src="/pieces/w_king.svg" alt="Logo" class="w-12 opacity-80" />
+    </div>
 
-    <button
-      id="logoutBtn"
-      class="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700"
-    >
-      Cerrar sesión
-    </button>
+    <div class="w-[420px] bg-white p-8 rounded-xl shadow-lg">
 
-    <script>
-      const stored = localStorage.getItem("user");
-      const user = stored ? JSON.parse(stored) : null;
+      <h1 class="text-3xl font-bold mb-6 text-center" style="font-family: 'Cinzel', serif;">
+        Perfil
+      </h1>
 
-      const container = document.getElementById("profileData") as HTMLDivElement;
-      const logoutBtn = document.getElementById("logoutBtn") as HTMLButtonElement;
+      <div id="profileData" class="flex flex-col gap-4 text-center text-lg">
+        
+      </div>
 
-      if (!user) {
-        container.innerHTML = "No has iniciado sesión.";
-      } else {
-        container.innerHTML = `
-          <p><strong>Email:</strong> ${user.email}</p>
-          ${user.name ? `<p><strong>Nombre:</strong> ${user.name}</p>` : ""}
-        `;
-      }
-
-      logoutBtn.onclick = () => {
-        localStorage.removeItem("user");
-        window.location.href = "/";
-      };
-    </script>
+      <button
+        id="logoutBtn"
+        class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition mt-6"
+      >
+        Cerrar sesión
+      </button>
+    </div>
   </div>
+
+  <script type="module" src="/src/scripts/profile.js"></script>
 </BaseLayout>
