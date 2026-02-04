@@ -10,7 +10,6 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 3rem;
 }
 
 /* Enlaces del menú */
@@ -41,4 +40,12 @@ main {
 .nav-link.active {
   color: #1e3a8a;
   border-color: #1e3a8a;
+}
+
+.page-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }

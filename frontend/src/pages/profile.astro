@@ -3,36 +3,38 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Perfil">
-  <h1 class="text-2xl font-bold mb-4">Perfil</h1>
+  <div class="page-center">
+    <h1 class="text-2xl font-bold mb-4">Perfil</h1>
 
-  <div id="profileData" class="text-lg"></div>
+    <div id="profileData" class="text-lg"></div>
 
-  <button
-    id="logoutBtn"
-    class="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700"
-  >
-    Cerrar sesión
-  </button>
+    <button
+      id="logoutBtn"
+      class="mt-4 bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700"
+    >
+      Cerrar sesión
+    </button>
 
-  <script>
-    const stored = localStorage.getItem("user");
-    const user = stored ? JSON.parse(stored) : null;
+    <script>
+      const stored = localStorage.getItem("user");
+      const user = stored ? JSON.parse(stored) : null;
 
-    const container = document.getElementById("profileData") as HTMLDivElement;
-    const logoutBtn = document.getElementById("logoutBtn") as HTMLButtonElement;
+      const container = document.getElementById("profileData") as HTMLDivElement;
+      const logoutBtn = document.getElementById("logoutBtn") as HTMLButtonElement;
 
-    if (!user) {
-      container.innerHTML = "No has iniciado sesión.";
-    } else {
-      container.innerHTML = `
-        <p><strong>Email:</strong> ${user.email}</p>
-        ${user.name ? `<p><strong>Nombre:</strong> ${user.name}</p>` : ""}
-      `;
-    }
+      if (!user) {
+        container.innerHTML = "No has iniciado sesión.";
+      } else {
+        container.innerHTML = `
+          <p><strong>Email:</strong> ${user.email}</p>
+          ${user.name ? `<p><strong>Nombre:</strong> ${user.name}</p>` : ""}
+        `;
+      }
 
-    logoutBtn.onclick = () => {
-      localStorage.removeItem("user");
-      window.location.href = "/";
-    };
-  </script>
+      logoutBtn.onclick = () => {
+        localStorage.removeItem("user");
+        window.location.href = "/";
+      };
+    </script>
+  </div>
 </BaseLayout>
