@@ -1,24 +1,44 @@
-# build output
+# BUILD OUTPUT
 dist/
-# generated types
 .astro/
 
-# dependencies
+# DEPENDENCIES
 node_modules/
 
-# logs
+# LOGS
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-
-# environment variables
+# ENVIRONMENT VARIABLES
 .env
-.env.production
+.env.*
+!.env.example
 
-# macOS-specific files
+# OS-SPECIFIC FILES
 .DS_Store
+Thumbs.db
 
-# jetbrains setting folder
+# EDITOR / IDE SETTINGS
+.vscode/
 .idea/
+*.code-workspace
+
+# TYPESCRIPT
+*.tsbuildinfo
+
+# ASTRO / VITE TEMP FILES
+.vite/
+.cache/
+
+# DOCKER
+docker-data/
+*.pid
+
+# MISC
+*.log
+*.tmp
+*.swp
+*.swo
