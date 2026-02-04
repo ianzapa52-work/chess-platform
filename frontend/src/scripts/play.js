@@ -150,6 +150,7 @@ window.addEventListener("load", () => {
     const map = { p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king" };
     const img = document.createElement("img");
     img.src = `/pieces/${capturedColor[0]}_${map[move.captured]}.svg`;
+    img.alt = "";
     img.classList.add("w-8", "h-8");
     container.appendChild(img);
   }
@@ -178,6 +179,7 @@ window.addEventListener("load", () => {
     if (piece) {
       const img = document.createElement("img");
       img.src = getPieceImage(piece);
+      img.alt = "";
       img.className = "piece";
       img.draggable = true;
       enableDrag(img, toRow, toCol);
@@ -202,6 +204,7 @@ window.addEventListener("load", () => {
         if (piece) {
           const img = document.createElement("img");
           img.src = getPieceImage(piece);
+          img.alt = "";
           img.className = "piece";
           img.draggable = true;
 

@@ -1,1 +1,44 @@
 @import "tailwindcss";
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 3rem;
+}
+
+/* Enlaces del menú */
+.nav-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 1rem 0;
+}
+
+.nav-link {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  color: #333;
+  text-decoration: none;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.nav-link:hover {
+  color: #1e40af;
+  border-color: #1e40af;
+}
+
+.nav-link.active {
+  color: #1e3a8a;
+  border-color: #1e3a8a;
+}
