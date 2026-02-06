@@ -1,7 +1,41 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/chessboard.css";
 ---
 
 <BaseLayout title="Puzzles">
-  <h1 class="text-2xl font-bold mb-4">Puzzles</h1>
+
+  <div class="game-layout">
+
+    <div class="game-status">
+      <p id="puzzleObjective" class="text-lg font-semibold bg-white shadow px-3 py-2 rounded-md">
+        Cargando puzzle...
+      </p>
+
+      <button
+        id="nextPuzzle"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition shadow mt-4 w-full"
+      >
+        Siguiente puzzle
+      </button>
+    </div>
+
+    <!-- Tablero con el mismo wrapper -->
+    <div class="board-wrapper">
+      <div class="coords-top">
+        <span>A</span><span>B</span><span>C</span><span>D</span>
+        <span>E</span><span>F</span><span>G</span><span>H</span>
+      </div>
+
+      <div class="coords-left">
+        <span>8</span><span>7</span><span>6</span><span>5</span>
+        <span>4</span><span>3</span><span>2</span><span>1</span>
+      </div>
+
+      <div id="puzzle-board" class="board"></div>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/scripts/puzzles.js"></script>
 </BaseLayout>
