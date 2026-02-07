@@ -167,3 +167,36 @@
   text-align: center;
   font-size: 0.9rem;
 }
+
+.wrong-move {
+  animation: wrongPulse 1s ease-in-out;
+}
+
+@keyframes wrongPulse {
+  0%   { background-color: #ff0000; }
+  12%  { background-color: #ff6666; }
+  25%  { background-color: #ff0000; }
+
+  37%  { background-color: #ff6666; }
+  50%  { background-color: #ff0000; }
+
+  62%  { background-color: #ff6666; }
+  75%  { background-color: #ff0000; }
+
+  100% { background-color: #ff0000; }
+}
+
+.correct-move {
+  animation: correctPulseSoft 2.2s ease-in-out infinite;
+}
+
+@keyframes correctPulseSoft {
+  0%   { background-color: #00b300; }
+  50%  { background-color: #33cc33; }
+  100% { background-color: #00b300; }
+}
+
+
+
+
+

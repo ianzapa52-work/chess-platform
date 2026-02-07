@@ -98,7 +98,85 @@ window.addEventListener("load", () => {
         );
     }
 
-    // RENDER TABLERO
+    // ANIMACIÓN DE ERROR
+    /**
+     * @param {number} row
+     * @param {number} col}
+     */
+    function showWrongMove(row, col) {
+        const sq = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        if (!(sq instanceof HTMLElement)) return;
+
+        sq.classList.add("wrong-move");
+
+        setTimeout(() => {
+            sq.classList.remove("wrong-move");
+        }, 1000);
+    }
+
+    // ANIMACIÓN DE ACIERTO
+    /**
+     * @param {number} row
+     * @param {number} col}
+     */
+    function showCorrectMove(row, col) {
+        const sq = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        if (!(sq instanceof HTMLElement)) return;
+
+        sq.classList.add("correct-move");
+    }
+
+    /**
+     * @param {Square} from
+     * @param {Square} to
+     * @param {ChessMove} move
+     */
+    function updateSingleMove(from, to, move) {
+        const { row: fromRow, col: fromCol } = squareToCoord(from);
+        const { row: toRow, col: toCol } = squareToCoord(to);
+
+        const fromSq = boardEl.querySelector(`[data-row="${fromRow}"][data-col="${fromCol}"]`);
+        const toSq = boardEl.querySelector(`[data-row="${toRow}"][data-col="${toCol}"]`);
+
+        if (!(fromSq instanceof HTMLElement) || !(toSq instanceof HTMLElement)) return;
+
+        // limpiar origen
+        fromSq.innerHTML = "";
+
+        // poner pieza en destino
+        const piece = game.get(to);
+        if (piece) {
+            const img = document.createElement("img");
+            img.src = getPieceImage(piece);
+            img.className = "piece";
+            img.draggable = true;
+            enableDrag(img, toRow, toCol);
+            toSq.innerHTML = "";
+            toSq.appendChild(img);
+        }
+
+        // restaurar pieza capturada si existe
+        if (move.captured) {
+            const capturedSquare = move.to; // la pieza capturada estaba en "to"
+            const { row: capRow, col: capCol } = squareToCoord(capturedSquare);
+            const capSq = boardEl.querySelector(`[data-row="${capRow}"][data-col="${capCol}"]`);
+
+            if (capSq instanceof HTMLElement) {
+                const restored = game.get(capturedSquare);
+                if (restored) {
+                    const img = document.createElement("img");
+                    img.src = getPieceImage(restored);
+                    img.className = "piece";
+                    img.draggable = true;
+                    enableDrag(img, capRow, capCol);
+                    capSq.innerHTML = "";
+                    capSq.appendChild(img);
+                }
+            }
+        }
+    }
+
+    // RENDER INICIAL
     function renderBoard() {
         const state = game.board();
 
@@ -112,9 +190,7 @@ window.addEventListener("load", () => {
 
                 if (piece) {
                     const img = document.createElement("img");
-                    img.src = getPieceImage(
-                        /** @type {{color:"w"|"b", type:"p"|"r"|"n"|"b"|"q"|"k"}} */ (piece)
-                    );
+                    img.src = getPieceImage(piece);
                     img.className = "piece";
                     img.draggable = true;
                     enableDrag(img, row, col);
@@ -128,7 +204,7 @@ window.addEventListener("load", () => {
     /**
      * @param {HTMLImageElement} img
      * @param {number} row
-     * @param {number} col
+     * @param {number} col}
      */
     function enableDrag(img, row, col) {
         img.addEventListener("dragstart", (e) => {
@@ -201,7 +277,9 @@ window.addEventListener("load", () => {
             return;
         }
 
-        renderBoard();
+        // Movimiento suave
+        updateSingleMove(selectedSquare, target, move);
+
         selectedSquare = null;
         highlightSquare(null);
         clearLegalMoves();
@@ -210,13 +288,16 @@ window.addEventListener("load", () => {
         const correct = puzzles[index].solution;
 
         if (played === correct) {
-            alert("¡Correcto!");
-            index = (index + 1) % puzzles.length;
-            loadPuzzle();
+            const { row: r, col: c } = squareToCoord(target);
+            showCorrectMove(r, c);
         } else {
-            alert("Incorrecto, intenta otra vez");
-            game.undo();
-            renderBoard();
+            const { row: r, col: c } = squareToCoord(target);
+            showWrongMove(r, c);
+
+            setTimeout(() => {
+                const undoMove = game.undo();
+                if (undoMove) updateSingleMove(undoMove.to, undoMove.from, undoMove);
+            }, 1000);
         }
     }
 
@@ -229,7 +310,7 @@ window.addEventListener("load", () => {
             square.dataset.col = String(col);
 
             const isDark = (row + col) % 2 === 1;
-            square.style.backgroundColor = isDark ? "#769656" : "#eeeed2";
+            square.style.backgroundColor = isDark ? "#769656" : "#eeeed2"
 
             square.addEventListener("click", () => handleSquareClick(row, col));
 
@@ -257,7 +338,9 @@ window.addEventListener("load", () => {
                 const move = game.move({ from, to, promotion: "q" });
                 if (!move) return;
 
-                renderBoard();
+                // Movimiento suave
+                updateSingleMove(from, to, move);
+
                 selectedSquare = null;
                 highlightSquare(null);
                 clearLegalMoves();
@@ -266,13 +349,16 @@ window.addEventListener("load", () => {
                 const correct = puzzles[index].solution;
 
                 if (played === correct) {
-                    alert("¡Correcto!");
-                    index = (index + 1) % puzzles.length;
-                    loadPuzzle();
+                    const { row: r, col: c } = squareToCoord(to);
+                    showCorrectMove(r, c);
                 } else {
-                    alert("Incorrecto, intenta otra vez");
-                    game.undo();
-                    renderBoard();
+                    const { row: r, col: c } = squareToCoord(to);
+                    showWrongMove(r, c);
+
+                    setTimeout(() => {
+                        const undoMove = game.undo();
+                        if (undoMove) updateSingleMove(undoMove.to, undoMove.from, undoMove);
+                    }, 1000);
                 }
             });
 
@@ -294,6 +380,17 @@ window.addEventListener("load", () => {
         selectedSquare = null;
         highlightSquare(null);
         clearLegalMoves();
+
+        // limpiar animación verde
+        boardEl.querySelectorAll(".correct-move").forEach(sq => {
+            sq.classList.remove("correct-move");
+        });
+
+        // limpiar animación roja si se encontraba en activo
+        boardEl.querySelectorAll(".wrong-move").forEach(sq => {
+            sq.classList.remove("wrong-move");
+        });
+
         renderBoard();
     }
 
