@@ -15,8 +15,40 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         Perfil
       </h1>
 
-      <div id="profileData" class="flex flex-col gap-4 text-center text-lg">
-        
+      <!-- Estado invitado -->
+      <div id="profile-guest" class="hidden text-center flex flex-col gap-4">
+        <p class="text-gray-600">No has iniciado sesión.</p>
+        <a href="/register" class="w-full bg-green-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
+          Crear cuenta
+        </a>
+        <a href="/login" class="w-full bg-blue-600 hover:bg-gray-700 text-white font-semibold py-2 rounded-lg transition">
+          Iniciar sesión
+        </a>
+      </div>
+
+      <!-- Estado usuario -->
+      <div id="profile-user" class="hidden flex flex-col gap-4 text-lg">
+
+        <div class="text-center mb-4">
+          <p class="text-2xl font-bold" id="profile-username"></p>
+          <p class="text-gray-600" id="profile-email"></p>
+        </div>
+
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <h2 class="font-semibold mb-2">Estadísticas generales</h2>
+          <p id="stat-rating"></p>
+          <p id="stat-games"></p>
+          <p id="stat-wins"></p>
+          <p id="stat-losses"></p>
+          <p id="stat-draws"></p>
+        </div>
+
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <h2 class="font-semibold mb-2">Puzzles</h2>
+          <p id="stat-puzzles-solved"></p>
+          <p id="stat-puzzles-failed"></p>
+        </div>
+
       </div>
 
       <button
