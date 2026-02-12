@@ -255,6 +255,7 @@ window.addEventListener("load", () => {
     const target = coordToSquare(row, col);
     const pieceHere = game.get(target);
 
+    // 1. Si NO hay pieza seleccionada
     if (!selectedSquare) {
       if (pieceHere && pieceHere.color === game.turn()) {
         selectedSquare = target;
@@ -268,6 +269,19 @@ window.addEventListener("load", () => {
       return;
     }
 
+    // 2. Si haces clic en otra pieza del mismo color → CAMBIAR SELECCIÓN
+    if (pieceHere && pieceHere.color === game.turn() && target !== selectedSquare) {
+      selectedSquare = target;
+
+      const sqEl = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      highlightSquare(sqEl);
+
+      const moves = game.moves({ square: target, verbose: true });
+      highlightLegalMoves(moves.map((m) => m.to));
+      return;
+    }
+
+    // 3. Si haces clic en la misma pieza → deseleccionar
     if (target === selectedSquare) {
       selectedSquare = null;
       highlightSquare(null);
@@ -275,24 +289,14 @@ window.addEventListener("load", () => {
       return;
     }
 
+    // 4. Intentar mover
     const move = game.move({
       from: selectedSquare,
       to: target,
       promotion: "q"
     });
 
-    if (!move) {
-      if (pieceHere && pieceHere.color === game.turn()) {
-        selectedSquare = target;
-
-        const sqEl = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-        highlightSquare(sqEl);
-
-        const moves = game.moves({ square: target, verbose: true });
-        highlightLegalMoves(moves.map((m) => m.to));
-      }
-      return;
-    }
+    if (!move) return;
 
     registerCapture(move);
     updateSingleMove(selectedSquare, target, move);

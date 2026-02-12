@@ -25,20 +25,35 @@ window.addEventListener("load", () => {
     let selectedSquare = null;
 
     // PUZZLES
-    const puzzles = [
-        {
-            fen: "8/8/8/8/8/2k5/8/2K5 w - - 0 1",
-            solution: "c1c2",
-            objective: "Jugada simple de práctica"
-        },
-        {
-            fen: "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 3",
-            solution: "f3g5",
-            objective: "Encuentra la jugada ganadora"
-        }
-    ];
-
+    /** @type {number} */
     let index = 0;
+
+    /** 
+     * @type {{fen:string, solution:string, objective:string}[]} 
+     */
+    let puzzles = [];
+
+    /**
+     * @param {number} min
+     * @param {number} max
+     */
+    async function loadPuzzlesByDifficulty(min, max) {
+        const res = await fetch(`http://localhost:3000/api/puzzles?min=${min}&max=${max}`);
+        const text = await res.text();
+        const lines = text.trim().split("\n");
+
+        puzzles = lines.map(line => {
+            const p = JSON.parse(line);
+            return {
+                fen: p.fen,
+                solution: p.moves.split(" ").join(""),
+                objective: `Puzzle rating ${p.rating}`
+            };
+        });
+
+        index = 0;
+        loadPuzzle();
+    }
 
     // UTILIDADES
     /**
@@ -394,5 +409,5 @@ window.addEventListener("load", () => {
         renderBoard();
     }
 
-    loadPuzzle();
+    loadPuzzlesByDifficulty(1200, 1600);
 });
