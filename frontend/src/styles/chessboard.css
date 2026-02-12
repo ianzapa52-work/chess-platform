@@ -16,6 +16,7 @@
   text-align: center;
   padding-top: 1rem;
   font-size: 1.1rem;
+  font-family: 'Cinzel', serif;
   color: #333;
   margin-right: 2rem;
   position: relative;
@@ -44,11 +45,13 @@
 /* Tablero */
 .board-wrapper {
   position: relative;
+  font-family: 'Cinzel', serif;
   width: 720px;
   height: 720px;
   flex-shrink: 0;
   margin: 0;
   padding: 12px;
+  margin-left: 140px;
   background: #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 3px 12px rgba(0,0,0,0.15);
@@ -72,7 +75,7 @@
 .coords-left {
   position: absolute;
   top: 0;
-  left: -28px;
+  left: -30px;
   width: 28px;
   height: 720px;
   display: grid;
@@ -138,36 +141,137 @@
   transform: scale(0.9);
 }
 
-/* Historial */
+/* CONTENEDOR DEL HISTORIAL */
 .move-history {
-  width: 280px;
-  height: 720px;
-  overflow-y: auto;
-  border: 1px solid #ddd;
-  padding: 1rem;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+  width: 360px;
+  height: 760px;
+
+  /* El contenedor NO hace scroll */
+  overflow: hidden;
+
+  padding: 1.2rem;
+  box-sizing: border-box;
+
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f4c9a3, #e3a578);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  border: 3px solid #8b3f2a;
+  position: relative;
+  z-index: 1;
 }
 
+/* TÍTULO */
 .move-history h2 {
   text-align: center;
   margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #4a1f0f;
+  text-shadow: 0 1px 1px rgba(255,255,255,0.5);
 }
 
+/* TABLA GENERAL */
 .move-history table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1rem;
+  color: #3a1a0f;
+  font-weight: 600;
 }
 
+/* CABECERA FIJA */
+.move-history thead {
+  display: table;
+  width: calc(100% - 16px);
+  table-layout: fixed;
+}
+
+.move-history th {
+  background: linear-gradient(135deg, #8b3f2a, #662a1c);
+  color: #fcefe6;
+  padding: 10px;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.4);
+  border-radius: 10px;
+}
+
+/* ÁREA SCROLLABLE DEL HISTORIAL */
+.move-history tbody {
+  display: block;
+  max-height: 620px;
+  overflow-y: auto;
+  margin-right: -16px;
+  padding-right: 16px;
+  box-sizing: content-box;
+}
+
+/* SCROLLBAR SOLO EN EL TBODY */
+.move-history tbody::-webkit-scrollbar {
+  width: 14px;
+}
+
+.move-history tbody::-webkit-scrollbar-track {
+  background: linear-gradient(135deg, #f4c9a3, #e3a578);
+  border-radius: 18px;
+  margin: 4px;
+}
+
+.move-history tbody::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #8b3f2a, #662a1c);
+  border-radius: 10px;
+  border: 2px solid #f4c9a3;
+}
+
+.move-history tbody::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #a44a33, #7a2f1c);
+}
+
+/* FILAS */
+.move-history tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+
+  background: rgba(255,255,255,0.35);
+  border-radius: 12px;
+  transition: 0.2s ease;
+  margin-top: 6px;
+}
+
+.move-history tbody tr:nth-child(even) {
+  background: rgba(255,255,255,0.25);
+}
+
+.move-history tbody tr:hover {
+  background: rgba(255,255,255,0.45);
+  transform: scale(1.02);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.move-history td {
+  padding: 10px;
+  text-align: center;
+}
+
+/* NÚMERO DE JUGADA */
+.move-history td:first-child {
+  font-weight: 800;
+  color: #4a1f0f;
+}
+
+.move-history td:first-child::after {
+  content: ".";
+  margin-left: 2px;
+}
+
+.move-history,
+.move-history table,
 .move-history th,
 .move-history td {
-  border: 1px solid #ccc;
-  padding: 6px 8px;
-  text-align: center;
-  font-size: 0.9rem;
+  font-family: 'Cinzel', serif;
 }
 
+/* ANIMACIONES */
 .wrong-move {
   animation: wrongPulse 1s ease-in-out;
 }
@@ -176,13 +280,10 @@
   0%   { background-color: #ff0000; }
   12%  { background-color: #ff6666; }
   25%  { background-color: #ff0000; }
-
   37%  { background-color: #ff6666; }
   50%  { background-color: #ff0000; }
-
   62%  { background-color: #ff6666; }
   75%  { background-color: #ff0000; }
-
   100% { background-color: #ff0000; }
 }
 
@@ -195,8 +296,3 @@
   50%  { background-color: #33cc33; }
   100% { background-color: #00b300; }
 }
-
-
-
-
-
