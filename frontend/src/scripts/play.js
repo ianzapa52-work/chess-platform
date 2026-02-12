@@ -318,7 +318,7 @@ window.addEventListener("load", () => {
       square.dataset.col = String(col);
 
       const isDark = (row + col) % 2 === 1;
-      square.style.backgroundColor = isDark ? "#769656" : "#eeeed2";
+      square.classList.add(isDark ? "dark" : "light");
 
       square.addEventListener("click", () => handleSquareClick(row, col));
 

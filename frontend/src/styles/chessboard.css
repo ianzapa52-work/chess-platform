@@ -97,11 +97,11 @@
 }
 
 .square.light {
-  background-color: #f0d9b5;
+  background: linear-gradient(135deg, #f4c9a3, #e3a578);
 }
 
 .square.dark {
-  background-color: #b58863;
+  background: linear-gradient(135deg, #8b3f2a, #662a1c);
 }
 
 .square:hover {

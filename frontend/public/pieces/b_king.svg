@@ -1,12 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="45" height="45">
-  <g style="fill:none; fill-opacity:1; fill-rule:evenodd; stroke:#000000; stroke-width:1.5; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1;">
-    <path d="M 22.5,11.63 L 22.5,6" style="fill:none; stroke:#000000; stroke-linejoin:miter;" id="path6570"/>
-    <path d="M 22.5,25 C 22.5,25 27,17.5 25.5,14.5 C 25.5,14.5 24.5,12 22.5,12 C 20.5,12 19.5,14.5 19.5,14.5 C 18,17.5 22.5,25 22.5,25" style="fill:#000000;fill-opacity:1; stroke-linecap:butt; stroke-linejoin:miter;"/>
-    <path d="M 12.5,37 C 18,40.5 27,40.5 32.5,37 L 32.5,30 C 32.5,30 41.5,25.5 38.5,19.5 C 34.5,13 25,16 22.5,23.5 L 22.5,27 L 22.5,23.5 C 20,16 10.5,13 6.5,19.5 C 3.5,25.5 12.5,30 12.5,30 L 12.5,37" style="fill:#000000; stroke:#000000;"/>
-    <path d="M 20,8 L 25,8" style="fill:none; stroke:#000000; stroke-linejoin:miter;"/>
-    <path d="M 32,29.5 C 32,29.5 40.5,25.5 38.03,19.85 C 34.15,14 25,18 22.5,24.5 L 22.5,26.6 L 22.5,24.5 C 20,18 10.85,14 6.97,19.85 C 4.5,25.5 13,29.5 13,29.5" style="fill:none; stroke:#ffffff;"/>
-    <path d="M 12.5,30 C 18,27 27,27 32.5,30 M 12.5,33.5 C 18,30.5 27,30.5 32.5,33.5 M 12.5,37 C 18,34 27,34 32.5,37" style="fill:none; stroke:#ffffff;"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81 81"><style>.st1{fill:#010101}</style><path d="M0 0h81v81H0z" style="fill:none"/><path d="M58.6 25.5c-6.2 0-9.3 2.6-10.9 4.2l-7.2 12.6-7.2-12.6c-1.6-1.6-4.7-4.2-10.9-4.2-9.7 0-15.3 8-15.3 15.8 0 8.8 3.8 11.9 8.9 22.3V72h49v-8.4c5.1-10.5 8.9-13.5 8.9-22.3 0-7.8-5.6-15.8-15.3-15.8zM40.5 61.6l-3.6-6.4 3.6-6.4 3.6 6.4-3.6 6.4z" class="st1"/><path d="M50.7 21.4v-7.7l-8 .9 1.7-7.4h-7.8l1.7 7.4-8-.9v7.7l8-2.4-3.1 8.9 5.3 11 5.3-11-3.1-8.9z" class="st1"/><path d="m40.5 19.9-2.9 7.6 2.9 6.4zm-17.7 9.2c-7.2 0-11.7 6.4-11.7 12.9 0 4 2.9 8.2 5.8 12 0-12.4 4.6-17.4 12.5-22.6 0 0-2-2.3-6.6-2.3zM43.5 44l7.4-12.7s3.6-2.6 8-2.6 4.5.5 4.5.5L43.5 44zM31.8 15.1l3.8 2.3-3.8 2.3zm17.4 0-6.4 1.2 4.7 1.1zm-6.6-6.2-2.1 1.9-2.1-1.9z" style="fill:#6d6e6e"/></svg>
