@@ -8,29 +8,70 @@ const { title = "Chess Platform" } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Tipografías elegantes -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <title>{title}</title>
   </head>
 
-  <body class="h-screen bg-gray-100 text-gray-900 overflow-hidden">
+  <body class="bg-gray-100 text-gray-900">
 
-    <!-- Header -->
-    <header class="bg-white shadow">
-      <nav class="nav-menu max-w-7xl mx-auto py-4">
-        <a href="/" class="nav-link">Home</a>
-        <a href="/login" class="nav-link">Login</a>
-        <a href="/register" class="nav-link">Registro</a>
-        <a href="/play" class="nav-link">Jugar</a>
-        <a href="/puzzles" class="nav-link">Puzzles</a>
-        <a href="/profile" class="nav-link">Perfil</a>
-      </nav>
-    </header>
+    <nav class="fixed top-0 left-0 w-full h-16 bg-white shadow-md flex items-center px-4 z-50">
 
-    <!-- Contenido -->
-    <main class="max-w-7xl mx-auto h-[calc(100vh-120px)] flex items-start justify-center">
+      <button id="menuBtn" class="text-3xl focus:outline-none">
+        ☰
+      </button>
+
+      <div class="flex-1 text-center">
+        <h1 class="text-xl font-bold tracking-wide" style="font-family: 'Cinzel', serif;">
+          WELIKECHESS
+        </h1>
+      </div>
+
+    </nav>
+
+    <div id="sideMenu"
+      class="fixed top-0 left-0 h-full w-64 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 z-50">
+
+      <div class="p-6">
+        <h2 class="text-2xl font-bold mb-6" style="font-family: 'Cinzel', serif;">
+          Menú
+        </h2>
+
+        <ul class="flex flex-col gap-4 text-lg" style="font-family: 'Cinzel', serif;">
+          <li><a href="/" class="hover:text-indigo-600">Home</a></li>
+          <li><a href="/play" class="hover:text-indigo-600">Jugar</a></li>
+          <li><a href="/puzzles" class="hover:text-indigo-600">Puzzles</a></li>
+          <li><a href="/profile" class="hover:text-indigo-600">Perfil</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="menuOverlay"
+      class="fixed inset-0 bg-black/10 backdrop-blur-xs hidden z-40"></div>
+
+    <main class="pt-20 max-w-7xl mx-auto">
       <slot />
     </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const menuBtn = document.querySelector("#menuBtn");
+        const sideMenu = document.querySelector("#sideMenu");
+        const overlay = document.querySelector("#menuOverlay");
+
+        if (!menuBtn || !sideMenu || !overlay) return;
+
+        menuBtn.addEventListener("click", () => {
+          sideMenu.classList.remove("-translate-x-full");
+          overlay.classList.remove("hidden");
+        });
+
+        overlay.addEventListener("click", () => {
+          sideMenu.classList.add("-translate-x-full");
+          overlay.classList.add("hidden");
+        });
+      });
+    </script>
+
   </body>
 </html>

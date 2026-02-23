@@ -1,20 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const guestBox = document.querySelector("#profile-guest");
   const userBox = document.querySelector("#profile-user");
   const logoutBtn = document.querySelector("#logoutBtn");
 
   const user = JSON.parse(localStorage.getItem("user"));
   const stats = JSON.parse(localStorage.getItem("stats"));
 
-  // Si no hay usuario: mostrar estado invitado
+  // Si no hay usuario → redirigir automáticamente
   if (!user) {
-    guestBox.classList.remove("hidden");
-    logoutBtn.disabled = true;
-    logoutBtn.classList.add("opacity-50", "cursor-not-allowed");
+    window.location.href = "/login";
     return;
   }
 
-  // Si hay usuario: mostrar perfil completo
+  // Mostrar perfil
   userBox.classList.remove("hidden");
 
   // Datos básicos
@@ -39,8 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const s = JSON.parse(localStorage.getItem("stats"));
 
+  // Rating
+  document.querySelector("#stat-rating").textContent = `${s.rating} Elo`;
+
   // Estadísticas generales
-  document.querySelector("#stat-rating").textContent = `Rating: ${s.rating}`;
   document.querySelector("#stat-games").textContent = `Partidas jugadas: ${s.totalGames}`;
   document.querySelector("#stat-wins").textContent = `Victorias: ${s.wins}`;
   document.querySelector("#stat-losses").textContent = `Derrotas: ${s.losses}`;
@@ -49,6 +48,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // Puzzles
   document.querySelector("#stat-puzzles-solved").textContent = `Puzzles resueltos: ${s.puzzlesSolved}`;
   document.querySelector("#stat-puzzles-failed").textContent = `Puzzles fallados: ${s.puzzlesFailed}`;
+
+  // Barra de progreso
+  const totalPuzzles = s.puzzlesSolved + s.puzzlesFailed;
+  const progress = totalPuzzles > 0 ? (s.puzzlesSolved / totalPuzzles) * 100 : 0;
+  document.querySelector("#puzzle-progress").style.width = progress + "%";
+
+  // Fechas
+  document.querySelector("#created-at").textContent =
+    "Cuenta creada: " + new Date(s.createdAt).toLocaleDateString();
+
+  document.querySelector("#last-login").textContent =
+    "Último inicio de sesión: " + new Date(s.lastLogin).toLocaleString();
 
   // Logout
   logoutBtn.addEventListener("click", () => {
