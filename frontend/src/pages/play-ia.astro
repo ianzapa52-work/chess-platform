@@ -1,0 +1,56 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/chessboard.css";
+---
+
+<BaseLayout title="Jugar VS IA">
+
+  <div class="game-layout">
+
+    <div class="game-status flex items-center gap-3">
+      <p id="game-status" class="text-lg font-semibold bg-white shadow px-3 py-2 rounded-md">
+        Turno de las blancas
+      </p>
+
+      <select id="ai-level" class="border rounded px-2 py-1 text-sm">
+        <option value="1">Fácil</option>
+        <option value="5" selected>Medio</option>
+        <option value="10">Difícil</option>
+        <option value="15">Muy difícil</option>
+        <option value="20">Demonio</option>
+      </select>
+    </div>
+
+    <div class="board-wrapper">
+      <div class="coords-top">
+        <span>A</span><span>B</span><span>C</span><span>D</span>
+        <span>E</span><span>F</span><span>G</span><span>H</span>
+      </div>
+
+      <div class="coords-left">
+        <span>8</span><span>7</span><span>6</span><span>5</span>
+        <span>4</span><span>3</span><span>2</span><span>1</span>
+      </div>
+
+      <div id="board" class="board"></div>
+
+      <div id="captured-area" class="mt-4 flex justify-between">
+        <div id="captured-white" class="flex flex-wrap gap-1"></div>
+        <div id="captured-black" class="flex flex-wrap gap-1"></div>
+      </div>
+    </div>
+
+    <div class="move-history">
+      <h2 class="text-xl font-bold mb-2">Historial</h2>
+      <table class="text-sm border-collapse w-full">
+        <thead>
+          <tr><th>#</th><th>Blancas</th><th>Negras</th></tr>
+        </thead>
+        <tbody id="move-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/scripts/play-ia.js"></script>
+</BaseLayout>
