@@ -102,22 +102,14 @@ main {
   width: 100%;
 }
 
-.royal-brand {
-  position: relative;
-  display: inline-block;
-  transition: text-shadow 0.9s ease, filter 0.9s ease;
+#navBrand {
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
 
-.royal-brand:hover {
-  text-shadow: 0 0 10px rgb(255, 208, 0);
-  filter: drop-shadow(0 0 6px rgb(255, 196, 0));
+#navBrand:hover {
+  filter: brightness(1.4);
+  transform: scale(1.05);
 }
-
-.royal-brand.clicked {
-  text-shadow: 0 0 14px rgb(255, 153, 0);
-  filter: drop-shadow(0 0 10px rgba(250, 150, 0, 0.7));
-}
-
 
 .royal-brand-home {
   position: relative;
