@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const king = document.querySelector("#homeKing");
   const card = document.querySelector("#homeCard");
   const buttons = document.querySelectorAll(".home-btn");
+  const brand = document.querySelector("#brandTitle");
 
   if (!king || !card) return;
 
@@ -53,4 +54,23 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     });
   });
+
+  // --- EFECTO ELEGANTE PARA "WELIKECHESS" ---
+  if (brand) {
+    // Brillo suave al pasar el ratón
+    brand.addEventListener("mouseenter", () => {
+      brand.classList.add("text-yellow-500");
+      brand.style.textShadow = "0 0 8px rgba(212, 175, 55, 0.7)";
+    });
+
+    brand.addEventListener("mouseleave", () => {
+      brand.classList.remove("text-yellow-500");
+      brand.style.textShadow = "none";
+    });
+
+    // Subrayado dorado animado al hacer clic
+    brand.addEventListener("click", () => {
+      brand.classList.toggle("active");
+    });
+  }
 });

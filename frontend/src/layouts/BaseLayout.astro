@@ -24,10 +24,10 @@ const { title = "Chess Platform" } = Astro.props;
 
       <div class="flex-1 text-center">
         <h1
-          class="text-3xl md:text-4xl font-bold tracking-widest 
-                 bg-gradient-to-r from-[#5a3e1b] via-[#7a5528] to-[#4a2f14]
-                 bg-clip-text text-transparent 
-                 shadow-gold-strong"
+          id="navBrand"
+          class="royal-brand text-3xl md:text-4xl font-bold tracking-widest 
+                bg-gradient-to-r from-[#5a3e1b] via-[#7a5528] to-[#4a2f14]
+                bg-clip-text text-transparent cursor-pointer"
           style="font-family: 'Cinzel', serif;"
         >
           WELIKECHESS
@@ -55,6 +55,7 @@ const { title = "Chess Platform" } = Astro.props;
           <li><a href="/history" class="menu-link">Historial</a></li>
           <li><a href="/profile" class="menu-link">Perfil</a></li>
         </ul>
+
         <a href="/settings"
           class="settings-icon cursor-pointer absolute bottom-8 left-4">
           <img src="/assets/gear.png" class="w-20 h-20" alt="Settings" />
@@ -69,25 +70,7 @@ const { title = "Chess Platform" } = Astro.props;
       <slot />
     </main>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const menuBtn = document.querySelector("#menuBtn");
-        const sideMenu = document.querySelector("#sideMenu");
-        const overlay = document.querySelector("#menuOverlay");
-
-        if (!menuBtn || !sideMenu || !overlay) return;
-
-        menuBtn.addEventListener("click", () => {
-          sideMenu.classList.remove("-translate-x-full");
-          overlay.classList.remove("hidden");
-        });
-
-        overlay.addEventListener("click", () => {
-          sideMenu.classList.add("-translate-x-full");
-          overlay.classList.add("hidden");
-        });
-      });
-    </script>
+    <script type="module" src="/src/scripts/layout.js"></script>
 
   </body>
 </html>
