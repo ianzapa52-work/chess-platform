@@ -1,0 +1,121 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Configuración">
+
+  <div class="settings-wrapper">
+
+    <h1
+      class="text-5xl font-bold mb-1 text-center
+             bg-gradient-to-r from-[#5a3e1b] via-[#7a5528] to-[#4a2f14]
+             bg-clip-text text-transparent drop-shadow-sm"
+      style="font-family: 'Cinzel', serif;"
+    >
+      Configuración
+    </h1>
+
+    <section class="settings-panel">
+
+      <!-- GRID DE DOS COLUMNAS -->
+      <div class="settings-grid">
+
+        <!-- COLUMNA IZQUIERDA -->
+        <div>
+
+          <!-- CUENTA -->
+          <div class="settings-section">
+            <h2>Cuenta</h2>
+
+            <div class="setting-item">
+              <label>Nombre de usuario</label>
+              <input type="text" placeholder="Tu nombre..." />
+            </div>
+
+            <div class="setting-item">
+              <label>Correo electrónico</label>
+              <input type="email" placeholder="ejemplo@correo.com" />
+            </div>
+
+            <div class="setting-item">
+              <label>Cambiar contraseña</label>
+              <button class="setting-btn">Modificar</button>
+            </div>
+          </div>
+
+          <!-- AUDIO -->
+          <div class="settings-section">
+            <h2>Audio</h2>
+
+            <div class="setting-item">
+              <label>Volumen general</label>
+              <input type="range" min="0" max="100" value="70" class="slider-range" />
+            </div>
+
+            <div class="setting-item">
+              <label>Efectos de sonido</label>
+              <input type="range" min="0" max="100" value="50" class="slider-range" />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COLUMNA DERECHA -->
+        <div>
+
+          <!-- PRIVACIDAD -->
+          <div class="settings-section">
+            <h2>Privacidad</h2>
+
+            <div class="setting-item">
+              <label>Mostrar estado en línea</label>
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-item">
+              <label>Permitir solicitudes de amistad</label>
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- INTERFAZ -->
+          <div class="settings-section">
+            <h2>Interfaz</h2>
+
+            <div class="setting-item">
+              <label>Tema visual</label>
+              <select>
+                <option value="default">Clásico</option>
+                <option value="dark">Oscuro</option>
+                <option value="gold">Dorado</option>
+              </select>
+            </div>
+
+            <div class="setting-item">
+              <label>Animaciones</label>
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <button class="save-btn">Guardar cambios</button>
+
+    </section>
+
+  </div>
+
+  <script type="module" src="/src/scripts/settings.js"></script>
+
+</BaseLayout>
