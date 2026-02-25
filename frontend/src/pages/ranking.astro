@@ -1,0 +1,29 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Ranking">
+
+  <div class="max-w-5xl mx-auto px-4 py-10">
+
+    <h1
+      class="text-5xl font-bold mb-10 text-center
+             bg-gradient-to-r from-[#5a3e1b] via-[#7a5528] to-[#4a2f14]
+             bg-clip-text text-transparent drop-shadow-sm"
+      style="font-family: 'Cinzel', serif;"
+    >
+      Ranking Global
+    </h1>
+
+    <div id="ranking-container" class="ranking-panel">
+      <p id="loadingRanking"
+        class="text-center text-gray-300 text-lg italic tracking-wide">
+        Cargando ranking...
+      </p>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/scripts/ranking.js"></script>
+
+</BaseLayout>

@@ -191,3 +191,233 @@ main {
 .king-bounce {
   animation: king-bounce 0.6s ease-out;
 }
+
+/* TÍTULO DEL RANKING */
+.ranking-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 1.2rem;
+  color: #f5f5f5;
+  text-shadow: 0 0 8px rgba(255,255,255,0.4);
+  letter-spacing: 1px;
+  font-family: 'Cinzel', serif;
+}
+
+/* PANEL PRINCIPAL DEL RANKING */
+.ranking-panel {
+  width: 650px;
+  max-height: 600px;
+  min-height: 650px;
+
+  margin: 0 auto;
+  padding: 1.5rem;
+  box-sizing: border-box;
+
+  border-radius: 20px;
+  background: rgba(40, 40, 40, 0.55);
+  backdrop-filter: blur(14px);
+  border: 2px solid rgba(180, 180, 180, 0.35);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+
+  overflow-y: auto;
+  font-family: 'Cinzel', serif;
+}
+
+/* SCROLLBAR PLATEADA */
+.ranking-panel::-webkit-scrollbar {
+  width: 14px;
+}
+
+.ranking-panel::-webkit-scrollbar-track {
+  background: rgba(60, 60, 60, 0.6);
+  border-radius: 12px;
+  margin: 4px;
+}
+
+.ranking-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #d7d7d7, #9e9e9e);
+  border-radius: 10px;
+  border: 2px solid rgba(60, 60, 60, 0.6);
+}
+
+.ranking-panel::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ffffff, #bfbfbf);
+}
+
+/* FILA BASE */
+.ranking-row {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(200, 200, 200, 0.25);
+  border-radius: 14px;
+
+  padding: 1rem 1.4rem;
+  margin-bottom: 1rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  transition: 0.25s ease;
+  cursor: pointer;
+
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeUp 0.4s ease forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* HOVER */
+.ranking-row:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 18px rgba(255,255,255,0.15);
+}
+
+/* IZQUIERDA */
+.rank-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* BANDERA */
+.rank-flag {
+  width: 32px;
+  height: 22px;
+  border-radius: 4px;
+  box-shadow: 0 0 4px rgba(255,255,255,0.3);
+}
+
+/* AVATAR */
+.rank-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.4);
+  box-shadow: 0 0 6px rgba(255,255,255,0.3);
+}
+
+/* INFO DEL JUGADOR */
+.rank-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rank-position {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #e6e6e6;
+  text-shadow: 0 0 6px rgba(255,255,255,0.4);
+}
+
+.rank-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+/* BADGES */
+.rank-badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 2px;
+  width: fit-content;
+}
+
+.badge-master {
+  background: linear-gradient(135deg, #ffb347, #ffcc33);
+}
+
+.badge-expert {
+  background: linear-gradient(135deg, #6dd5fa, #2980b9);
+}
+
+.badge-rookie {
+  background: linear-gradient(135deg, #b0b0b0, #707070);
+}
+
+/* DERECHA */
+.rank-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+/* MEDALLA */
+.rank-medal {
+  width: 28px;
+  height: 28px;
+}
+
+/* TOP 3 MEDALLAS */
+.ranking-row:nth-of-type(1) .rank-medal {
+  content: url("/icons/medal_gold.svg");
+}
+
+.ranking-row:nth-of-type(2) .rank-medal {
+  content: url("/icons/medal_silver.svg");
+}
+
+.ranking-row:nth-of-type(3) .rank-medal {
+  content: url("/icons/medal_bronze.svg");
+}
+
+/* ELO Y ESTADÍSTICAS */
+.rank-elo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e0e0e0;
+}
+
+.rank-stats {
+  font-size: 0.9rem;
+  color: #cfcfcf;
+}
+
+/* WINRATE BAR */
+.rank-progress {
+  width: 120px;
+  height: 8px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.rank-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #9be15d, #00e3ae);
+  border-radius: 6px;
+}
+
+/* TOP 3 DESTACADOS (BRILLO + BORDES) */
+.ranking-row:nth-of-type(1) {
+  border: 2px solid #ffd700;
+  background: rgba(255, 215, 0, 0.18);
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.55);
+}
+
+.ranking-row:nth-of-type(2) {
+  border: 2px solid #cfd2d6;
+  background: rgba(200, 200, 200, 0.18);
+  box-shadow: 0 0 12px rgba(200, 200, 200, 0.55);
+}
+
+.ranking-row:nth-of-type(3) {
+  border: 2px solid #cd7f32;
+  background: rgba(205, 127, 50, 0.18);
+  box-shadow: 0 0 12px rgba(205, 127, 50, 0.55);
+}
