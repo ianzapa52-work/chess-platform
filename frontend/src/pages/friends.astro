@@ -1,0 +1,45 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Amigos">
+
+  <div class="friends-wrapper">
+
+    <h1
+      class="text-5xl font-bold mb-10 text-center
+             bg-gradient-to-r from-[#5a3e1b] via-[#7a5528] to-[#4a2f14]
+             bg-clip-text text-transparent drop-shadow-sm"
+      style="font-family: 'Cinzel', serif;"
+    >
+      Amigos
+    </h1>
+
+    <!-- GRID DE 3 COLUMNAS -->
+    <div class="friends-grid">
+
+      <!-- Conectados -->
+      <section class="friends-section col-online">
+        <h2>En línea</h2>
+        <div id="friendsOnlineList"></div>
+      </section>
+
+      <!-- Solicitudes -->
+      <section class="friends-section col-requests">
+        <h2>Solicitudes</h2>
+        <div id="friendsRequestsList"></div>
+      </section>
+
+      <!-- Todos -->
+      <section class="friends-section col-all">
+        <h2>Todos los amigos</h2>
+        <div id="friendsAllList"></div>
+      </section>
+
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/scripts/friends.js"></script>
+
+</BaseLayout>

@@ -421,3 +421,222 @@ main {
   background: rgba(205, 127, 50, 0.18);
   box-shadow: 0 0 12px rgba(205, 127, 50, 0.55);
 }
+
+/* CONTENEDOR PRINCIPAL SIN LÍMITE ESTRICTO */
+.friends-wrapper {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* GRID DE 3 COLUMNAS */
+.friends-grid {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 4rem;
+  width: max-content;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 2rem;
+}
+
+/* Anchos independientes */
+.col-online { width: 360px; }
+.col-requests { width: 450px; }
+.col-all { width: 450px; }
+
+/* PANEL INDIVIDUAL */
+.friends-section {
+  background: rgba(40, 40, 40, 0.55);
+  border-radius: 18px;
+  border: 2px solid rgba(200, 200, 200, 0.25);
+  backdrop-filter: blur(14px);
+  padding: 1.8rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  font-family: 'Cinzel', serif;
+
+  height: 620px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.25s ease;
+}
+
+/* Hover del panel */
+.friends-section:hover {
+  background: rgba(55, 55, 55, 0.65);
+  border-color: #d4af37;
+  transform: translateY(-3px);
+}
+
+/* Scrollbar personalizada */
+.friends-section::-webkit-scrollbar {
+  width: 12px;
+}
+
+.friends-section::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+}
+
+.friends-section::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #d4af37, #8c6f2f);
+  border-radius: 10px;
+  border: 2px solid rgba(40,40,40,0.6);
+}
+
+.friends-section::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #f5d67b, #b48a3c);
+}
+
+/* Título de cada panel */
+.friends-section h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f5f5f5;
+  margin-bottom: 1.4rem;
+  border-left: 4px solid #d4af37;
+  padding-left: 10px;
+  text-shadow: 0 0 6px rgba(255,255,255,0.3);
+}
+
+/* Tarjeta de amigo */
+.friend-card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(200,200,200,0.25);
+  border-radius: 14px;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  min-width: 260px;
+  gap: 1rem;
+
+  transition: 0.25s ease;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeUp 0.35s ease forwards;
+}
+
+/* Hover de la tarjeta */
+.friend-card:hover {
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 18px rgba(255,255,255,0.15);
+}
+
+/* Animación de aparición */
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Contenido de la tarjeta */
+.friend-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Avatar */
+.friend-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.45);
+  box-shadow: 0 0 6px rgba(255,255,255,0.25);
+}
+
+/* Información del amigo */
+.friend-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.friend-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.friend-elo {
+  font-size: 0.95rem;
+  color: #dcdcdc;
+}
+
+.friend-status {
+  font-size: 0.85rem;
+  color: #9be15d;
+  font-weight: 600;
+}
+
+/* Botones */
+.friend-buttons {
+  display: flex;
+  gap: 0.6rem;
+  white-space: nowrap;
+}
+
+.friend-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease;
+  font-weight: 600;
+}
+
+/* Botón RETAR */
+.friend-btn.challenge {
+  background: linear-gradient(135deg, #d4af37, #f5d67b);
+  color: #000;
+}
+
+.friend-btn.challenge:hover {
+  background: linear-gradient(135deg, #f5d67b, #ffe9a3);
+}
+
+/* Botón ACEPTAR */
+.friend-btn.accept {
+  background: linear-gradient(135deg, #9be15d, #00e3ae);
+  color: #000;
+}
+
+.friend-btn.accept:hover {
+  filter: brightness(1.15);
+}
+
+/* Botón RECHAZAR */
+.friend-btn.decline {
+  background: linear-gradient(135deg, #cd5c5c, #a83232);
+  color: #fff;
+}
+
+.friend-btn.decline:hover {
+  filter: brightness(1.15);
+}
+
+/* Responsive: 2 columnas */
+@media (max-width: 1200px) {
+  .friends-grid {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* Responsive: 1 columna */
+@media (max-width: 900px) {
+  .friends-section {
+    width: 100% !important;
+  }
+}
