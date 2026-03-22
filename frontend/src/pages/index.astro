@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="WELIKECHESS - Home">
+
   <div class="page-center">
 
     <div class="flex justify-center mb-3">
@@ -15,7 +16,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </div>
 
     <h1
-      class="text-4xl font-bold text-center mb-2"
+      class="text-4xl font-bold text-center mb-2 dark:text-white"
       style="font-family: 'Cinzel', serif;"
     >
       Bienvenido a
@@ -25,7 +26,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </h1>
 
     <p
-      class="text-gray-600 text-center text-lg mb-8 max-w-sm leading-relaxed"
+      class="text-gray-600 dark:text-gray-300 text-center text-lg mb-8 max-w-sm leading-relaxed"
       style="font-family: 'Marcellus', serif;"
     >
       Domina el tablero, perfecciona tu estrategia y conviértete en tu mejor versión.
@@ -58,20 +59,25 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </a>
     </div>
 
+    <!-- TARJETA HOME -->
     <div
       id="homeCard"
-      class="mt-10 w-90 bg-white p-6 rounded-xl shadow-lg text-center transition-all duration-300"
+      class="mt-10 w-90 p-6 rounded-xl shadow-lg text-center transition-all duration-300
+             bg-white text-black
+             dark:bg-[rgba(25,25,25,0.85)]
+             dark:border dark:border-[#d4af37]
+             dark:text-white"
     >
 
-      <h2 class="text-3xl font-bold mb-4" style="font-family: 'Marcellus', serif;">
+      <h2 class="text-3xl font-bold mb-4 dark:text-[#f5d67b]" style="font-family: 'Marcellus', serif;">
         ¿Qué encontrarás aquí?
       </h2>
 
-      <p class="text-gray-700 mb-6 text-base" style="font-family: 'Marcellus', serif;">
+      <p class="text-gray-700 dark:text-gray-300 mb-6 text-base" style="font-family: 'Marcellus', serif;">
         Una plataforma creada para jugadores que buscan mejorar cada día.
       </p>
 
-      <div class="grid grid-cols-2 gap-6 text-gray-700 text-base" style="font-family: 'Marcellus', serif;">
+      <div class="grid grid-cols-2 gap-6 text-gray-700 dark:text-gray-200 text-base" style="font-family: 'Marcellus', serif;">
 
         <div class="flex flex-col items-center">
           <img src="/pieces/w_queen.svg" class="w-10 mb-2 opacity-80" />

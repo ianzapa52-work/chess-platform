@@ -56,6 +56,10 @@ main {
   width: 100%;
 }
 
+nav {
+  border-bottom: 1px solid #d4af37;
+}
+
 #navBrand {
   transition: filter 0.3s ease, transform 0.3s ease;
 }
@@ -842,7 +846,202 @@ input:checked + .slider:before {
 
 /* Dorado sólido */
 .home-btn:hover {
-  background-color: #d4af37 !important; /* Oro sólido */
+  background-color: #d4af37 !important;
   color: #000 !important;
   box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+}
+
+/* MODO CLARO — tarjetas principales */
+body:not(.dark-mode) #loginCard,
+body:not(.dark-mode) #registerCard,
+body:not(.dark-mode) #homeCard {
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* Títulos del login, registro y home */
+body:not(.dark-mode) #loginCard h1,
+body:not(.dark-mode) #registerCard h1,
+body:not(.dark-mode) #homeCard h2,
+body:not(.dark-mode) .page-center h1 {
+  color: #000 !important;
+}
+
+/* Textos del home */
+body:not(.dark-mode) #brandTitle,
+body:not(.dark-mode) #homeCard p,
+body:not(.dark-mode) .page-center p {
+  color: #000 !important;
+}
+
+/* Inputs */
+body:not(.dark-mode) #loginCard input,
+body:not(.dark-mode) #registerCard input {
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid #ccc !important;
+}
+
+/* Labels */
+body:not(.dark-mode) #loginCard label,
+body:not(.dark-mode) #registerCard label {
+  color: #000 !important;
+}
+
+/* Enlaces login/register */
+body:not(.dark-mode) #loginCard a,
+body:not(.dark-mode) #registerCard a {
+  color: #1d4ed8 !important; 
+}
+
+/* MODO OSCURO — FONDO GENERAL */
+body.dark-mode {
+  background: url("/backgrounds/wood-dark.jpg") !important;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #e5e5e5 !important;
+}
+
+/* NAVBAR SUPERIOR */
+body.dark-mode nav {
+  background: #141414 !important;
+  border-bottom: 1px solid #d4af37;
+  box-shadow: 0 0 12px rgba(212,175,55,0.25);
+}
+
+/* MENÚ LATERAL (OPACIDAD MÁXIMA) */
+body.dark-mode .side-menu,
+body.dark-mode .sidebar,
+body.dark-mode #sideMenu,
+body.dark-mode .menu-lateral {
+  background: #141414 !important; /* 100% opaco */
+  color: #e5e5e5 !important;
+  border-right: 1px solid #d4af37 !important;
+}
+
+body.dark-mode .side-menu a,
+body.dark-mode .sidebar a,
+body.dark-mode #sideMenu a,
+body.dark-mode .menu-lateral a {
+  color: #e5e5e5 !important;
+}
+
+body.dark-mode .side-menu a:hover,
+body.dark-mode .sidebar a:hover,
+body.dark-mode #sideMenu a:hover,
+body.dark-mode .menu-lateral a:hover {
+  color: #f5d67b !important;
+}
+
+body.dark-mode .settings-icon {
+  filter: brightness(1.4);
+}
+
+/* TARJETAS (home, login, registro, info, features) */
+body.dark-mode .home-card,
+body.dark-mode #homeCard,
+body.dark-mode .login-card,
+body.dark-mode .register-card,
+body.dark-mode .feature-card,
+body.dark-mode .info-box {
+  background: rgba(25,25,25,0.95) !important; /* más opaco si quieres */
+  border: 1px solid #d4af37 !important;
+  color: #ffffff !important;
+}
+
+/* Botones login/registro */
+body.dark-mode .login-card button,
+body.dark-mode .register-card button {
+  background: linear-gradient(135deg, #d4af37, #f5d67b) !important;
+  color: #000 !important;
+}
+
+/* Inputs */
+body.dark-mode input {
+  background: rgba(255,255,255,0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid #d4af37 !important;
+}
+
+body.dark-mode input::placeholder {
+  color: #dcdcdc !important;
+}
+
+/* Home card títulos */
+body.dark-mode #homeCard h2 {
+  color: #f5d67b !important;
+}
+
+body.dark-mode #homeCard p {
+  color: #e5e5e5 !important;
+}
+
+/* HISTORIAL */
+body.dark-mode .history-panel {
+  background: #2a1a12 !important;
+  border-color: #d4af37 !important;
+}
+
+body.dark-mode .history-card {
+  background: rgba(255,255,255,0.08) !important;
+  color: #ffffff !important;
+}
+
+/* RANKING */
+body.dark-mode .ranking-panel {
+  background: #141414 !important;
+  border-color: rgba(200,200,200,0.25) !important;
+}
+
+body.dark-mode .ranking-row {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(200,200,200,0.2) !important;
+}
+
+/* AMIGOS */
+body.dark-mode .friends-section {
+  background: #141414 !important;
+  border-color: #d4af37 !important;
+}
+
+body.dark-mode .friend-card {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(200,200,200,0.2) !important;
+}
+
+/* AJUSTES */
+body.dark-mode .settings-panel {
+  background: #141414 !important;
+  border-color: #d4af37 !important;
+}
+
+body.dark-mode .settings-section {
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(200,200,200,0.2) !important;
+}
+
+/* TABLERO */
+body.dark-mode .board-wrapper {
+  background: #1e1e1e !important;
+  border: 2px solid #d4af37 !important;
+}
+
+body.dark-mode .square.light {
+  background: linear-gradient(135deg, #b38b5a, #8c6f3f) !important;
+}
+
+body.dark-mode .square.dark {
+  background: linear-gradient(135deg, #3a2a1f, #2a1a12) !important;
+}
+
+/* HISTORIAL DE MOVIMIENTOS */
+body.dark-mode .move-history {
+  background: #2a1a12 !important;
+  border-color: #d4af37 !important;
+}
+
+body.dark-mode .move-history tbody tr {
+  background: rgba(255,255,255,0.08) !important;
 }
