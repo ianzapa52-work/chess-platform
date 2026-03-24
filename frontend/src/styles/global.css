@@ -288,7 +288,7 @@ nav {
 .rank-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 /* BANDERA */
@@ -303,12 +303,9 @@ nav {
 
 /* AVATAR */
 .rank-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
+  width: 72px;
+  height: 120px;
   object-fit: cover;
-  border: 2px solid rgba(255,255,255,0.4);
-  box-shadow: 0 0 6px rgba(255,255,255,0.3);
 }
 
 /* INFO DEL JUGADOR */
@@ -1004,7 +1001,7 @@ body.dark-mode .ranking-panel {
 }
 
 body.dark-mode .ranking-row {
-  background: rgba(255,255,255,0.05) !important;
+  background: rgb(58, 51, 51) !important;
   border-color: rgba(200,200,200,0.2) !important;
 }
 

@@ -26,11 +26,11 @@ window.addEventListener("load", () => {
 
   /** @type {Player[]} */
   const dummyRanking = [
-    { id: "1", name: "Ian", elo: 1820, wins: 120, losses: 40, games: 160, country: "es", avatar: "/avatars/1.png", level: "master" },
-    { id: "2", name: "Carlos", elo: 1750, wins: 98, losses: 55, games: 153, country: "mx", avatar: "/avatars/2.png", level: "expert" },
-    { id: "3", name: "Lucía", elo: 1690, wins: 80, losses: 60, games: 140, country: "ar", avatar: "/avatars/3.png", level: "expert" },
-    { id: "4", name: "Marcos", elo: 1650, wins: 70, losses: 50, games: 120, country: "es", avatar: "/avatars/4.png", level: "rookie" },
-    { id: "5", name: "Ana", elo: 1600, wins: 65, losses: 45, games: 110, country: "cl", avatar: "/avatars/5.png", level: "rookie" }
+    { id: "1", name: "Ian", elo: 1820, wins: 120, losses: 40, games: 160, country: "es", avatar: "/avatars/w_king_avatar.png", level: "master" },
+    { id: "2", name: "Carlos", elo: 1750, wins: 98, losses: 55, games: 153, country: "mx", avatar: "/avatars/b_king_avatar.png", level: "expert" },
+    { id: "3", name: "Lucía", elo: 1690, wins: 80, losses: 60, games: 140, country: "ar", avatar: "/avatars/w_horse_avatar.png", level: "expert" },
+    { id: "4", name: "Marcos", elo: 1650, wins: 70, losses: 50, games: 120, country: "es", avatar: "/avatars/b_horse_avatar.png", level: "rookie" },
+    { id: "5", name: "Ana", elo: 1600, wins: 65, losses: 45, games: 110, country: "cl", avatar: "/avatars/b_bishop_avatar.png", level: "rookie" }
   ];
 
   dummyRanking.sort((a, b) => b.elo - a.elo);
