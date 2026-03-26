@@ -1,277 +1,175 @@
 import { Chess, type Square, type Move as ChessMove, type Color, type PieceSymbol } from "chess.js";
 
-interface Piece {
-  color: Color;
-  type: PieceSymbol;
-}
-
 window.addEventListener("load", () => {
-  // SELECCIÓN DE ELEMENTOS CON TYPE ASSERTION
-  const boardEl = document.getElementById("board") as HTMLElement;
-  const moveBody = document.getElementById("move-body") as HTMLTableSectionElement;
-  const statusEl = document.getElementById("game-status") as HTMLElement;
-  const capturedWhite = document.getElementById("captured-white") as HTMLElement;
-  const capturedBlack = document.getElementById("captured-black") as HTMLElement;
+    const boardEl = document.getElementById("board") as HTMLElement;
+    const statusEl = document.getElementById("game-status") as HTMLElement;
+    const moveBody = document.getElementById("move-body") as HTMLTableSectionElement;
+    const capWhite = document.getElementById("captured-white") as HTMLElement;
+    const capBlack = document.getElementById("captured-black") as HTMLElement;
+    const resetBtn = document.getElementById("resetBtn") as HTMLButtonElement;
 
-  if (!boardEl || !moveBody || !statusEl) {
-    console.error("Faltan elementos críticos en el DOM");
-    return;
-  }
+    if (!boardEl) return;
 
-  // SONIDOS
-  const moveSound = new Audio("/sounds/move_sound.mp3");
-  moveSound.volume = 0.4;
+    const game = new Chess();
+    let selectedSquare: Square | null = null;
 
-  const captureSound = new Audio("/sounds/capture_sound.mp3");
-  captureSound.volume = 0.45;
+    // Sonidos
+    const moveSound = new Audio("/sounds/move_sound.mp3");
+    const captureSound = new Audio("/sounds/capture_sound.mp3");
 
-  // ESTADO DEL JUEGO
-  const game = new Chess();
-  let selectedSquare: Square | null = null;
-
-  // INICIALIZAR TABLA DE HISTORIAL (60 filas vacías)
-  for (let i = 0; i < 60; i++) {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${i + 1}</td><td></td><td></td>`;
-    moveBody.appendChild(row);
-  }
-
-  // UTILIDADES
-  function getPieceImage(piece: Piece): string {
-    const color = piece.color === "w" ? "white" : "black";
-    const map: Record<PieceSymbol, string> = { 
-      p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king" 
-    };
-    return `/pieces/${color[0]}_${map[piece.type]}.svg`;
-  }
-
-  function highlightSquare(el: HTMLElement | null): void {
-    const prev = boardEl.querySelector(".selected");
-    if (prev) prev.classList.remove("selected");
-    if (el) el.classList.add("selected");
-  }
-
-  function clearLegalMoves(): void {
-    boardEl.querySelectorAll(".legal-move").forEach((sq) => {
-      sq.classList.remove("legal-move");
-    });
-  }
-
-  function highlightLegalMoves(targets: Square[]): void {
-    clearLegalMoves();
-    for (const sq of targets) {
-      const { row, col } = squareToCoord(sq);
-      const el = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
-      if (el) el.classList.add("legal-move");
+    function getPieceImage(piece: { color: Color; type: PieceSymbol }) {
+        const colorFolder = piece.color === "w" ? "white" : "black";
+        const pieceMap: Record<string, string> = { p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king" };
+        return `/pieces/${colorFolder[0]}_${pieceMap[piece.type]}.svg`;
     }
-  }
 
-  function coordToSquare(row: number, col: number): Square {
-    return (String.fromCharCode(97 + col) + (8 - row)) as Square;
-  }
+    // CREACIÓN ÚNICA DEL TABLERO (Evita parpadeos)
+    function createBoard() {
+        boardEl.innerHTML = "";
+        for (let i = 0; i < 64; i++) {
+            const row = Math.floor(i / 8);
+            const col = i % 8;
+            const square = document.createElement("div");
+            const coord = (String.fromCharCode(97 + col) + (8 - row)) as Square;
+            
+            square.className = `square ${(row + col) % 2 === 1 ? "dark" : "light"}`;
+            square.dataset.coord = coord;
 
-  function squareToCoord(square: Square): { row: number; col: number } {
-    return {
-      row: 8 - Number(square[1]),
-      col: square.charCodeAt(0) - 97
-    };
-  }
+            // Eventos de Drag & Drop
+            square.addEventListener("dragover", (e) => e.preventDefault());
+            square.addEventListener("drop", (e) => {
+                e.preventDefault();
+                const from = e.dataTransfer?.getData("text/plain") as Square;
+                if (from) executeMove(from, coord);
+            });
 
-  // LÓGICA DE ACTUALIZACIÓN
-  function updateGameStatus(): void {
-    if (game.isCheckmate()) {
-      const winner = game.turn() === "w" ? "negras" : "blancas";
-      statusEl.textContent = `Jaque mate: ganan las ${winner}`;
-      return;
-    }
-    if (game.isStalemate() || game.isDraw()) {
-      statusEl.textContent = "Tablas";
-      return;
-    }
-    if (game.inCheck()) {
-      const side = game.turn() === "w" ? "blancas" : "negras";
-      statusEl.textContent = `Jaque a las ${side}`;
-      return;
-    }
-    statusEl.textContent = "Turno de las " + (game.turn() === "w" ? "blancas" : "negras");
-  }
-
-  function updateHistory(): void {
-    const history = game.history();
-    const rows = moveBody.querySelectorAll("tr");
-
-    for (let i = 0; i < rows.length; i++) {
-      const cells = rows[i].querySelectorAll("td");
-      if (cells.length < 3) continue;
-      cells[1].textContent = history[i * 2] ?? "";
-      cells[2].textContent = history[i * 2 + 1] ?? "";
-    }
-  }
-
-  function registerCapture(move: ChessMove): void {
-    if (!move.captured) return;
-
-    const capturedColor = move.color === "w" ? "black" : "white";
-    const container = capturedColor === "white" ? capturedWhite : capturedBlack;
-
-    const map: Record<string, string> = { p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king" };
-    const img = document.createElement("img");
-    img.src = `/pieces/${capturedColor[0]}_${map[move.captured]}.svg`;
-    img.alt = "";
-    img.classList.add("w-8", "h-8");
-    container.appendChild(img);
-  }
-
-  function updateSingleMove(from: Square, to: Square, move: ChessMove): void {
-    const fromCoord = squareToCoord(from);
-    const toCoord = squareToCoord(to);
-
-    const fromSq = boardEl.querySelector(`[data-row="${fromCoord.row}"][data-col="${fromCoord.col}"]`) as HTMLElement;
-    const toSq = boardEl.querySelector(`[data-row="${toCoord.row}"][data-col="${toCoord.col}"]`) as HTMLElement;
-
-    if (!fromSq || !toSq) return;
-
-    fromSq.innerHTML = "";
-    const piece = game.get(to);
-    if (piece) {
-      const img = document.createElement("img");
-      img.src = getPieceImage(piece);
-      img.className = "piece";
-      img.draggable = true;
-      enableDrag(img, toCoord.row, toCoord.col);
-      toSq.innerHTML = "";
-      toSq.appendChild(img);
-    }
-  }
-
-  function renderBoard(): void {
-    const state = game.board();
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const sq = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
-        if (!sq) continue;
-
-        sq.innerHTML = "";
-        const piece = state[row][col];
-        if (piece) {
-          const img = document.createElement("img");
-          img.src = getPieceImage(piece);
-          img.className = "piece";
-          img.draggable = true;
-          enableDrag(img, row, col);
-          sq.appendChild(img);
+            square.onclick = () => handleSquareClick(coord);
+            boardEl.appendChild(square);
         }
-      }
-    }
-  }
-
-  function enableDrag(img: HTMLImageElement, row: number, col: number): void {
-    img.addEventListener("dragstart", (e) => {
-      if (!e.dataTransfer) return;
-
-      const from = coordToSquare(row, col);
-      const piece = game.get(from);
-      if (!piece || piece.color !== game.turn()) {
-        e.preventDefault();
-        return;
-      }
-
-      e.dataTransfer.setData("text/plain", from);
-      selectedSquare = from;
-
-      const sqEl = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
-      highlightSquare(sqEl);
-
-      const moves = game.moves({ square: from, verbose: true });
-      highlightLegalMoves(moves.map((m) => m.to));
-    });
-  }
-
-  function handleSquareClick(row: number, col: number): void {
-    const target = coordToSquare(row, col);
-    const pieceHere = game.get(target);
-
-    if (!selectedSquare) {
-      if (pieceHere && pieceHere.color === game.turn()) {
-        selectedSquare = target;
-        const sqEl = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
-        highlightSquare(sqEl);
-        const moves = game.moves({ square: target, verbose: true });
-        highlightLegalMoves(moves.map((m) => m.to));
-      }
-      return;
+        updateBoardPieces();
     }
 
-    if (pieceHere && pieceHere.color === game.turn() && target !== selectedSquare) {
-      selectedSquare = target;
-      const sqEl = boardEl.querySelector(`[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
-      highlightSquare(sqEl);
-      const moves = game.moves({ square: target, verbose: true });
-      highlightLegalMoves(moves.map((m) => m.to));
-      return;
+    // ACTUALIZACIÓN INTELIGENTE (Solo piezas y estados)
+    function updateBoardPieces() {
+        const state = game.board();
+        const squares = boardEl.querySelectorAll(".square");
+
+        squares.forEach((sq, i) => {
+            const squareEl = sq as HTMLElement;
+            const row = Math.floor(i / 8);
+            const col = i % 8;
+            const piece = state[row][col];
+            const coord = squareEl.dataset.coord as Square;
+
+            // Limpiar clases de selección/legalidad
+            squareEl.classList.remove("selected", "legal-move");
+            if (selectedSquare === coord) squareEl.classList.add("selected");
+
+            // Gestionar imagen de la pieza sin destruir el div
+            let img = squareEl.querySelector("img");
+            if (piece) {
+                if (!img) {
+                    img = document.createElement("img");
+                    img.className = "piece";
+                    squareEl.appendChild(img);
+                }
+                const newSrc = getPieceImage(piece);
+                if (img.getAttribute("src") !== newSrc) img.src = newSrc;
+                
+                // Solo dejar arrastrar si es su turno
+                img.draggable = piece.color === game.turn();
+                img.ondragstart = (e) => {
+                    e.dataTransfer?.setData("text/plain", coord);
+                    selectedSquare = coord;
+                    highlightLegalMoves(coord);
+                };
+            } else if (img) {
+                img.remove();
+            }
+        });
     }
 
-    if (target === selectedSquare) {
-      selectedSquare = null;
-      highlightSquare(null);
-      clearLegalMoves();
-      return;
+    function highlightLegalMoves(square: Square) {
+        // Primero limpiamos previos sin resetear todo
+        boardEl.querySelectorAll(".square").forEach(s => s.classList.remove("legal-move"));
+        
+        const moves = game.moves({ square, verbose: true });
+        moves.forEach(m => {
+            const target = boardEl.querySelector(`[data-coord="${m.to}"]`);
+            target?.classList.add("legal-move");
+        });
     }
 
-    executeMove(selectedSquare, target);
-  }
-
-  function executeMove(from: Square, to: Square): void {
-    const move = game.move({ from, to, promotion: "q" });
-    if (!move) return;
-
-    registerCapture(move);
-    updateSingleMove(from, to, move);
-    updateHistory();
-    updateGameStatus();
-
-    if (move.captured) {
-      captureSound.currentTime = 0;
-      captureSound.play().catch(() => {});
-    } else {
-      moveSound.currentTime = 0;
-      moveSound.play().catch(() => {});
+    function handleSquareClick(coord: Square) {
+        const piece = game.get(coord);
+        if (!selectedSquare) {
+            if (piece && piece.color === game.turn()) {
+                selectedSquare = coord;
+                highlightLegalMoves(coord);
+                boardEl.querySelector(`[data-coord="${coord}"]`)?.classList.add("selected");
+            }
+        } else {
+            executeMove(selectedSquare, coord);
+        }
     }
 
-    selectedSquare = null;
-    highlightSquare(null);
-    clearLegalMoves();
-  }
-
-  // CREACIÓN DINÁMICA DE LAS CASILLAS
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const square = document.createElement("div");
-      square.classList.add("square");
-      square.dataset.row = String(row);
-      square.dataset.col = String(col);
-      square.classList.add((row + col) % 2 === 1 ? "dark" : "light");
-
-      square.addEventListener("click", () => handleSquareClick(row, col));
-      square.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        square.classList.add("hover-target");
-      });
-      square.addEventListener("dragleave", () => square.classList.remove("hover-target"));
-      square.addEventListener("drop", (e) => {
-        e.preventDefault();
-        square.classList.remove("hover-target");
-        if (!e.dataTransfer) return;
-
-        const from = e.dataTransfer.getData("text/plain") as Square;
-        const to = coordToSquare(row, col);
-        if (from !== to) executeMove(from, to);
-      });
-
-      boardEl.appendChild(square);
+    function executeMove(from: Square, to: Square) {
+        try {
+            const move = game.move({ from, to, promotion: "q" });
+            if (move) {
+                move.captured ? captureSound.play().catch(()=>null) : moveSound.play().catch(()=>null);
+                if (move.captured) addCaptured(move);
+                updateUI();
+            }
+        } catch (e) { /* Movimiento inválido */ }
+        selectedSquare = null;
+        updateBoardPieces();
     }
-  }
 
-  renderBoard();
-  updateGameStatus();
+    function addCaptured(move: ChessMove) {
+        const container = move.color === "w" ? capWhite : capBlack;
+        const img = document.createElement("img");
+        const map: Record<string, string> = { p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king" };
+        const colorChar = move.color === "w" ? "b" : "w"; 
+        img.src = `/pieces/${colorChar}_${map[move.captured!]}.svg`;
+        img.style.width = "20px";
+        img.style.filter = "drop-shadow(0 2px 2px rgba(0,0,0,0.5))";
+        container.appendChild(img);
+    }
+
+    function updateUI() {
+        // Estatus del juego
+        let statusText = game.turn() === "w" ? "TURNO BLANCAS" : "TURNO NEGRAS";
+        if (game.inCheck()) statusText += " (¡JAQUE!)";
+        if (game.isCheckmate()) statusText = "¡JAQUE MATE!";
+        if (game.isDraw()) statusText = "TABLAS";
+        statusEl.textContent = statusText;
+
+        // Historial de movimientos
+        const history = game.history();
+        moveBody.innerHTML = "";
+        for (let i = 0; i < history.length; i += 2) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="color:#666; width: 30px;">${Math.floor(i / 2) + 1}.</td>
+                <td style="font-weight:bold; color:#d4af37">${history[i]}</td>
+                <td style="color:#ccc">${history[i + 1] || "-"}</td>
+            `;
+            moveBody.appendChild(tr);
+        }
+        
+        // Auto-scroll al final del historial
+        const scroll = moveBody.parentElement?.parentElement;
+        if (scroll) scroll.scrollTop = scroll.scrollHeight;
+    }
+
+    resetBtn.onclick = () => {
+        game.reset();
+        capWhite.innerHTML = "";
+        capBlack.innerHTML = "";
+        updateUI();
+        updateBoardPieces();
+    };
+
+    createBoard();
 });

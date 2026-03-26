@@ -3,120 +3,182 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import "../styles/chessboard.css";
 ---
 
-<BaseLayout title="WELIKECHESS - Jugar VS IA">
+<BaseLayout title="WELIKECHESS - Desafío IA">
+  <div class="main-screen">
+    <div class="game-wrapper">
+      
+      <aside class="side-panel">
+        <div class="player-box ai-card">
+          <div class="player-header"><span>🤖 EINSTEIN (IA)</span></div>
+          <select id="ai-level" class="gold-select">
+            <option value="1">NIVEL: APRENDIZ</option>
+            <option value="5" selected>NIVEL: MAESTRO</option>
+            <option value="15">NIVEL: DEMONIO</option>
+          </select>
+          <div id="captured-white" class="mini-captured"></div>
+        </div>
+        
+        <div class="status-box">
+          <div id="game-status">TU TURNO</div>
+        </div>
+      </aside>
 
-  <div class="game-layout">
+      <section class="board-container">
+        <div class="board-frame">
+          <div class="coords-h">
+            <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span>
+          </div>
+          
+          <div class="board-flex">
+            <div class="coords-v">
+              <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
+            
+            <div id="board" class="compact-board"></div>
+          </div>
+        </div>
+      </section>
 
-    <div class="game-status flex items-center gap-3">
-      <p id="game-status" class="text-lg font-semibold bg-white shadow px-3 py-2 rounded-md">
-        Turno de las blancas
-      </p>
+      <aside class="side-panel">
+        <div class="player-box user-card">
+          <div class="player-header"><span>♔ TÚ (BLANCAS)</span></div>
+          <div id="captured-black" class="mini-captured"></div>
+        </div>
 
-      <select id="ai-level" class="border rounded px-2 py-1 text-sm">
-        <option value="1">Fácil</option>
-        <option value="5" selected>Medio</option>
-        <option value="10">Difícil</option>
-        <option value="15">Muy difícil</option>
-        <option value="20">Demonio</option>
-      </select>
+        <div class="history-card">
+          <div class="history-header">HISTORIAL</div>
+          <div class="history-scroll">
+            <table>
+              <tbody id="move-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <button id="resetBtn" class="gold-btn">REINICIAR</button>
+      </aside>
+
     </div>
-
-    <div class="board-wrapper">
-      <div class="coords-top">
-        <span>A</span><span>B</span><span>C</span><span>D</span>
-        <span>E</span><span>F</span><span>G</span><span>H</span>
-      </div>
-
-      <div class="coords-left">
-        <span>8</span><span>7</span><span>6</span><span>5</span>
-        <span>4</span><span>3</span><span>2</span><span>1</span>
-      </div>
-
-      <div id="board" class="board"></div>
-
-      <div id="captured-area" class="mt-4 flex justify-between">
-        <div id="captured-white" class="flex flex-wrap gap-1"></div>
-        <div id="captured-black" class="flex flex-wrap gap-1"></div>
-      </div>
-    </div>
-
-    <div class="move-history">
-      <h2 class="text-xl font-bold mb-2">Historial</h2>
-      <table class="text-sm border-collapse w-full">
-        <thead>
-          <tr><th>#</th><th>Blancas</th><th>Negras</th></tr>
-        </thead>
-        <tbody id="move-body"></tbody>
-      </table>
-    </div>
-
   </div>
 
   <script>
     import "../scripts/play-ia.ts";
   </script>
-
 </BaseLayout>
 
-<style>
-  .game-layout {
-    display: grid;
-    grid-template-columns: 1fr auto 300px; /* Status | Board | History */
-    gap: 2rem;
-    padding: 2rem;
-    align-items: start;
+<style is:global>
+  .main-screen {
+    min-height: 100vh;
+    display: flex;
     justify-content: center;
+    /* Cambiado de center a flex-start + padding para subirlo */
+    align-items: flex-start; 
+    padding-top: 50px; 
   }
 
-  .board-wrapper {
-    position: relative;
+  .game-wrapper {
+    display: grid;
+    grid-template-columns: 240px 680px 240px; 
+    gap: 40px;
+    align-items: start; /* Alinea los paneles laterales arriba también */
+  }
+
+  .side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Estética Premium */
+  .player-box, .history-card, .status-box {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .player-header, .history-header {
+    font-family: 'Cinzel', serif;
+    color: #d4af37;
+    text-align: center;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+  }
+
+  /* El Tablero: Colores Clásicos */
+  .board-frame {
+    background: #2c2c2c; /* Marco sólido */
     padding: 20px;
-    background: var(--bg-panel);
-    border: 2px solid var(--border-panel);
-    border-radius: 12px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    border-radius: 4px;
+    border: 4px solid #3d3d3d;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
   }
 
-  /* Historial de movimientos lateral */
-  .move-history {
-    background: var(--bg-card);
-    border: 1px solid var(--border-panel);
-    border-radius: 12px;
-    padding: 1.5rem;
+  .compact-board {
+    width: 600px;
     height: 600px;
-    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
   }
 
-  .move-history table {
+  /* Colores de tablero tipo Lichess/Chess.com */
+  .square { 
+    width: 75px; 
+    height: 75px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  
+  .square.light { 
+    background: #ebecd0; /* Crema claro */
+  }
+  
+  .square.dark { 
+    background: #779556; /* Verde mate clásico */
+  }
+
+  .square.selected { 
+    background: rgba(255, 255, 0, 0.5) !important; /* Resaltado amarillo clásico */
+  }
+
+  /* Coordenadas - Ahora en blanco/oro para que resalten sobre el nuevo marco */
+  .coords-h { display: flex; justify-content: space-around; padding-left: 25px; margin-bottom: 8px; color: #d4af37; font-weight: bold; font-size: 0.9rem; }
+  .coords-v { display: flex; flex-direction: column; justify-content: space-around; width: 25px; color: #d4af37; font-weight: bold; font-size: 0.9rem; }
+  .board-flex { display: flex; }
+
+  /* UI de control */
+  .gold-select {
     width: 100%;
-    color: var(--text-main);
+    background: #111;
+    color: #d4af37;
+    border: 1px solid #d4af37;
+    padding: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    outline: none;
   }
 
-  .move-history th {
-    border-bottom: 2px solid var(--color-gold);
-    padding-bottom: 8px;
-    text-align: left;
-  }
+  #game-status { color: #d4af37; font-family: 'Cinzel'; text-align: center; font-size: 0.9rem; font-weight: bold; }
+  
+  .history-scroll { height: 300px; overflow-y: auto; font-size: 0.8rem; color: #eee; }
+  .history-scroll td { padding: 8px; border-bottom: 1px solid rgba(212,175,55,0.1); }
 
-  .move-history td {
-    padding: 8px 4px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-
-  /* Nivel de IA Select */
-  #ai-level {
-    background: var(--bg-card);
-    color: var(--text-main);
-    border: 1px solid var(--color-gold);
+  .gold-btn {
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #d4af37;
+    padding: 12px;
     cursor: pointer;
+    font-family: 'Cinzel';
+    transition: 0.3s;
+    font-weight: bold;
+    margin-top: 10px;
   }
+  .gold-btn:hover { background: #d4af37; color: black; }
 
-  /* Responsive para tablets/móvil */
-  @media (max-width: 1100px) {
-    .game-layout {
-      grid-template-columns: 1fr;
-      justify-items: center;
-    }
-    .move-history { width: 100%; max-width: 600px; height: 300px; }
-  }
+  .piece { width: 70px; height: 70px; cursor: grab; transition: transform 0.1s; filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3)); }
 </style>

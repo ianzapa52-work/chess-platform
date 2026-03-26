@@ -1,59 +1,34 @@
 // @ts-nocheck
-
 const initProfile = () => {
-  // 1. Buscar el contenedor
   const profileContainer = document.getElementById("profile-user");
-  
-  // Si no existe el div, reintentamos (Astro delay)
-  if (!profileContainer) {
-    setTimeout(initProfile, 50);
-    return;
-  }
+  if (!profileContainer) { setTimeout(initProfile, 50); return; }
 
-  // 2. Comprobar usuario
   const userData = localStorage.getItem("user");
-  
-  if (!userData || userData === "null") {
-    console.log("No hay usuario, redirigiendo a login...");
-    window.location.href = "/login";
-    return;
-  }
+  if (!userData || userData === "null") { window.location.href = "/login"; return; }
 
   const user = JSON.parse(userData);
-
-  // 3. FORZAR VISIBILIDAD
-  // Quitamos 'hidden' y aplicamos flex directamente al estilo para saltarnos CSS
   profileContainer.classList.remove("hidden");
-  profileContainer.style.setProperty("display", "flex", "important");
-  profileContainer.style.opacity = "1";
+  profileContainer.style.display = "flex";
 
-  // 4. Rellenar los campos (con IDs exactos de tu HTML)
-  const usernameEl = document.getElementById("profile-username");
-  const emailEl = document.getElementById("profile-email");
-  const currentAvatar = document.getElementById("current-avatar") as HTMLImageElement | null;
+  // Datos básicos
+  document.getElementById("profile-username").textContent = user.name;
+  document.getElementById("profile-email").textContent = user.email;
+  document.getElementById("current-avatar").src = user.avatar || "/avatars/w_king_avatar.png";
 
-  if (usernameEl) usernameEl.textContent = user.name;
-  if (emailEl) emailEl.textContent = user.email;
-  if (currentAvatar) currentAvatar.src = user.avatar || "/avatars/w_king_avatar.png";
-
-  // 5. Estadísticas
+  // Estadísticas (Sincronizadas con Puzzles)
   const stats = JSON.parse(localStorage.getItem("stats") || '{"rating":1200, "totalGames":0, "wins":0, "losses":0, "draws":0, "puzzlesSolved":0, "puzzlesFailed":0}');
   
-  const d = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = String(val);
-  };
+  const updateText = (id, val) => { if(document.getElementById(id)) document.getElementById(id).textContent = val; };
 
-  d("stat-rating", stats.rating);
-  d("stat-games", stats.totalGames);
-  d("stat-wins", stats.wins);
-  d("stat-losses", stats.losses);
-  d("stat-draws", stats.draws);
-  d("stat-puzzles-solved", stats.puzzlesSolved);
-  const failedEl = document.getElementById("stat-puzzles-failed");
-  if (failedEl) failedEl.textContent = `Fallos: ${stats.puzzlesFailed}`;
+  updateText("stat-rating", stats.rating);
+  updateText("stat-games", stats.totalGames);
+  updateText("stat-wins", stats.wins);
+  updateText("stat-losses", stats.losses);
+  updateText("stat-draws", stats.draws);
+  updateText("stat-puzzles-solved", stats.puzzlesSolved);
+  updateText("stat-puzzles-failed", `Fallos: ${stats.puzzlesFailed}`);
 
-  // 6. BARRA DE PROGRESO
+  // Barra de progreso de Puzzles
   const progressEl = document.getElementById("puzzle-progress");
   if (progressEl) {
     const total = stats.puzzlesSolved + stats.puzzlesFailed;
@@ -61,52 +36,32 @@ const initProfile = () => {
     progressEl.style.width = `${ratio}%`;
   }
 
-  // 7. BOTÓN CERRAR SESIÓN (IMPORTANTE)
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.onclick = (e) => {
-      e.preventDefault();
-      localStorage.clear(); // Borramos todo para no dejar rastro
-      window.location.href = "/login";
-    };
-  }
+  // Logout
+  document.getElementById("logoutBtn").onclick = () => { localStorage.clear(); window.location.href = "/login"; };
 
-  // 8. MENÚ AVATARES
+  // Gestión de Avatares (Simplificado)
   const avatarBtn = document.getElementById("openAvatarMenu");
   const avatarMenu = document.getElementById("avatarMenu");
-  
   if (avatarBtn && avatarMenu) {
-    avatarBtn.onclick = (e) => {
-      e.stopPropagation();
-      avatarMenu.classList.toggle("hidden");
-    };
-
-    const files = [
-      "b_bishop_avatar.png", "b_horse_avatar.png", "b_king_avatar.png", 
-      "b_pawn_avatar.png", "b_queen_avatar.png", "b_rook_avatar.png",
-      "w_bishop_avatar.png", "w_horse_avatar.png", "w_king_avatar.png",
-      "w_pawn_avatar.png", "w_queen_avatar.png", "w_rook_avatar.png"
-    ];
-
-    avatarMenu.innerHTML = files.map(f => 
-      `<img src="/avatars/${f}" data-file="${f}" class="cursor-pointer hover:scale-110 transition-transform" style="width:70px; border-radius:10px;" />`
-    ).join("");
+    avatarBtn.onclick = (e) => { e.stopPropagation(); avatarMenu.classList.toggle("hidden"); };
+    
+    // Si el menú está vacío, lo llenamos
+    if (avatarMenu.innerHTML.trim() === "") {
+        const avatars = ["b_king_avatar.png", "w_king_avatar.png", "b_queen_avatar.png", "w_queen_avatar.png"];
+        avatarMenu.innerHTML = avatars.map(a => `<img src="/avatars/${a}" data-file="${a}" />`).join("");
+    }
 
     avatarMenu.onclick = (e) => {
-      const img = e.target as HTMLElement;
-      if (img.tagName === "IMG") {
-        const newPath = `/avatars/${img.dataset.file}`;
-        user.avatar = newPath;
+      if (e.target.tagName === "IMG") {
+        const path = `/avatars/${e.target.dataset.file}`;
+        user.avatar = path;
         localStorage.setItem("user", JSON.stringify(user));
-        if (currentAvatar) currentAvatar.src = newPath;
+        document.getElementById("current-avatar").src = path;
         avatarMenu.classList.add("hidden");
       }
     };
   }
 };
 
-// Listener de Astro para cambios de página
 document.addEventListener('astro:page-load', initProfile);
-
-// Ejecución por si es carga directa
 if (document.readyState !== 'loading') initProfile();

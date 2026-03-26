@@ -3,109 +3,164 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import "../styles/chessboard.css";
 ---
 
-<BaseLayout title="WELIKECHESS - Jugar Online">
+<BaseLayout title="WELIKECHESS - Online Premium">
+  <div class="main-screen">
+    <div class="game-wrapper">
+      
+      <aside class="side-panel">
+        <div class="player-box ai-card">
+          <div class="player-header"><span>👤 RIVAL</span></div>
+          <div id="captured-white" class="mini-captured"></div>
+        </div>
+        
+        <div class="status-box">
+          <div id="game-status">CONECTANDO...</div>
+        </div>
 
-  <div class="game-layout">
-    <div class="game-status">
-      <p id="game-status" class="text-lg font-semibold bg-white shadow px-3 py-2 rounded-md">
-        Turno de las blancas
-      </p>
-    </div>
+        <div class="player-box user-card">
+          <div class="player-header"><span>♔ TÚ</span></div>
+          <div id="captured-black" class="mini-captured"></div>
+        </div>
+      </aside>
 
-    <div class="board-wrapper">
-      <div class="coords-top">
-        <span>A</span><span>B</span><span>C</span><span>D</span>
-        <span>E</span><span>F</span><span>G</span><span>H</span>
-      </div>
+      <section class="board-container">
+        <div class="board-frame">
+          <div class="coords-h">
+            <span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span>
+          </div>
+          
+          <div class="board-flex">
+            <div class="coords-v">
+              <span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span>
+            </div>
+            
+            <div id="board" class="compact-board"></div>
+          </div>
+        </div>
+      </section>
 
-      <div class="coords-left">
-        <span>8</span><span>7</span><span>6</span><span>5</span>
-        <span>4</span><span>3</span><span>2</span><span>1</span>
-      </div>
+      <aside class="side-panel">
+        <div class="history-card">
+          <div class="history-header">PARTIDA ONLINE</div>
+          <div class="history-scroll">
+            <table>
+              <tbody id="move-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <button id="resetBtn" class="gold-btn">ABANDONAR</button>
+      </aside>
 
-      <div id="board" class="board"></div>
-
-      <div id="captured-area" class="mt-4 flex justify-between">
-        <div id="captured-white" class="flex flex-wrap gap-1"></div>
-        <div id="captured-black" class="flex flex-wrap gap-1"></div>
-      </div>
-    </div>
-
-    <div class="move-history">
-      <h2 class="text-xl font-bold mb-2">Historial</h2>
-      <table class="text-sm border-collapse w-full">
-        <thead>
-          <tr><th>#</th><th>Blancas</th><th>Negras</th></tr>
-        </thead>
-        <tbody id="move-body"></tbody>
-      </table>
     </div>
   </div>
 
   <script>
     import "../scripts/play-online.ts";
   </script>
-
 </BaseLayout>
 
-<style>
-  .game-layout {
+<style is:global>
+  /* Base idéntica al Desafío IA */
+  .main-screen {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; 
+    padding-top: 50px; 
+    background: transparent;
+  }
+
+  .game-wrapper {
     display: grid;
-    grid-template-columns: 1fr auto 300px;
-    gap: 2rem;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
+    grid-template-columns: 240px 680px 240px; 
+    gap: 40px;
     align-items: start;
   }
 
-  /* El contenedor del tablero con coordenadas */
-  .board-wrapper {
-    position: relative;
-    padding: 25px;
-    background: var(--bg-panel);
-    border: 2px solid var(--border-panel);
-    border-radius: 12px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  }
-
-  /* Estilos para las coordenadas */
-  .coords-top, .coords-left {
+  .side-panel {
     display: flex;
-    justify-content: space-around;
-    color: var(--color-gold);
-    font-weight: bold;
-    font-family: 'Cinzel', serif;
-    opacity: 0.8;
-  }
-  .coords-top { margin-bottom: 10px; }
-  .coords-left {
-    position: absolute;
-    left: 0;
-    top: 25px;
-    height: calc(100% - 50px);
     flex-direction: column;
-    padding-left: 5px;
+    gap: 20px;
   }
 
-  .game-status p {
-    background: var(--bg-card) !important;
-    color: var(--text-main);
-    border: 1px solid var(--border-panel);
+  /* Estética Premium */
+  .player-box, .history-card, .status-box {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
 
-  .move-history {
-    background: var(--bg-panel);
-    border: 1px solid var(--border-panel);
-    border-radius: 12px;
-    padding: 1.5rem;
+  .player-header, .history-header {
+    font-family: 'Cinzel', serif;
+    color: #d4af37;
+    text-align: center;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+  }
+
+  /* El Tablero: 600px para igualar los otros */
+  .board-frame {
+    background: #2c2c2c;
+    padding: 20px;
+    border-radius: 4px;
+    border: 4px solid #3d3d3d;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  }
+
+  .compact-board {
+    width: 600px;
     height: 600px;
-    overflow-y: auto;
-    color: var(--text-main);
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
   }
 
-  @media (max-width: 1100px) {
-    .game-layout { grid-template-columns: 1fr; justify-items: center; }
-    .move-history { width: 100%; height: 300px; }
+  .square { 
+    width: 75px; 
+    height: 75px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
   }
+  
+  .square.light { background: #ebecd0; }
+  .square.dark { background: #779556; }
+  .square.selected { background: rgba(255, 255, 0, 0.5) !important; }
+
+  /* Coordenadas */
+  .coords-h { display: flex; justify-content: space-around; padding-left: 25px; margin-bottom: 8px; color: #d4af37; font-weight: bold; font-size: 0.9rem; }
+  .coords-v { display: flex; flex-direction: column; justify-content: space-around; width: 25px; color: #d4af37; font-weight: bold; font-size: 0.9rem; }
+  .board-flex { display: flex; }
+
+  #game-status { color: #d4af37; font-family: 'Cinzel'; text-align: center; font-size: 0.9rem; font-weight: bold; }
+  
+  .history-scroll { height: 300px; overflow-y: auto; font-size: 0.8rem; color: #eee; }
+  .history-scroll table { width: 100%; }
+  .history-scroll td { padding: 8px; border-bottom: 1px solid rgba(212,175,55,0.1); }
+
+  .gold-btn {
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #d4af37;
+    padding: 12px;
+    cursor: pointer;
+    font-family: 'Cinzel';
+    transition: 0.3s;
+    font-weight: bold;
+  }
+  .gold-btn:hover { background: #d4af37; color: black; }
+
+  .piece { 
+    width: 70px; 
+    height: 70px; 
+    cursor: grab; 
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3)); 
+  }
+  
+  .mini-captured { display: flex; flex-wrap: wrap; gap: 4px; min-height: 20px; }
 </style>

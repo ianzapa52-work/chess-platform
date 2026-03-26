@@ -1,129 +1,164 @@
-import { Chess, type Square, type PieceSymbol, type Color } from "chess.js";
-
-interface Puzzle {
-  fen: string;
-  solution: string; // Ejemplo: "e2e4"
-  objective: string;
-}
+import { Chess, type Square, type Color, type PieceSymbol } from "chess.js";
 
 window.addEventListener("load", () => {
-  const boardEl = document.getElementById("puzzle-board") as HTMLElement;
-  const objectiveEl = document.getElementById("puzzleObjective") as HTMLElement;
-  const nextBtn = document.getElementById("nextPuzzle") as HTMLButtonElement;
+    const boardEl = document.getElementById("board") as HTMLElement;
+    const objectiveEl = document.getElementById("puzzleObjective") as HTMLElement;
+    const feedbackEl = document.getElementById("puzzle-feedback") as HTMLElement;
+    const nextBtn = document.getElementById("nextPuzzle") as HTMLButtonElement;
+    const solvedCountEl = document.getElementById("solved-count") as HTMLElement;
+    const badgeEl = document.getElementById("already-done-badge") as HTMLElement;
+    
+    const game = new Chess();
+    let currentIndex = 0;
+    let selectedSquare: Square | null = null;
 
-  if (!boardEl || !objectiveEl) return;
+    // Sonidos
+    const moveSound = new Audio("/sounds/move.mp3");
+    const captureSound = new Audio("/sounds/capture.mp3");
 
-  const game = new Chess();
-  let currentIndex = 0;
-  let selectedSquare: Square | null = null;
+    const puzzles = [
+        { id: "p1", fen: "4kb1r/p2n1ppp/4q3/4p3/3P4/8/PP1P1PPP/RNB1KBNR w KQk - 0 1", solution: "d4e5", objective: "Blancas ganan material" },
+        { id: "p2", fen: "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4", solution: "f3e5", objective: "Ataque táctico" },
+        { id: "p3", fen: "6k1/pp3p1p/6p1/8/8/1P6/P1P2PPP/3R2K1 w - - 0 1", solution: "d1d8", objective: "Mate en 1" }
+    ];
 
-  // Base de datos de puzzles (puedes mover esto a un JSON externo luego)
-  const puzzles: Puzzle[] = [
-    { 
-      fen: "4kb1r/p2n1ppp/4q3/4p3/3P4/8/PP1P1PPP/RNB1KBNR w KQk - 0 1", 
-      solution: "d4e5", 
-      objective: "Blancas juegan y ganan material" 
-    },
-    { 
-      fen: "r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4", 
-      solution: "c4f7", 
-      objective: "Encuentra el sacrificio de pieza" 
+    // Cargar estadísticas
+    let stats = JSON.parse(localStorage.getItem("stats") || '{"rating":1200, "totalGames":0, "wins":0, "losses":0, "draws":0, "puzzlesSolved":0, "puzzlesFailed":0}');
+    let solvedIds = JSON.parse(localStorage.getItem("solvedPuzzleIds") || "[]");
+
+    function renderBoard() {
+        boardEl.innerHTML = "";
+        game.board().forEach((row, rIdx) => {
+            row.forEach((piece, cIdx) => {
+                const square = document.createElement("div");
+                const coord = (String.fromCharCode(97 + cIdx) + (8 - rIdx)) as Square;
+                square.className = `square ${(rIdx + cIdx) % 2 === 1 ? "dark" : "light"}`;
+                square.dataset.coord = coord;
+
+                if (piece) {
+                    const img = document.createElement("img");
+                    img.src = `/pieces/${piece.color}_${{p:'pawn',r:'rook',n:'horse',b:'bishop',q:'queen',k:'king'}[piece.type]}.svg`;
+                    img.className = "piece";
+                    img.draggable = true;
+
+                    // Drag and Drop Nativo
+                    img.addEventListener("dragstart", (e) => {
+                        e.dataTransfer?.setData("text/plain", coord);
+                        img.classList.add("dragging");
+                        selectedSquare = coord;
+                    });
+
+                    img.addEventListener("dragend", () => img.classList.remove("dragging"));
+                    
+                    img.onclick = (e) => {
+                        e.stopPropagation();
+                        handleSquareSelect(coord);
+                    };
+
+                    square.appendChild(img);
+                }
+
+                square.addEventListener("dragover", (e) => e.preventDefault());
+                square.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    const from = e.dataTransfer?.getData("text/plain") as Square;
+                    if (from) executePuzzleMove(from, coord);
+                });
+
+                square.onclick = () => handleSquareSelect(coord);
+                boardEl.appendChild(square);
+            });
+        });
+        if (solvedCountEl) solvedCountEl.textContent = stats.puzzlesSolved;
     }
-  ];
 
-  // --- UTILIDADES ---
-
-  function getPieceImage(piece: { color: Color; type: PieceSymbol }): string {
-    const colorName = piece.color === "w" ? "white" : "black";
-    const pieceMap: Record<PieceSymbol, string> = {
-      p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king"
-    };
-    return `/pieces/${colorName[0]}_${pieceMap[piece.type]}.svg`;
-  }
-
-  function renderBoard() {
-    boardEl.innerHTML = "";
-    const state = game.board();
-
-    state.forEach((row, r) => {
-      row.forEach((piece, c) => {
-        const square = document.createElement("div");
-        square.className = `square ${(r + c) % 2 === 1 ? "dark" : "light"}`;
-        const currentCoord = (String.fromCharCode(97 + c) + (8 - r)) as Square;
-
-        if (selectedSquare === currentCoord) {
-          square.classList.add("selected");
+    function handleSquareSelect(coord: Square) {
+        if (selectedSquare === coord) {
+            selectedSquare = null;
+            renderBoard();
+            return;
         }
 
-        if (piece) {
-          const img = document.createElement("img");
-          img.src = getPieceImage(piece);
-          img.className = "piece";
-          square.appendChild(img);
+        if (!selectedSquare) {
+            if (game.get(coord)?.color === game.turn()) {
+                selectedSquare = coord;
+                renderBoard();
+            }
+        } else {
+            executePuzzleMove(selectedSquare, coord);
+            selectedSquare = null;
         }
+    }
 
-        square.onclick = () => handleSquareClick(currentCoord);
-        boardEl.appendChild(square);
-      });
-    });
-  }
+    function executePuzzleMove(from: Square, to: Square) {
+        const puzzle = puzzles[currentIndex];
+        const isAlreadySolved = solvedIds.includes(puzzle.id);
 
-  function handleSquareClick(clickedSq: Square) {
-    const piece = game.get(clickedSq);
+        try {
+            const move = game.move({ from, to, promotion: "q" });
+            if (move) {
+                const moveAttempt = from + to;
+                
+                if (moveAttempt === puzzle.solution) {
+                    // ÉXITO
+                    move.captured ? captureSound.play().catch(()=>0) : moveSound.play().catch(()=>0);
+                    feedbackEl.textContent = "¡CORRECTO!";
+                    feedbackEl.style.color = "#4ade80";
 
-    // 1. Seleccionar pieza
-    if (!selectedSquare) {
-      if (piece && piece.color === game.turn()) {
-        selectedSquare = clickedSq;
+                    if (!isAlreadySolved) {
+                        stats.puzzlesSolved++;
+                        solvedIds.push(puzzle.id);
+                        localStorage.setItem("stats", JSON.stringify(stats));
+                        localStorage.setItem("solvedPuzzleIds", JSON.stringify(solvedIds));
+                    }
+                } else {
+                    // ERROR
+                    game.undo();
+                    feedbackEl.textContent = "INTENTA DE NUEVO";
+                    feedbackEl.style.color = "#f87171";
+                    if (!isAlreadySolved) {
+                        stats.puzzlesFailed++;
+                        localStorage.setItem("stats", JSON.stringify(stats));
+                    }
+                    flashError(from, to);
+                }
+                renderBoard();
+            }
+        } catch (e) {
+            renderBoard();
+        }
+    }
+
+    function flashError(f: string, t: string) {
+        const s1 = boardEl.querySelector(`[data-coord="${f}"]`);
+        const s2 = boardEl.querySelector(`[data-coord="${t}"]`);
+        s1?.classList.add("error-flash");
+        s2?.classList.add("error-flash");
+        setTimeout(() => {
+            s1?.classList.remove("error-flash");
+            s2?.classList.remove("error-flash");
+        }, 400);
+    }
+
+    function loadPuzzle(idx: number) {
+        currentIndex = idx;
+        const puzzle = puzzles[idx];
+        game.load(puzzle.fen);
+        
+        objectiveEl.textContent = puzzle.objective;
+        feedbackEl.textContent = "TU TURNO";
+        feedbackEl.style.color = "#d4af37";
+        
+        const isSolved = solvedIds.includes(puzzle.id);
+        badgeEl.style.display = isSolved ? "block" : "none";
+        
         renderBoard();
-      }
-      return;
     }
 
-    // 2. Intentar mover
-    const moveAttempt = { from: selectedSquare, to: clickedSq, promotion: "q" as const };
-    const move = game.move(moveAttempt);
-
-    if (move) {
-      const playedMove = move.from + move.to;
-      const correctMove = puzzles[currentIndex].solution;
-
-      if (playedMove === correctMove) {
-        objectiveEl.textContent = "¡Excelente! Movimiento correcto.";
-        objectiveEl.classList.replace("bg-white", "bg-green-100");
-        // Aquí podrías disparar un sonido de éxito
-      } else {
-        objectiveEl.textContent = "Incorrecto. Intenta otra vez.";
-        objectiveEl.classList.replace("bg-white", "bg-red-100");
-        game.undo();
-      }
-      renderBoard();
-    }
-
-    selectedSquare = null;
-    renderBoard();
-  }
-
-  function loadPuzzle(index: number) {
-    const p = puzzles[index];
-    if (!p) return;
-
-    game.load(p.fen);
-    objectiveEl.textContent = p.objective;
-    objectiveEl.classList.remove("bg-green-100", "bg-red-100");
-    objectiveEl.classList.add("bg-white");
-    renderBoard();
-  }
-
-  // --- EVENTOS ---
-
-  if (nextBtn) {
     nextBtn.onclick = () => {
-      currentIndex = (currentIndex + 1) % puzzles.length;
-      loadPuzzle(currentIndex);
+        currentIndex = (currentIndex + 1) % puzzles.length;
+        loadPuzzle(currentIndex);
     };
-  }
 
-  // Inicio
-  loadPuzzle(currentIndex);
+    loadPuzzle(0);
 });

@@ -3,109 +3,181 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import "../styles/chessboard.css";
 ---
 
-<BaseLayout title="WELIKECHESS - Jugar Local">
+<BaseLayout title="WELIKECHESS - Local Premium">
+  <div class="main-screen">
+    <div class="game-wrapper">
+      
+      <aside class="side-panel players">
+        <div class="player-box white">
+          <div class="player-header"><span>♔ BLANCAS</span></div>
+          <div id="captured-black" class="mini-captured"></div>
+        </div>
 
-  <div class="game-layout">
-    <div class="game-status">
-      <p id="game-status" class="text-lg font-semibold bg-white shadow px-3 py-2 rounded-md">
-        Turno de las blancas
-      </p>
-    </div>
+        <div class="status-center">
+          <div id="game-status">TURNO BLANCAS</div>
+        </div>
 
-    <div class="board-wrapper">
-      <div class="coords-top">
-        <span>A</span><span>B</span><span>C</span><span>D</span>
-        <span>E</span><span>F</span><span>G</span><span>H</span>
-      </div>
+        <div class="player-box black">
+          <div class="player-header"><span>♚ NEGRAS</span></div>
+          <div id="captured-white" class="mini-captured"></div>
+        </div>
+      </aside>
 
-      <div class="coords-left">
-        <span>8</span><span>7</span><span>6</span><span>5</span>
-        <span>4</span><span>3</span><span>2</span><span>1</span>
-      </div>
+      <section class="board-container">
+        <div class="board-frame">
+          <div class="coords-h"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span></div>
+          <div class="board-flex">
+            <div class="coords-v"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>
+            <div id="board" class="compact-board"></div>
+          </div>
+        </div>
+      </section>
 
-      <div id="board" class="board"></div>
+      <aside class="side-panel history">
+        <div class="history-card">
+          <div class="history-header">HISTORIAL</div>
+          <div class="history-scroll">
+            <table>
+              <tbody id="move-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <button id="resetBtn" class="gold-btn">REINICIAR PARTIDA</button>
+      </aside>
 
-      <div id="captured-area" class="mt-4 flex justify-between">
-        <div id="captured-white" class="flex flex-wrap gap-1"></div>
-        <div id="captured-black" class="flex flex-wrap gap-1"></div>
-      </div>
-    </div>
-
-    <div class="move-history">
-      <h2 class="text-xl font-bold mb-2">Historial</h2>
-      <table class="text-sm border-collapse w-full">
-        <thead>
-          <tr><th>#</th><th>Blancas</th><th>Negras</th></tr>
-        </thead>
-        <tbody id="move-body"></tbody>
-      </table>
     </div>
   </div>
 
-  <script> 
+  <script>
     import "../scripts/play-local.ts";
   </script>
-
 </BaseLayout>
 
-<style>
-  .game-layout {
-    display: grid;
-    grid-template-columns: 1fr auto 300px;
-    gap: 2rem;
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    align-items: start;
-  }
-
-  /* El contenedor del tablero con coordenadas */
-  .board-wrapper {
-    position: relative;
-    padding: 25px;
-    background: var(--bg-panel);
-    border: 2px solid var(--border-panel);
-    border-radius: 12px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  }
-
-  /* Estilos para las coordenadas */
-  .coords-top, .coords-left {
+<style is:global>
+  .main-screen {
+    height: calc(100vh - 100px);
     display: flex;
-    justify-content: space-around;
-    color: var(--color-gold);
-    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: transparent; /* Para que se vea tu fondo de madera */
+  }
+
+  .game-wrapper {
+    display: grid;
+    grid-template-columns: 220px 720px 240px;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .side-panel { display: flex; flex-direction: column; gap: 25px; }
+
+  /* Estética de las cajas laterales */
+  .player-box, .history-card {
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .player-header, .history-header {
     font-family: 'Cinzel', serif;
-    opacity: 0.8;
-  }
-  .coords-top { margin-bottom: 10px; }
-  .coords-left {
-    position: absolute;
-    left: 0;
-    top: 25px;
-    height: calc(100% - 50px);
-    flex-direction: column;
-    padding-left: 5px;
+    color: #d4af37;
+    font-size: 0.9rem;
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    text-align: center;
   }
 
-  .game-status p {
-    background: var(--bg-card) !important;
-    color: var(--text-main);
-    border: 1px solid var(--border-panel);
+  /* EL TABLERO: El alma del juego */
+  .board-frame {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
   }
 
-  .move-history {
-    background: var(--bg-panel);
-    border: 1px solid var(--border-panel);
-    border-radius: 12px;
-    padding: 1.5rem;
-    height: 600px;
-    overflow-y: auto;
-    color: var(--text-main);
+  .compact-board {
+    width: 640px; /* Tamaño grande y divisible por 8 */
+    height: 640px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    background: rgba(255,255,255,0.05);
   }
 
-  @media (max-width: 1100px) {
-    .game-layout { grid-template-columns: 1fr; justify-items: center; }
-    .move-history { width: 100%; height: 300px; }
+  .square {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Casillas semitransparentes para dejar ver la madera */
+  .square.light { background-color: rgba(255, 255, 255, 0.05); }
+  .square.dark { background-color: rgba(0, 0, 0, 0.3); }
+  .square.selected { background-color: rgba(212, 175, 55, 0.3) !important; }
+  .square.legal-move::after {
+    content: "";
+    width: 15px;
+    height: 15px;
+    background: rgba(212, 175, 55, 0.4);
+    border-radius: 50%;
+  }
+
+  .piece {
+    width: 72px;
+    height: 72px;
+    cursor: grab;
+    transition: transform 0.1s;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+  }
+  .piece:active { cursor: grabbing; transform: scale(1.1); }
+
+  /* Coordenadas */
+  .coords-h { display: flex; justify-content: space-around; margin-left: 30px; color: #d4af37; font-family: 'Cinzel'; font-size: 0.8rem; opacity: 0.6; }
+  .coords-v { display: flex; flex-direction: column; justify-content: space-around; width: 30px; color: #d4af37; font-family: 'Cinzel'; font-size: 0.8rem; opacity: 0.6; }
+  .board-flex { display: flex; }
+
+  /* Otros elementos */
+  #game-status {
+    background: rgba(0,0,0,0.8);
+    border: 1px solid #d4af37;
+    color: #d4af37;
+    padding: 15px;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+  }
+
+  .history-scroll { height: 400px; overflow-y: auto; color: #ccc; font-size: 0.85rem; }
+  .history-scroll table { width: 100%; border-collapse: collapse; }
+  .history-scroll td { padding: 8px; border-bottom: 1px solid rgba(212, 175, 55, 0.1); text-align: center; }
+
+  .gold-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #d4af37;
+    padding: 12px;
+    font-family: 'Cinzel', serif;
+    cursor: pointer;
+    transition: 0.3s;
+    letter-spacing: 1px;
+  }
+  .gold-btn:hover { background: #d4af37; color: black; }
+
+  .mini-captured { display: flex; flex-wrap: wrap; gap: 4px; padding: 5px; }
+
+  @media (max-height: 850px) {
+    .compact-board { width: 520px; height: 520px; }
+    .square { width: 65px; height: 65px; }
+    .piece { width: 55px; height: 55px; }
+    .game-wrapper { grid-template-columns: 180px 600px 180px; gap: 20px; }
   }
 </style>
