@@ -32,7 +32,7 @@ const initProfile = () => {
     document.getElementById("stat-rating").textContent = userData.rating || 1200;
     document.getElementById("stat-ranking").textContent = `#${userData.ranking || '---'}`;
 
-    // 2. Rendimiento en Combate (Wins, Losses, Draws)
+    // 2. Rendimiento en Combate
     const wins = userData.wins || 0;
     const losses = userData.losses || 0;
     const draws = userData.draws || 0;
@@ -41,7 +41,7 @@ const initProfile = () => {
     document.getElementById("stat-losses").textContent = losses;
     document.getElementById("stat-draws").textContent = draws;
 
-    // 3. Win Rate y Barras de Progreso
+    // 3. Win Rate
     const total = wins + losses + draws;
     const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
     const lossRate = total > 0 ? Math.round((losses / total) * 100) : 0;
@@ -50,17 +50,17 @@ const initProfile = () => {
     document.getElementById("bar-wins").style.width = `${winRate}%`;
     document.getElementById("bar-losses").style.width = `${lossRate}%`;
 
-    // 4. Puzzles (Aquí es donde se verán tus 3 resueltos)
+    // 4. Puzzles
     const puzzles = userData.puzzlesSolved || 0;
     const nextGoal = 500;
     document.getElementById("stat-puzzles-solved").textContent = puzzles;
     document.getElementById("puzzle-milestone-text").textContent = `${puzzles % nextGoal} / ${nextGoal}`;
     document.getElementById("puzzle-progress").style.width = `${(puzzles % nextGoal / nextGoal) * 100}%`;
 
-    // 5. Racha (Streak)
+    // 5. Racha
     document.getElementById("stat-streak").textContent = `${userData.streak || 0} Victorias`;
 
-    // --- LÓGICA DEL MENÚ DE AVATAR ---
+    // --- MENÚ DE AVATAR ---
     const avatarBtn = document.getElementById("openAvatarMenu");
     const avatarMenu = document.getElementById("avatarMenu");
     const scrollContainer = document.getElementById("avatarScrollContainer");
@@ -103,6 +103,14 @@ const initProfile = () => {
             if (!avatarMenu.contains(e.target) && e.target !== avatarBtn) {
                 avatarMenu.classList.add("hidden");
             }
+        });
+    }
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("user");
+            window.location.href = "/login";
         });
     }
 

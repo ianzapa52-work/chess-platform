@@ -23,7 +23,6 @@ window.addEventListener("load", () => {
         return `/pieces/${colorFolder[0]}_${pieceMap[piece.type]}.svg`;
     }
 
-    // CREACIÓN ÚNICA DEL TABLERO (Evita parpadeos)
     function createBoard() {
         boardEl.innerHTML = "";
         for (let i = 0; i < 64; i++) {
@@ -35,7 +34,6 @@ window.addEventListener("load", () => {
             square.className = `square ${(row + col) % 2 === 1 ? "dark" : "light"}`;
             square.dataset.coord = coord;
 
-            // Eventos de Drag & Drop
             square.addEventListener("dragover", (e) => e.preventDefault());
             square.addEventListener("drop", (e) => {
                 e.preventDefault();
@@ -49,7 +47,6 @@ window.addEventListener("load", () => {
         updateBoardPieces();
     }
 
-    // ACTUALIZACIÓN INTELIGENTE (Solo piezas y estados)
     function updateBoardPieces() {
         const state = game.board();
         const squares = boardEl.querySelectorAll(".square");
@@ -61,11 +58,10 @@ window.addEventListener("load", () => {
             const piece = state[row][col];
             const coord = squareEl.dataset.coord as Square;
 
-            // Limpiar clases de selección/legalidad
-            squareEl.classList.remove("selected", "legal-move");
-            if (selectedSquare === coord) squareEl.classList.add("selected");
+            // Limpiamos siempre las marcas de movimientos legales previos
+            squareEl.classList.remove("legal-move");
+            // NOTA: Se ha eliminado squareEl.classList.remove("selected") ya que no se usa
 
-            // Gestionar imagen de la pieza sin destruir el div
             let img = squareEl.querySelector("img");
             if (piece) {
                 if (!img) {
@@ -76,7 +72,6 @@ window.addEventListener("load", () => {
                 const newSrc = getPieceImage(piece);
                 if (img.getAttribute("src") !== newSrc) img.src = newSrc;
                 
-                // Solo dejar arrastrar si es su turno
                 img.draggable = piece.color === game.turn();
                 img.ondragstart = (e) => {
                     e.dataTransfer?.setData("text/plain", coord);
@@ -90,7 +85,7 @@ window.addEventListener("load", () => {
     }
 
     function highlightLegalMoves(square: Square) {
-        // Primero limpiamos previos sin resetear todo
+        // Limpiamos puntos de movimientos legales actuales antes de poner los nuevos
         boardEl.querySelectorAll(".square").forEach(s => s.classList.remove("legal-move"));
         
         const moves = game.moves({ square, verbose: true });
@@ -102,14 +97,22 @@ window.addEventListener("load", () => {
 
     function handleSquareClick(coord: Square) {
         const piece = game.get(coord);
-        if (!selectedSquare) {
+
+        if (selectedSquare) {
+            // CAMBIO DIRECTO: Si haces clic en otra pieza de tu color, cambia la selección
+            if (piece && piece.color === game.turn() && coord !== selectedSquare) {
+                selectedSquare = coord;
+                highlightLegalMoves(coord);
+                return;
+            }
+            // Si es un movimiento a casilla vacía o captura, intentamos ejecutar
+            executeMove(selectedSquare, coord);
+        } else {
+            // Primera selección (siempre que sea pieza del color del turno)
             if (piece && piece.color === game.turn()) {
                 selectedSquare = coord;
                 highlightLegalMoves(coord);
-                boardEl.querySelector(`[data-coord="${coord}"]`)?.classList.add("selected");
             }
-        } else {
-            executeMove(selectedSquare, coord);
         }
     }
 
@@ -122,7 +125,10 @@ window.addEventListener("load", () => {
                 updateUI();
             }
         } catch (e) { /* Movimiento inválido */ }
+
+        // Al mover o fallar, reseteamos estado y limpiamos visuales
         selectedSquare = null;
+        boardEl.querySelectorAll(".square").forEach(s => s.classList.remove("legal-move"));
         updateBoardPieces();
     }
 
@@ -138,14 +144,12 @@ window.addEventListener("load", () => {
     }
 
     function updateUI() {
-        // Estatus del juego
         let statusText = game.turn() === "w" ? "TURNO BLANCAS" : "TURNO NEGRAS";
         if (game.inCheck()) statusText += " (¡JAQUE!)";
         if (game.isCheckmate()) statusText = "¡JAQUE MATE!";
         if (game.isDraw()) statusText = "TABLAS";
         statusEl.textContent = statusText;
 
-        // Historial de movimientos
         const history = game.history();
         moveBody.innerHTML = "";
         for (let i = 0; i < history.length; i += 2) {
@@ -158,7 +162,6 @@ window.addEventListener("load", () => {
             moveBody.appendChild(tr);
         }
         
-        // Auto-scroll al final del historial
         const scroll = moveBody.parentElement?.parentElement;
         if (scroll) scroll.scrollTop = scroll.scrollHeight;
     }
@@ -167,6 +170,7 @@ window.addEventListener("load", () => {
         game.reset();
         capWhite.innerHTML = "";
         capBlack.innerHTML = "";
+        selectedSquare = null; // Limpiar selección en reset
         updateUI();
         updateBoardPieces();
     };

@@ -8,29 +8,53 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <div id="profile-user" class="flex flex-col opacity-0 transition-opacity duration-500">
       
       <header class="bg-zinc-900/60 backdrop-blur-2xl border border-white/10 rounded-t-[3.5rem] p-10 pb-16 shadow-2xl relative z-20">
-        <div class="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-          <div class="relative group">
-            <div class="absolute -inset-6 bg-gradient-to-tr from-yellow-600 to-amber-400 rounded-[4rem] blur-2xl opacity-20 group-hover:opacity-40 transition duration-700"></div>
-            <img id="current-avatar" src="/avatars/w_king_avatar.png" class="relative w-56 h-56 md:w-80 md:h-80 rounded-[3.5rem] border-4 border-yellow-500/20 object-cover shadow-2xl z-10" />
-            <button id="openAvatarMenu" class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-10 py-4 bg-yellow-500 hover:bg-yellow-400 text-black font-black rounded-2xl text-xs md:text-sm uppercase shadow-xl transition-all hover:scale-110 active:scale-95 whitespace-nowrap cursor-pointer z-[50]">
-              CAMBIAR AVATAR
-            </button>
-          </div>
 
-          <div class="flex-1 text-center lg:text-left space-y-8">
-            <div class="space-y-2">
-              <h2 class="text-6xl md:text-9xl font-black text-white tracking-tighter italic uppercase leading-none" id="profile-username">USUARIO</h2>
-              <p class="text-zinc-500 text-xl md:text-3xl font-medium italic" id="profile-email">---</p>
+        <div class="relative pb-4">
+          
+          <button 
+            id="logoutBtn"
+            class="absolute bottom-0 right-0 px-8 py-3 
+                  bg-gradient-to-br from-red-700 to-red-600 
+                  hover:from-red-600 hover:to-red-500
+                  text-white font-black rounded-3xl text-xs uppercase tracking-widest
+                  shadow-[0_0_20px_rgba(255,0,0,0.25)]
+                  hover:shadow-[0_0_30px_rgba(255,60,60,0.45)]
+                  transition-all duration-300 hover:scale-110 active:scale-95
+                  border border-red-500/30 backdrop-blur-xl
+                  cursor-pointer
+                  z-[9999]">
+            CERRAR SESIÓN
+          </button>
+
+          <div class="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <div class="relative group">
+              <div class="absolute -inset-6 bg-gradient-to-tr from-yellow-600 to-amber-400 rounded-[4rem] blur-2xl opacity-20 group-hover:opacity-40 transition duration-700"></div>
+              <img id="current-avatar" src="/avatars/w_king_avatar.png" class="relative w-56 h-56 md:w-80 md:h-80 rounded-[3.5rem] border-4 border-yellow-500/20 object-cover shadow-2xl z-10" />
+              <button id="openAvatarMenu" class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-10 py-4 bg-yellow-500 hover:bg-yellow-400 text-black font-black rounded-2xl text-xs md:text-sm uppercase shadow-xl transition-all hover:scale-110 active:scale-95 whitespace-nowrap cursor-pointer z-[50]">
+                CAMBIAR AVATAR
+              </button>
             </div>
-            
-            <div class="flex flex-wrap justify-center lg:justify-start gap-6 pt-4">
-              <div class="bg-black/40 border border-white/5 backdrop-blur-md px-10 py-6 rounded-[2rem] text-center min-w-[180px]">
-                <span class="block text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-2">RANKING GLOBAL</span>
-                <span class="text-4xl md:text-5xl font-black text-white italic" id="stat-ranking">#---</span>
+
+            <div class="flex-1 min-w-[300px] lg:min-w-[680px] text-center lg:text-left space-y-8">
+              <div class="space-y-2">
+                <h2 
+                  id="profile-username"
+                  class="font-black text-white tracking-tighter italic uppercase leading-none
+                        max-w-[500px] truncate
+                        text-[clamp(2rem,8vw,5.5rem)]">
+                </h2>
+                <p class="text-zinc-500 text-xl md:text-3xl font-medium italic" id="profile-email">---</p>
               </div>
-              <div class="bg-black/40 border border-white/5 backdrop-blur-md px-10 py-6 rounded-[2rem] text-center min-w-[180px]">
-                <span class="block text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-2">ELO ACTUAL</span>
-                <span class="text-4xl md:text-5xl font-black text-white italic" id="stat-rating">1200</span>
+              
+              <div class="flex flex-wrap justify-center lg:justify-start gap-6 pt-4">
+                <div class="bg-black/40 border border-white/5 backdrop-blur-md px-10 py-6 rounded-[2rem] text-center min-w-[180px]">
+                  <span class="block text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-2">RANKING GLOBAL</span>
+                  <span class="text-4xl md:text-5xl font-black text-white italic" id="stat-ranking">#---</span>
+                </div>
+                <div class="bg-black/40 border border-white/5 backdrop-blur-md px-10 py-6 rounded-[2rem] text-center min-w-[180px]">
+                  <span class="block text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-2">ELO ACTUAL</span>
+                  <span class="text-4xl md:text-5xl font-black text-white italic" id="stat-rating">1200</span>
+                </div>
               </div>
             </div>
           </div>
@@ -122,7 +146,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             </div>
           </div>
         </div>
-
       </main>
     </div>
   </div>

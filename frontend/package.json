@@ -9,14 +9,22 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/vercel": "^8.2.11",
+    "@astrojs/react": "^5.0.3",
+    "@astrojs/vercel": "^10.0.4",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^6.0.8",
     "chess.js": "^1.4.0",
+    "framer-motion": "^12.38.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "tailwindcss": "^4.1.18"
   },
   "overrides": {
     "path-to-regexp": "^8.0.0",
     "esbuild": "^0.25.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
   }
 }

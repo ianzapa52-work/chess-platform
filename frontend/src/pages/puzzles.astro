@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import "../styles/chessboard.css";
+import AchievementToast from "../components/AchievementToast";
 ---
 
 <BaseLayout title="WELIKECHESS - Puzzles Premium">
@@ -8,16 +8,22 @@ import "../styles/chessboard.css";
     <div class="game-wrapper">
       
       <aside class="side-panel">
-        <div class="player-box ai-card">
-          <div class="player-header"><span>🎯 OBJETIVO</span></div>
-          <div id="puzzleObjective" class="status-text">Cargando...</div>
+        <div class="ui-card objective-card">
+          <div class="card-header">
+            <span class="icon">🎯</span>
+            <span class="title">OBJETIVO</span>
+          </div>
+          <div id="puzzleObjective" class="objective-text">Cargando...</div>
         </div>
         
-        <div class="status-box">
-          <div id="puzzle-feedback" class="status-text font-bold">TU TURNO</div>
+        <div class="status-container">
+          <div id="puzzle-feedback" class="status-badge">TU TURNO</div>
         </div>
 
-        <button id="nextPuzzle" class="gold-btn">SIGUIENTE PUZZLE</button>
+        <button id="nextPuzzle" class="premium-btn">
+          <span>SIGUIENTE PUZZLE</span>
+          <div class="btn-glow"></div>
+        </button>
       </aside>
 
       <section class="board-container">
@@ -35,15 +41,16 @@ import "../styles/chessboard.css";
       </section>
 
       <aside class="side-panel">
-        <div class="history-card">
-          <div class="history-header">PROGRESO</div>
-          <div class="stats-content">
-            <p class="mb-2">Resueltos: <span id="solved-count" class="gold-text">0</span></p>
-            <div id="already-done-badge" class="hidden-badge">
-              ✨ YA COMPLETADO
+        <div class="ui-card progress-card">
+          <div class="card-header">PROGRESO</div>
+          <div class="stats-wrapper">
+            <div class="stat-main">
+              <span id="solved-count" class="stat-number">0</span>
+              <p class="stat-label">Puzzles Resueltos</p>
             </div>
           </div>
         </div>
+        <AchievementToast client:load />
       </aside>
 
     </div>
@@ -55,57 +62,101 @@ import "../styles/chessboard.css";
 </BaseLayout>
 
 <style is:global>
-  .main-screen { min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding-top: 50px; }
-  .game-wrapper { display: grid; grid-template-columns: 240px 680px 240px; gap: 40px; align-items: start; }
-  .side-panel { display: flex; flex-direction: column; gap: 20px; }
-  
-  .player-box, .history-card, .status-box {
-    background: rgba(15, 15, 15, 0.95);
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    padding: 15px; border-radius: 4px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  .main-screen {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    padding: 20px;
   }
 
-  .status-text { color: #eee; text-align: center; font-family: 'Cinzel', serif; font-size: 0.85rem; }
-  .gold-text { color: #d4af37; font-weight: bold; font-size: 1.2rem; }
-  
-  .hidden-badge { 
-    display: none; 
-    background: rgba(212, 175, 55, 0.1); 
-    color: #d4af37; 
-    padding: 8px; 
-    border-radius: 4px; 
-    font-size: 0.7rem; 
-    text-align: center;
-    border: 1px dashed #d4af37;
+  .game-wrapper {
+    display: grid; 
+    grid-template-columns: 260px 680px 260px; 
+    gap: 30px; 
+    align-items: center;
   }
 
-  .board-frame { background: #2c2c2c; padding: 20px; border-radius: 4px; border: 4px solid #3d3d3d; }
-  .compact-board { width: 600px; height: 600px; display: grid; grid-template-columns: repeat(8, 1fr); }
-  
-  .square { width: 75px; height: 75px; display: flex; justify-content: center; align-items: center; position: relative; }
-  .square.light { background: #ebecd0; }
-  .square.dark { background: #779556; }
-  
-  /* Indicadores visuales */
-  .square.selected { background: rgba(212, 175, 55, 0.5) !important; }
-  .square.error-flash { background: rgba(248, 113, 113, 0.6) !important; transition: background 0.2s; }
-
-  .coords-h, .coords-v { color: #d4af37; font-weight: bold; font-size: 0.9rem; font-family: 'Cinzel'; }
-  .coords-h { display: flex; justify-content: space-around; padding-left: 25px; margin-bottom: 8px; }
-  .coords-v { display: flex; flex-direction: column; justify-content: space-around; width: 25px; }
-  .board-flex { display: flex; }
-
-  .gold-btn {
-    background: transparent; border: 1px solid #d4af37; color: #d4af37;
-    padding: 12px; cursor: pointer; font-family: 'Cinzel'; transition: 0.3s; font-weight: bold;
+  .board-frame {
+    background: rgba(10, 31, 22, 0.8);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
   }
-  .gold-btn:hover { background: #d4af37; color: black; }
+
+  .compact-board {
+    width: 600px;
+    height: 600px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    border: 4px solid #1a1a1a;
+    user-select: none;
+  }
+
+  .square { 
+    width: 100%; height: 100%; 
+    display: flex; justify-content: center; align-items: center; 
+    position: relative;
+    transition: background-color 0.3s ease;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .square.light { background: #eeeed2; }
+  .square.dark { background: #769656; }
+
+  .square.legal-move {
+    box-shadow: inset 0 0 0 5px #13eb6d !important;
+    z-index: 10;
+  }
+
+  .square.selected {
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  .square.success-flash { background: rgba(2, 255, 107, 0.8) !important; }
   
+  .square.error-flash { 
+    background: rgba(236, 41, 20, 0.9) !important; 
+    transition: background-color 0.2s ease;
+  }
+
   .piece { 
-    width: 70px; height: 70px; cursor: grab; z-index: 10;
-    transition: transform 0.1s ease;
+    width: 90%; height: 90%; cursor: grab; z-index: 5;
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.4));
   }
-  .piece:active { cursor: grabbing; transform: scale(1.1); }
-  .piece.dragging { opacity: 0.4; }
+
+  .side-panel { display: flex; flex-direction: column; gap: 20px; }
+  .ui-card {
+    background: linear-gradient(145deg, rgba(13, 43, 31, 0.9), rgba(7, 24, 17, 0.95));
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    border-radius: 12px; padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    position: relative; overflow: hidden; backdrop-filter: blur(5px);
+  }
+  .card-header {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Cinzel', serif; color: #2ecc71;
+    font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 15px;
+  }
+  .objective-text { font-size: 1.1rem; color: #ffffff; font-weight: 500; }
+  .status-badge {
+    background: rgba(10, 31, 22, 0.8); border: 1px solid rgba(46, 204, 113, 0.5);
+    color: #2ecc71; text-align: center; padding: 16px; border-radius: 8px;
+    font-weight: 800; letter-spacing: 2px;
+  }
+  .premium-btn {
+    background: #1a1a1a; border: 1px solid #2ecc71; color: #2ecc71;
+    padding: 16px; border-radius: 8px; font-family: 'Cinzel', serif;
+    font-weight: bold; cursor: pointer;
+  }
+  .stat-number { display: block; font-size: 3.2rem; font-weight: 900; color: #f1c40f; text-align: center; }
+  .stat-label { color: #ccc; font-size: 0.75rem; text-transform: uppercase; text-align: center; }
+  .coords-h, .coords-v { color: #2ecc71; font-size: 0.75rem; font-weight: bold; opacity: 0.6; }
+  .coords-h { display: flex; justify-content: space-around; padding-bottom: 5px; padding-left: 20px; }
+  .coords-v { display: flex; flex-direction: column; justify-content: space-around; width: 20px; padding-right: 5px; }
+  .board-flex { display: flex; }
 </style>
