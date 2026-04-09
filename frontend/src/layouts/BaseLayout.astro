@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import SettingsManager from "../components/SettingsManager.tsx";
 const { title = "WELIKECHESS" } = Astro.props;
 ---
 
@@ -14,9 +15,19 @@ const { title = "WELIKECHESS" } = Astro.props;
 
     <script is:inline>
       (function() {
+        // Carga inicial del tema
         const savedTheme = localStorage.getItem("theme") || "dark";
         if (savedTheme === "dark") {
           document.documentElement.classList.add("dark-mode");
+        }
+        
+        // Carga inicial de animaciones
+        const savedSettings = localStorage.getItem("user_settings");
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings);
+          if (parsed.animations === false) {
+            document.documentElement.classList.add('no-animations');
+          }
         }
       })();
     </script>
@@ -69,21 +80,35 @@ const { title = "WELIKECHESS" } = Astro.props;
         </ul>
 
         <div class="pt-6 mt-auto border-t border-gold/10">
-            <a href="/settings" class="settings-container group flex items-center gap-4">
-              <img src="/assets/gear.png" class="w-10 h-10 md:w-14 md:h-14 settings-icon" alt="Settings" />
-              <span class="font-bold tracking-widest text-[#d4af37] opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity" style="font-family: 'Cinzel', serif;">AJUSTES</span>
-            </a>
+          <div 
+            onclick="
+              // 1. Cerramos el menú lateral y el overlay
+              const sideMenu = document.getElementById('sideMenu');
+              const menuOverlay = document.getElementById('menuOverlay');
+              if (sideMenu) sideMenu.classList.add('-translate-x-full');
+              if (menuOverlay) menuOverlay.classList.add('hidden');
+              
+              // 2. Abrimos los ajustes
+              window.dispatchEvent(new CustomEvent('open-settings'));
+            " 
+            class="settings-container group flex items-center gap-4 cursor-pointer"
+          >
+            <img src="/assets/gear.png" class="w-10 h-10 md:w-14 md:h-14 settings-icon" alt="Settings" />
+            <span class="font-bold tracking-widest text-[#d4af37] opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity" style="font-family: 'Cinzel', serif;">
+              AJUSTES
+            </span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div id="menuOverlay"
-      class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-40">
-    </div>
+    <div id="menuOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-40"></div>
 
     <main class="pt-20 md:pt-28 max-w-none mx-auto px-4 min-h-screen">
       <slot />
     </main>
+
+    <SettingsManager client:load />
 
     <script>
       import "../scripts/theme.ts";
@@ -94,85 +119,28 @@ const { title = "WELIKECHESS" } = Astro.props;
 </html>
 
 <style is:global>
-  /* Se mantienen tus estilos base */
-  :root {
-    --bg-card: #ffffff;
-    --bg-panel: #f8f8f8;
-    --text-main: #1a1a1a;
+  :root { --bg-card: #ffffff; --bg-panel: #f8f8f8; --text-main: #1a1a1a; }
+  .dark-mode { --bg-card: #0a0a0a; --bg-panel: #141414; --text-main: #e0e0e0; }
+
+  /* Clase para desactivar animaciones */
+  .no-animations, .no-animations * {
+    transition: none !important;
+    animation: none !important;
   }
 
-  .dark-mode {
-    --bg-card: #0a0a0a;
-    --bg-panel: #141414;
-    --text-main: #e0e0e0;
+  body { background-color: var(--bg-panel); color: var(--text-main); overflow-x: hidden; }
+  nav { background-color: var(--bg-card); transition: all 0.4s ease; }
+  #sideMenu { background: linear-gradient(180deg, var(--bg-panel) 0%, #0a0a0a 100%); }
+  
+  .menu-link { 
+    color: var(--text-main); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    display: block; position: relative;
   }
+  .menu-link:hover { color: #ffd700; padding-left: 15px; }
 
-  body {
-    background-color: var(--bg-panel);
-    color: var(--text-main);
-    /* Evita scroll horizontal accidental */
-    overflow-x: hidden;
+  .settings-icon { 
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4)); 
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
   }
-
-  #navBrand {
-    text-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
-
-  nav {
-    background-color: var(--bg-card);
-    transition: all 0.4s ease;
-  }
-
-  #sideMenu {
-    background: linear-gradient(180deg, var(--bg-panel) 0%, #0a0a0a 100%);
-  }
-
-  .menu-link {
-    position: relative;
-    padding-left: 0;
-    color: var(--text-main);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    letter-spacing: 1px;
-    display: block;
-  }
-
-  .menu-link:hover {
-    color: #ffd700;
-    padding-left: 15px;
-  }
-
-  /* El subrayado solo en pantallas donde el hover tiene sentido */
-  @media (min-width: 768px) {
-    .menu-link::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: #d4af37;
-      transition: width 0.3s ease;
-    }
-    .menu-link:hover::after {
-      width: 100%;
-    }
-  }
-
-  .settings-icon {
-    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));
-    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  .settings-container:hover .settings-icon {
-    transform: rotate(180deg) scale(1.1);
-  }
-
-  .dark-mode nav {
-    background-color: rgba(10, 10, 10, 0.85);
-    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-  }
-
-  .dark-mode .chessboard-63f59 {
-      filter: brightness(0.8) contrast(1.2);
-  }
+  .settings-container:hover .settings-icon { transform: rotate(180deg) scale(1.1); }
 </style>
