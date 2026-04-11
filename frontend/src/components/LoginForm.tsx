@@ -16,8 +16,15 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
   };
 
   return (
-    /* Quitamos w-fit y usamos w-full para que el frame mande */
-    <div className="w-full h-full p-8 md:p-20 flex flex-col items-center justify-center space-y-10">
+    /* Contenedor relativo para posicionar las líneas */
+    <div className="relative w-full h-full p-8 md:p-20 flex flex-col items-center justify-center space-y-10">
+      
+      {/* LÍNEA LATERAL IZQUIERDA (Ultra fina) */}
+      <div className="absolute left-4 top-1/4 bottom-1/4 w-[1px] bg-gradient-to-b from-transparent via-white/10 to-transparent"></div>
+      
+      {/* LÍNEA LATERAL DERECHA (Ultra fina) */}
+      <div className="absolute right-4 top-1/4 bottom-1/4 w-[1px] bg-gradient-to-b from-transparent via-white/10 to-transparent"></div>
+
       <div className="text-center space-y-4">
         <h2 className="text-4xl md:text-6xl font-black text-white tracking-[0.2em] font-['Cinzel'] uppercase">
           Acceso
@@ -27,7 +34,7 @@ export default function LoginForm({ onSwitchToRegister }: { onSwitchToRegister: 
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-8">
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-8 relative">
         <div className="space-y-4">
           <input 
             type="email" 
