@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import ChatWindow from './ChatWindow';
-import { Eye, Swords, Check, X, UserPlus, MessageSquare, Users, Clock, Trophy } from 'lucide-react';
+import { Eye, Swords, Check, X, UserPlus, MessageSquare, Users, Clock } from 'lucide-react';
 
 interface Friend {
   id: string;
@@ -27,9 +27,15 @@ const INITIAL_FRIENDS: Friend[] = [
 export default function FriendsForm() {
   const [search, setSearch] = useState('');
   
-  // 1. Inicializamos con la lista estática para evitar errores de SSR
-  const [friends, setFriends] = useState<Friend[]>(INITIAL_FRIENDS);
-  
+  // CORRECCIÓN F5: Inicializamos intentando leer de localStorage inmediatamente
+  const [friends, setFriends] = useState<Friend[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('chess_friends');
+      return saved ? JSON.parse(saved) : INITIAL_FRIENDS;
+    }
+    return INITIAL_FRIENDS;
+  });
+
   const [currentUser] = useState({ name: "USUARIO_ELITE", avatar: "/avatars/w_king_avatar.png" });
   const [requests, setRequests] = useState([
     { id: "req1", name: "KASPAROV_JR", elo: 1600, avatar: "/avatars/b_bishop_avatar.png" },
@@ -38,23 +44,21 @@ export default function FriendsForm() {
     { id: "req4", name: "TAL_GENIUS", elo: 2600, avatar: "/avatars/w_bishop_avatar.png" },
   ]);
 
-  // 2. Cargamos del localStorage SOLO cuando el componente se monta en el cliente
-  useEffect(() => {
-    const saved = localStorage.getItem('chess_friends');
-    if (saved) {
-      setFriends(JSON.parse(saved));
-    }
-  }, []);
-
-  // 3. Guardamos cambios siempre que la lista de amigos cambie
+  // Sincronizar con localStorage cada vez que cambie la lista
   useEffect(() => {
     localStorage.setItem('chess_friends', JSON.stringify(friends));
   }, [friends]);
 
+  // FILTRADO Y ORDENACIÓN (Online primero, luego ELO)
   const filteredFriends = useMemo(() => {
-    return friends
+    return [...friends] // Hacemos copia para no mutar
       .filter(f => f.name.toLowerCase().includes(search.toLowerCase()))
-      .sort((a, b) => b.elo - a.elo);
+      .sort((a, b) => {
+        // 1. Prioridad: Conectados arriba, Desconectados abajo
+        if (a.online !== b.online) return a.online ? -1 : 1;
+        // 2. Sub-prioridad: Mayor ELO arriba
+        return b.elo - a.elo;
+      });
   }, [search, friends]);
 
   const liveGames = useMemo(() => friends.filter(f => f.isWatching && f.currentGame), [friends]);
@@ -66,6 +70,12 @@ export default function FriendsForm() {
   };
 
   const acceptRequest = (req: any) => {
+    // CORRECCIÓN: Evitar añadir si ya existe el ID
+    if (friends.some(f => f.id === req.id)) {
+      setRequests(prev => prev.filter(r => r.id !== req.id));
+      return;
+    }
+
     const newFriend: Friend = {
       id: req.id,
       name: req.name,
@@ -91,7 +101,7 @@ export default function FriendsForm() {
              <img src={currentUser.avatar} className="w-full h-full rounded-2xl border-2 border-[#d4af37] shadow-lg object-cover" alt="Me" />
              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-black"></div>
           </div>
-          <h3 className="text-white font-['Cinzel'] text-center font-bold text-xl tracking-widest uppercase truncate cursor-default tracking-widest">
+          <h3 className="text-white font-['Cinzel'] text-center font-bold text-xl tracking-widest uppercase truncate cursor-default">
             {currentUser.name}
           </h3>
         </div>
@@ -114,8 +124,6 @@ export default function FriendsForm() {
 
       {/* CENTRAL: SOCIAL Y DIRECTOS */}
       <div className="flex-grow flex flex-col gap-6 min-w-0 h-full overflow-hidden">
-        
-        {/* LISTA AMIGOS */}
         <div className="h-[55%] flex flex-col bg-white/[0.02] border border-white/10 rounded-[48px] overflow-hidden backdrop-blur-xl shadow-2xl shrink-0">
           <div className="px-10 py-6 border-b border-white/5 flex justify-between items-center shrink-0">
             <h2 className="text-3xl font-black font-['Cinzel'] text-white tracking-[0.3em] cursor-default">SOCIAL</h2>
@@ -131,7 +139,6 @@ export default function FriendsForm() {
           </div>
         </div>
 
-        {/* EN DIRECTO */}
         <div className="flex-grow flex flex-col bg-[#d4af37]/5 border border-[#d4af37]/20 rounded-[40px] overflow-hidden backdrop-blur-md min-h-0">
             <div className="px-8 py-5 border-b border-[#d4af37]/10 flex items-center shrink-0">
                 <div className="flex items-center gap-3">
@@ -154,19 +161,13 @@ export default function FriendsForm() {
                                     <span className="px-2 py-0.5 bg-white/5 rounded text-[10px] text-zinc-400 font-bold border border-white/10 uppercase font-sans">Blitz</span>
                                 </div>
                                 <p className="text-sm text-zinc-400 truncate mb-3 tracking-wide cursor-default font-sans">{game.currentGame}</p>
-                                <div className="flex items-center gap-5">
-                                    <div className="flex items-center gap-2 text-zinc-500 cursor-default">
-                                        <Users size={14} className="text-[#d4af37]" />
-                                        <span className="text-xs font-bold font-sans">{game.viewers}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-zinc-500 cursor-default">
-                                        <Clock size={14} />
-                                        <span className="text-xs font-bold font-sans">{game.timeElapsed}</span>
-                                    </div>
+                                <div className="flex items-center gap-5 text-zinc-500">
+                                    <div className="flex items-center gap-2"><Users size={14} className="text-[#d4af37]" /><span className="text-xs font-bold font-sans">{game.viewers}</span></div>
+                                    <div className="flex items-center gap-2"><Clock size={14} /><span className="text-xs font-bold font-sans">{game.timeElapsed}</span></div>
                                 </div>
                             </div>
                         </div>
-                        <button className="bg-[#d4af37] text-black w-14 h-14 rounded-2xl hover:bg-white transition-all shadow-lg shrink-0 flex items-center justify-center group-hover:scale-105 cursor-pointer active:scale-95" title="Observar">
+                        <button className="bg-[#d4af37] text-black w-14 h-14 rounded-2xl hover:bg-white transition-all shadow-lg flex items-center justify-center group-hover:scale-105 cursor-pointer active:scale-95">
                             <Eye size={24} strokeWidth={3} />
                         </button>
                     </div>
@@ -175,11 +176,10 @@ export default function FriendsForm() {
         </div>
       </div>
 
-      {/* DERECHA: SOLICITUDES CON SCROLL */}
+      {/* DERECHA: SOLICITUDES */}
       <div className="hidden xl:flex flex-col w-96 gap-6 shrink-0 h-full overflow-hidden">
         <div className="bg-black/40 border border-white/5 rounded-[48px] p-8 flex-grow flex flex-col min-h-0 overflow-hidden backdrop-blur-md">
           <h4 className="text-[#d4af37] font-['Cinzel'] text-sm tracking-[0.5em] mb-6 text-center uppercase font-black italic cursor-default shrink-0">Solicitudes</h4>
-          
           <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-4 mb-4">
             {requests.length > 0 ? requests.map((req) => (
               <div key={req.id} className="bg-white/5 border border-white/10 rounded-3xl p-5 hover:border-white/20 transition-all group shrink-0">
@@ -191,28 +191,15 @@ export default function FriendsForm() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <button 
-                    onClick={() => acceptRequest(req)}
-                    className="py-2.5 bg-[#d4af37] text-black rounded-xl hover:bg-white transition-all flex justify-center cursor-pointer shadow-md active:scale-95"
-                  >
-                    <Check size={20} strokeWidth={3} />
-                  </button>
-                  <button 
-                    onClick={() => setRequests(prev => prev.filter(r => r.id !== req.id))}
-                    className="py-2.5 bg-white/5 text-zinc-500 rounded-xl hover:text-red-500 border border-white/5 flex justify-center cursor-pointer active:scale-95"
-                  >
-                    <X size={20} />
-                  </button>
+                  <button onClick={() => acceptRequest(req)} className="py-2.5 bg-[#d4af37] text-black rounded-xl hover:bg-white transition-all flex justify-center cursor-pointer shadow-md active:scale-95"><Check size={20} strokeWidth={3} /></button>
+                  <button onClick={() => setRequests(prev => prev.filter(r => r.id !== req.id))} className="py-2.5 bg-white/5 text-zinc-500 rounded-xl hover:text-red-500 border border-white/5 flex justify-center cursor-pointer active:scale-95"><X size={20} /></button>
                 </div>
               </div>
             )) : (
               <p className="text-zinc-600 text-xs text-center py-10 uppercase tracking-widest italic font-sans">Sin solicitudes</p>
             )}
           </div>
-
-          <button className="w-full py-5 bg-[#d4af37] text-black rounded-3xl text-sm tracking-[0.3em] font-black uppercase flex items-center justify-center gap-3 shadow-lg hover:bg-white transition-all cursor-pointer shrink-0 active:scale-95">
-            <UserPlus size={20} strokeWidth={3} /> INVITAR
-          </button>
+          <button className="w-full py-5 bg-[#d4af37] text-black rounded-3xl text-sm tracking-[0.3em] font-black uppercase flex items-center justify-center gap-3 shadow-lg hover:bg-white transition-all cursor-pointer shrink-0 active:scale-95"><UserPlus size={20} strokeWidth={3} /> INVITAR</button>
         </div>
       </div>
 
@@ -225,7 +212,6 @@ export default function FriendsForm() {
   );
 }
 
-// COMPONENTES AUXILIARES CON CURSOR-POINTER Y TEXTO GRANDE
 function StatItem({ label, value }: any) {
   return (
     <div className="flex justify-between items-center cursor-default group">
@@ -246,7 +232,7 @@ function LogItem({ user, action, time }: any) {
 
 function FriendRow({ friend, onChat }: any) {
   return (
-    <div className="group flex items-center gap-6 p-4 mb-2 hover:bg-white/[0.04] rounded-[24px] transition-all border border-transparent hover:border-white/5 relative shrink-0">
+    <div className={`group flex items-center gap-6 p-4 mb-2 hover:bg-white/[0.04] rounded-[24px] transition-all border border-transparent hover:border-white/5 relative shrink-0 ${!friend.online ? 'opacity-50 hover:opacity-100' : ''}`}>
       <div className="relative shrink-0 cursor-pointer hover:scale-105 transition-transform">
         <img src={friend.avatar} className={`w-16 h-16 rounded-xl object-cover border-2 ${friend.online ? 'border-[#d4af37]' : 'border-zinc-800'}`} alt="" />
         <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-[#050505] ${friend.online ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-zinc-700'}`}></div>
@@ -256,12 +242,8 @@ function FriendRow({ friend, onChat }: any) {
         <p className="text-sm text-[#d4af37] font-bold cursor-default tracking-wide font-sans">{friend.elo} ELO <span className="text-zinc-500 ml-2 font-normal uppercase font-sans">• {friend.statusText}</span></p>
       </div>
       <div className="flex gap-2 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity">
-        <button className="p-3.5 bg-[#d4af37]/10 text-[#d4af37] border border-[#d4af37]/30 rounded-xl hover:bg-[#d4af37] hover:text-black transition-all cursor-pointer active:scale-95">
-          <Swords size={20} strokeWidth={2.5} />
-        </button>
-        <button onClick={onChat} className="p-3.5 bg-white/5 text-[#d4af37] rounded-xl hover:bg-[#d4af37] hover:text-black transition-all border border-white/5 cursor-pointer active:scale-95">
-          <MessageSquare size={20} strokeWidth={2.5} />
-        </button>
+        <button className="p-3.5 bg-[#d4af37]/10 text-[#d4af37] border border-[#d4af37]/30 rounded-xl hover:bg-[#d4af37] hover:text-black transition-all cursor-pointer active:scale-95"><Swords size={20} strokeWidth={2.5} /></button>
+        <button onClick={onChat} className="p-3.5 bg-white/5 text-[#d4af37] rounded-xl hover:bg-[#d4af37] hover:text-black transition-all border border-white/5 cursor-pointer active:scale-95"><MessageSquare size={20} strokeWidth={2.5} /></button>
       </div>
     </div>
   );

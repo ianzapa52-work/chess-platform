@@ -17,18 +17,28 @@ export default function HistoryForm() {
   const [filter, setFilter] = useState<'all' | 'win' | 'loss' | 'draw'>('all');
 
   useEffect(() => {
+    // Simulamos carga inicial y persistencia
     const timer = setTimeout(() => {
-      const dummyHistory: Game[] = [
-        { id: "1", mode: "online", result: "win", opponent: "GrandMaster_X", eloChange: "+12", date: "2026-02-20", moves: 42, timeControl: "10+0" },
-        { id: "2", mode: "ia", result: "loss", opponent: "Stockfish Lvl 8", eloChange: "-8", date: "2026-02-18", moves: 31, timeControl: "3+2" },
-        { id: "3", mode: "local", result: "draw", opponent: "Invitado_01", date: "2026-02-15", moves: 58, timeControl: "5+0" },
-        { id: "4", mode: "online", result: "win", opponent: "DeepBlue_2", eloChange: "+15", date: "2026-02-14", moves: 22, timeControl: "1+0" },
-        { id: "5", mode: "online", result: "draw", opponent: "Kasparov_Fan", eloChange: "+0", date: "2026-02-12", moves: 45, timeControl: "10+0" },
-        { id: "6", mode: "ia", result: "win", opponent: "Stockfish Lvl 5", date: "2026-02-10", moves: 18, timeControl: "15+10" },
-      ];
-      setGames(dummyHistory);
+      const savedHistory = localStorage.getItem('chess_history');
+      
+      if (savedHistory) {
+        setGames(JSON.parse(savedHistory));
+      } else {
+        const dummyHistory: Game[] = [
+          { id: "1", mode: "online", result: "win", opponent: "GrandMaster_X", eloChange: "+12", date: "2026-02-20", moves: 42, timeControl: "10+0" },
+          { id: "2", mode: "ia", result: "loss", opponent: "Stockfish Lvl 8", eloChange: "-8", date: "2026-02-18", moves: 31, timeControl: "3+2" },
+          { id: "3", mode: "local", result: "draw", opponent: "Invitado_01", date: "2026-02-15", moves: 58, timeControl: "5+0" },
+          { id: "4", mode: "online", result: "win", opponent: "DeepBlue_2", eloChange: "+15", date: "2026-02-14", moves: 22, timeControl: "1+0" },
+          { id: "5", mode: "online", result: "draw", opponent: "Kasparov_Fan", eloChange: "+0", date: "2026-02-12", moves: 45, timeControl: "10+0" },
+          { id: "6", mode: "ia", result: "win", opponent: "Stockfish Lvl 5", date: "2026-02-10", moves: 18, timeControl: "15+10" },
+        ];
+        setGames(dummyHistory);
+        localStorage.setItem('chess_history', JSON.stringify(dummyHistory));
+      }
       setLoading(false);
-    }, 1000);
+      // Notificamos a otros componentes que los datos están listos
+      window.dispatchEvent(new CustomEvent('history-updated'));
+    }, 800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -62,7 +72,6 @@ export default function HistoryForm() {
 
         <div className="w-full h-px bg-white/10"></div>
 
-        {/* FILTROS */}
         <div className="flex flex-wrap justify-center gap-2 py-6">
             {(['all', 'win', 'loss', 'draw'] as const).map((f) => (
                 <button
@@ -82,9 +91,8 @@ export default function HistoryForm() {
         <div className="w-full h-px bg-white/10"></div>
       </div>
 
-      {/* LISTADO CON SCROLL */}
       <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar space-y-3">
-        {filteredGames.map((game) => {
+        {filteredGames.length > 0 ? filteredGames.map((game) => {
           const style = resultStyles[game.result];
           return (
             <div 
@@ -127,14 +135,15 @@ export default function HistoryForm() {
               </div>
             </div>
           );
-        })}
+        }) : (
+            <div className="text-center py-20 text-zinc-600 uppercase tracking-widest text-xs">
+                No se han encontrado registros
+            </div>
+        )}
       </div>
 
-      {/* PIE DE PÁGINA*/}
       <div className="shrink-0 pt-2 pb-8 flex flex-col items-center px-6">
-        {/* LÍNEA DORADA DE SEPARACIÓN */}
         <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-[#d4af37] to-transparent opacity-50 mb-6 shadow-[0_0_8px_rgba(212,175,55,0.4)]"></div>
-        
         <p className="text-[10px] text-zinc-500 font-bold tracking-[0.3em] uppercase">
           Welikechess • 2026
         </p>
