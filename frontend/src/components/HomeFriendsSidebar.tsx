@@ -1,53 +1,56 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
+interface Friend {
+  id: string | number;
+  name: string;
+  avatar: string;
+  online: boolean;
+  elo: number;
+  currentGame?: string;
+}
+
 export default function HomeFriendsSidebar() {
-  const [friends, setFriends] = useState([]);
+  const [friends, setFriends] = useState<Friend[]>([]);
 
   const syncFriends = () => {
     const saved = localStorage.getItem('chess_friends');
     if (saved) {
-      const parsedFriends = JSON.parse(saved);
-      // Aplicamos la misma ordenación que en el componente de amigos
-      const sorted = parsedFriends.sort((a: any, b: any) => {
-        if (a.online !== b.online) return a.online ? -1 : 1;
-        return b.elo - a.elo;
-      });
-      setFriends(sorted);
+      try {
+        const parsedFriends: Friend[] = JSON.parse(saved);
+        const sorted = parsedFriends.sort((a, b) => {
+          if (a.online !== b.online) return a.online ? -1 : 1;
+          return b.elo - a.elo;
+        });
+        setFriends(sorted);
+      } catch (e) {
+        console.error("Error parseando amigos", e);
+      }
     }
   };
 
   useEffect(() => {
-    syncFriends(); // Carga inicial
-
-    // Escucha cambios manuales (CustomEvent que lanzamos al aceptar solicitudes)
+    syncFriends();
     window.addEventListener('social-update', syncFriends);
-    
-    // Escucha cambios de otras pestañas
     window.addEventListener('storage', (e) => {
       if (e.key === 'chess_friends') syncFriends();
     });
-
-    return () => {
-      window.removeEventListener('social-update', syncFriends);
-    };
+    return () => window.removeEventListener('social-update', syncFriends);
   }, []);
 
-  const onlineFriends = useMemo(() => friends.filter((f: any) => f.online), [friends]);
+  const onlineFriends = useMemo(() => friends.filter((f) => f.online), [friends]);
 
   return (
-    <aside className="hidden xl:flex col-span-2 border-r border-[#d4af37]/10 bg-[#0a0a0a] flex-col overflow-hidden relative">
-      <div className="absolute right-0 top-0 w-[1px] h-full bg-gradient-to-b from-transparent via-[#d4af37]/20 to-transparent"></div>
-      
-      <div className="mt-4 p-5 border-b border-[#d4af37]/10 bg-[#d4af37]/5 flex justify-between items-center shrink-0">
-        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#d4af37]">Amigos</h3>
-        <span className="text-[10px] text-[#d4af37]/80 font-bold bg-[#d4af37]/10 px-2 py-0.5 rounded">
+    <>
+      <div className="p-5 border-b border-[#d4af37]/10 flex justify-between items-center shrink-0 bg-black">
+        <h3 className="text-s font-black uppercase tracking-[0.2em] text-[#d4af37]">Amigos</h3>
+        <span className="text-s text-[#d4af37]/80 font-bold bg-[#d4af37]/10 px-2 py-0.5 rounded">
           {onlineFriends.length} ON
         </span>
       </div>
 
-      <div className="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-4">
+      <div className="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-4 bg-black">
         {friends.length > 0 ? (
-          friends.map((friend: any) => (
+          friends.map((friend) => (
             <a 
               key={friend.id} 
               href="/friends" 
@@ -89,6 +92,6 @@ export default function HomeFriendsSidebar() {
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.2); border-radius: 10px; }
       `}</style>
-    </aside>
+    </>
   );
 }

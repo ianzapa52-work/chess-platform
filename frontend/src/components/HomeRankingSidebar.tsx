@@ -36,7 +36,7 @@ export default function HomeRankingSidebar() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h3 className="text-xs font-black uppercase tracking-widest text-[#d4af37]">Top Ranking</h3>
+        <h3 className="text-s font-black uppercase tracking-widest text-[#d4af37]">Top Ranking</h3>
         <div className="w-2 h-2 bg-[#d4af37] rounded-full animate-pulse"></div>
       </div>
       

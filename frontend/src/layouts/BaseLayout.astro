@@ -4,15 +4,29 @@ import ModalManager from "../components/modals/ModalManager";
 const { title = "WELIKECHESS" } = Astro.props;
 ---
 
-<html lang="es">
+<html lang="es" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/w_king.svg" />
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style is:inline>
+      /* Bloqueo de layout para evitar saltos */
+      html { background-color: #050505; overflow-y: scroll; }
+      body { margin: 0; padding: 0; visibility: hidden; }
+      .dark-mode body { visibility: visible; }
+      header { height: 80px; }
+      @media (min-width: 768px) { header { height: 96px; } }
+    </style>
 
     <script is:inline>
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+
       (function() {
         const savedTheme = localStorage.getItem("theme") || "dark";
         if (savedTheme === "dark") document.documentElement.classList.add("dark-mode");
@@ -22,72 +36,70 @@ const { title = "WELIKECHESS" } = Astro.props;
     <title>{title}</title>
   </head>
 
-  <body class="antialiased selection:bg-[#d4af37]/30 selection:text-[#fefcf0]">
+  <body class="antialiased selection:bg-[#d4af37] selection:text-black bg-[#050505]">
     
-    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black opacity-40"></div>
+    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-black to-black opacity-40 contain-paint"></div>
 
-    <header class="fixed top-0 left-0 w-full h-16 md:h-20 bg-black/40 border-b border-white/5 grid grid-cols-3 items-center px-4 md:px-10 z-[60] backdrop-blur-2xl">
+    <header class="fixed top-0 left-0 w-full h-20 md:h-24 bg-black/60 grid grid-cols-3 items-center px-4 md:px-10 z-[60] backdrop-blur-xl border-b border-white/5">
       
-      <div class="flex items-center gap-4 justify-self-start">
-        <button 
-          onclick="window.dispatchEvent(new CustomEvent('open-settings'))"
-          class="group flex items-center gap-3 transition-all outline-none"
-          title="Configuración"
-        >
-          <div class="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center bg-white/5 group-hover:border-[#d4af37]/50 group-hover:bg-[#d4af37]/10 transition-all duration-300">
-            <img src="/assets/gear.png" class="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:rotate-90 transition-all duration-500 brightness-200" alt="Ajustes" />
-          </div>
-        </button>
+      <div class="justify-self-start">
+        <a href="/" class="relative group block">
+          <h1 class="text-xl md:text-2xl font-light tracking-[0.3em] text-[#fefcf0] transition-colors duration-300 group-hover:text-white" style="font-family: 'Cinzel', serif;">
+            WELIKE<span class="font-black text-[#d4af37] group-hover:brightness-125 transition-all">CHESS</span>
+          </h1>
+          <div class="absolute -bottom-1 left-0 w-full h-[1px] bg-white/10 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center"></div>
+        </a>
+      </div>
 
-        <nav class="hidden lg:flex items-center gap-1">
-          <a href="/play-online" class="nav-link">Online</a>
-          <a href="/play-ia" class="nav-link">IA</a>
-          <a href="/play-local" class="nav-link">Local</a>
-          <a href="/puzzles" class="nav-link">Puzzles</a>
+      <div class="flex items-center justify-self-center">
+        <nav class="hidden lg:flex items-center gap-1 bg-zinc-900/50 p-1.5 rounded-xl border border-white/10 backdrop-blur-md">
+          <div class="flex items-center">
+            <a href="/play-online" class="nav-link-v2">Online</a>
+            <a href="/play-ia" class="nav-link-v2">IA</a>
+            <a href="/play-local" class="nav-link-v2">Local</a>
+            <a href="/puzzles" class="nav-link-v2">Puzzles</a>
+          </div>
           
           <div class="w-[1px] h-4 bg-white/10 mx-2"></div>
           
-          <a href="/ranking" class="nav-link">Ranking</a>
-          <a href="/friends" class="nav-link">Amigos</a>
-          <button 
-            onclick="window.dispatchEvent(new CustomEvent('open-history'))" 
-            class="nav-link"
-          >
-            Historial
-          </button>
+          <div class="flex items-center">
+            <a href="/ranking" class="nav-link-v2">Ranking</a>
+            <a href="/friends" class="nav-link-v2">Amigos</a>
+            <button 
+              onclick="window.dispatchEvent(new CustomEvent('open-history'))" 
+              class="nav-link-v2"
+            >
+              Historial
+            </button>
+          </div>
         </nav>
-      </div>
-
-      <div class="justify-self-center">
-        <a href="/" class="relative group block">
-          <h1 class="text-xl md:text-2xl font-light tracking-[0.4em] text-[#fefcf0] transition-all duration-500 group-hover:tracking-[0.5em]" style="font-family: 'Cinzel', serif;">
-            WELIKE<span class="font-black text-[#d4af37]">CHESS</span>
-          </h1>
-          <div class="absolute -bottom-1 left-0 w-0 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37] to-transparent group-hover:w-full transition-all duration-700"></div>
-        </a>
       </div>
 
       <div class="flex items-center justify-end gap-4 justify-self-end">
         <button 
           onclick="window.dispatchEvent(new CustomEvent('open-login'))"
-          class="hidden sm:flex items-center justify-center overflow-hidden relative group px-6 py-2 rounded-full border border-white/10 hover:border-[#d4af37]/50 transition-all duration-500"
+          class="hidden sm:flex items-center justify-center px-6 py-2 rounded-lg border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.15em] hover:border-[#d4af37]/50 hover:text-white transition-all duration-300"
         >
-          <span class="relative z-10 text-white/70 text-[10px] font-bold uppercase tracking-[0.1em] ml-[0.1em] group-hover:text-white transition-colors">
-            Acceso
-          </span>
-          <div class="absolute inset-0 bg-[#d4af37]/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+          Acceso
         </button>
 
-        <a href="/profile" class="flex items-center gap-3 bg-white/5 pl-4 pr-1.5 py-1.5 rounded-full border border-white/5 hover:border-[#d4af37]/30 transition-all group">
-          <span class="text-[10px] font-bold text-zinc-400 group-hover:text-[#d4af37] uppercase tracking-tighter hidden xl:block">Mi Perfil</span>
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#d4af37] to-[#996515] flex items-center justify-center text-black font-black text-[10px] shadow-lg shadow-[#d4af37]/10">
+        <a href="/profile" class="flex items-center gap-3 bg-white/5 pl-4 pr-1.5 py-1.5 rounded-xl border border-white/5 hover:border-[#d4af37]/30 transition-all group">
+          <span class="text-[10px] font-bold text-zinc-400 group-hover:text-[#d4af37] uppercase tracking-widest hidden xl:block">Mi Perfil</span>
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-[#d4af37] to-[#996515] flex items-center justify-center text-black font-black text-[11px] shadow-lg">
             IZ
           </div>
         </a>
+
+        <button 
+          onclick="window.dispatchEvent(new CustomEvent('open-settings'))"
+          class="group p-2 rounded-lg border border-white/5 bg-white/5 hover:border-[#d4af37]/40 transition-all"
+        >
+          <img src="/assets/gear.png" class="w-4.5 h-4.5 opacity-50 group-hover:opacity-100 group-hover:rotate-45 transition-all duration-500 brightness-200" alt="Ajustes" />
+        </button>
       </div>
     </header>
 
-    <main class="pt-16 md:pt-20 min-h-screen relative">
+    <main class="relative min-h-screen pt-20 md:pt-24 block">
       <slot />
     </main>
 
@@ -100,45 +112,39 @@ const { title = "WELIKECHESS" } = Astro.props;
   @reference "../styles/global.css";
 
   :root { 
-    --bg-main: #ffffff; 
-    --text-main: #0a0a0a;
+    --bg-main: #050505; 
     --accent: #d4af37;
   }
   
-  .dark-mode { 
-    --bg-main: #050505; 
-    --text-main: #f0f0f0;
+  body { 
+    margin: 0;
+    background-color: var(--bg-main); 
+    color: #f0f0f0; 
+    font-family: 'Inter', sans-serif;
+    transition: none !important;
   }
 
-  body { 
-    background-color: var(--bg-main); 
-    color: var(--text-main); 
+  /* Estilo Neo-Brutalist para links centrales */
+  .nav-link-v2 {
+    @apply px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-zinc-400 
+           rounded-lg transition-all duration-200 relative outline-none;
     font-family: 'Inter', sans-serif;
   }
 
-  .nav-link {
-    @apply px-3 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 
-           hover:text-[#d4af37] transition-all duration-300 relative bg-transparent border-none outline-none;
-    font-family: 'Cinzel', serif;
+  .nav-link-v2:hover {
+    @apply text-white bg-white/10;
   }
 
-  .nav-link::after {
-    content: '';
-    @apply absolute bottom-1 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-[#d4af37] transition-all duration-300;
-  }
-
-  .nav-link:hover::after {
-    @apply w-1/2;
-  }
-
-  ::-webkit-scrollbar { width: 8px; }
+  /* Scrollbar Minimalista */
+  ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: #000; }
   ::-webkit-scrollbar-thumb { 
-    background: #222; 
-    border-radius: 10px;
-    border: 2px solid #000;
+    background: #333; 
+    border-radius: 0px;
   }
   ::-webkit-scrollbar-thumb:hover { background: #d4af37; }
 
   a, button { cursor: pointer !important; }
+
+  main { contain: layout; }
 </style>
