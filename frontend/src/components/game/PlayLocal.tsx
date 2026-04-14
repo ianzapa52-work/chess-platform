@@ -20,10 +20,9 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal }: Pl
   const [capB, setCapB] = useState<string[]>([]);
 
   const playSound = (type: 'move' | 'capture' | 'check') => {
-    // Rutas locales basadas en tu carpeta public/sounds
     const audioPath = 
       type === 'capture' ? '/sounds/capture_sound.mp3' : 
-      '/sounds/move_sound.mp3'; // Usamos move_sound para movimiento normal y jaque
+      '/sounds/move_sound.mp3';
       
     const audio = new Audio(audioPath);
     audio.play().catch(() => {});
