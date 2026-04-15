@@ -2,6 +2,9 @@
 
 import React from 'react';
 import Link from "next/link";
+import { Cinzel } from "next/font/google";
+
+const cinzel = Cinzel({ subsets: ["latin"] });
 
 interface HeaderActionsProps {
   variant: 'nav' | 'user';
@@ -14,11 +17,13 @@ export default function HeaderActions({ variant }: HeaderActionsProps) {
     }
   };
 
+  const navBtnClass = `${cinzel.className} px-5 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 rounded-xl transition-all duration-300 hover:text-gold hover:bg-white/5 flex items-center justify-center cursor-pointer select-none`;
+
   if (variant === 'nav') {
     return (
       <button 
         onClick={() => openModal('history')} 
-        className="px-5 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 rounded-xl transition-all duration-300 hover:text-gold hover:bg-white/5 flex items-center justify-center font-cinzel cursor-pointer select-none"
+        className={navBtnClass}
       >
         Historial
       </button>
@@ -26,7 +31,7 @@ export default function HeaderActions({ variant }: HeaderActionsProps) {
   }
 
   return (
-    <div className="flex items-center gap-4 font-cinzel">
+    <div className={`${cinzel.className} flex items-center gap-4`}>
       <button 
         onClick={() => openModal('login')}
         className="hidden sm:flex items-center justify-center px-6 py-2 rounded-lg border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.15em] hover:border-gold/50 hover:text-white transition-all duration-300 cursor-pointer"
