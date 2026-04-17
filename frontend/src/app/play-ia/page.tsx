@@ -96,13 +96,14 @@ export default function PlayIAPage() {
   return (
     <main className="min-h-screen bg-[#020202] text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden">
       
-      {/* FONDO PREMIUM */}
+      {/* FONDO MARRÓN ROJIZO */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-[#050508]"></div>
-        <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-amber-500/20 blur-[150px] rounded-full animate-pulse"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-gold/15 blur-[150px] rounded-full"></div>
-        <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]"></div>
+        <div className="absolute inset-0 bg-[#0a0605]"></div>
+        <div className="absolute inset-0 opacity-[0.18] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+        <div className="absolute top-[-15%] left-[-5%] w-[80%] h-[80%] bg-orange-900/30 blur-[140px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-red-950/40 blur-[160px] rounded-full"></div>
+        <div className="absolute top-[30%] left-[20%] w-[40%] h-[40%] bg-orange-800/10 blur-[120px] rounded-full"></div>
+        <div className="absolute inset-0 opacity-[0.05] [background-image:radial-gradient(#ffffff_1px,transparent_1px)] [background-size:32px_32px]"></div>
       </div>
 
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-start">
