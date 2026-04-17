@@ -69,7 +69,6 @@ export default function LocalPremiumPage() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [history]);
 
-  // Lógica de cronómetros
   useEffect(() => {
     if (isNoTimeMode || !gameStarted || status.includes("MATE") || status.includes("TABLAS")) return;
     const timer = setInterval(() => {
@@ -88,7 +87,6 @@ export default function LocalPremiumPage() {
   };
 
   const handleMove = (newHistory: string[], cw: string[], cb: string[]) => {
-    // Aplicar incremento si no es modo sin tiempo
     if (!isNoTimeMode && gameStarted) {
       if (status.includes("BLANCAS")) setTimeW(prev => prev + currentMode.i);
       else if (status.includes("NEGRAS")) setTimeB(prev => prev + currentMode.i);
@@ -107,7 +105,6 @@ export default function LocalPremiumPage() {
   return (
     <main className="min-h-screen bg-[#020202] text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden">
       
-      {/* FONDO PREMIUM (Igual que en PlayIA) */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[#050508]"></div>
         <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
@@ -119,7 +116,6 @@ export default function LocalPremiumPage() {
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-start">
         
         <div className="col-span-12 xl:col-span-3 flex flex-col gap-2">
-          {/* Oponente (Si el jugador es Blancas, aquí sale local 2 / negras) */}
           <PlayerBox 
             name="Usuario Local 2" captured={capturedW} 
             isActive={gameStarted && status.includes("NEGRAS")} 
@@ -127,34 +123,32 @@ export default function LocalPremiumPage() {
           />
           
           <div className="bg-zinc-950/60 border border-white/10 rounded-[2rem] p-6 shadow-2xl backdrop-blur-xl">
-            {/* ELEGIR BANDO */}
             <div className="mb-6">
               <p className="text-[10px] font-black tracking-[0.25em] text-white uppercase mb-3 px-1">Elegir Bando</p>
               <div className="grid grid-cols-2 gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/5">
                 <button 
                   onClick={() => setBoardOrientation('w')}
                   disabled={gameStarted}
-                  className={`py-2 rounded-xl text-[9px] font-black transition-all border-2 ${boardOrientation === 'w' ? 'bg-zinc-100 text-black border-transparent shadow-lg' : 'text-zinc-500 border-transparent hover:bg-white/5'}`}
+                  className={`py-2 rounded-xl text-[9px] font-black transition-all border-2 cursor-pointer ${boardOrientation === 'w' ? 'bg-zinc-100 text-black border-transparent shadow-lg' : 'text-zinc-500 border-transparent hover:bg-white/5'}`}
                 >
                   BLANCAS
                 </button>
                 <button 
                   onClick={() => setBoardOrientation('b')}
                   disabled={gameStarted}
-                  className={`py-2 rounded-xl text-[9px] font-black transition-all border-2 ${boardOrientation === 'b' ? 'bg-zinc-800 text-white shadow-lg border-white/10' : 'text-zinc-500 border-transparent hover:bg-white/5'}`}
+                  className={`py-2 rounded-xl text-[9px] font-black transition-all border-2 cursor-pointer ${boardOrientation === 'b' ? 'bg-zinc-800 text-white shadow-lg border-white/10' : 'text-zinc-500 border-transparent hover:bg-white/5'}`}
                 >
                   NEGRAS
                 </button>
               </div>
             </div>
 
-            {/* TOGGLE MODO SIN TIEMPO (Copiado de PlayIA) */}
             <div className="mb-6">
               <p className="text-[10px] font-black tracking-[0.25em] text-white uppercase mb-3 px-1">Configuración</p>
               <button 
                 onClick={() => setIsNoTimeMode(!isNoTimeMode)}
                 disabled={gameStarted}
-                className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${isNoTimeMode ? 'bg-gold/10 border-gold text-gold shadow-[0_0_20px_rgba(212,175,55,0.1)]' : 'bg-black/40 border-white/5 text-zinc-500 hover:border-white/20'}`}
+                className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer ${isNoTimeMode ? 'bg-gold/10 border-gold text-gold shadow-[0_0_20px_rgba(212,175,55,0.1)]' : 'bg-black/40 border-white/5 text-zinc-500 hover:border-white/20'}`}
               >
                 <span className="text-[10px] font-black uppercase tracking-widest">Modo Sin Tiempo</span>
                 <div className={`w-10 h-5 rounded-full relative transition-colors ${isNoTimeMode ? 'bg-gold' : 'bg-zinc-800'}`}>
@@ -163,7 +157,6 @@ export default function LocalPremiumPage() {
               </button>
             </div>
 
-            {/* MODOS DE TIEMPO */}
             <div className={`grid grid-cols-1 gap-3 transition-opacity duration-300 ${isNoTimeMode ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
               {TIME_MODES.map((category) => (
                 <div key={category.label} className="flex items-center justify-between gap-3 bg-black/50 p-3 rounded-2xl border border-white/[0.06]">
@@ -174,7 +167,7 @@ export default function LocalPremiumPage() {
                         key={opt.n}
                         disabled={gameStarted}
                         onClick={() => selectMode(opt)}
-                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${currentMode.n === opt.n && !isNoTimeMode ? 'bg-gold text-black border-gold' : 'bg-zinc-800 border-white/10 hover:border-white/30'}`}
+                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border cursor-pointer ${currentMode.n === opt.n && !isNoTimeMode ? 'bg-gold text-black border-gold' : 'bg-zinc-800 border-white/10 hover:border-white/30'}`}
                       >
                         {opt.n}
                       </button>
@@ -218,7 +211,7 @@ export default function LocalPremiumPage() {
 
             <div className="p-6 border-t border-white/10 bg-black/80">
                <button onClick={() => { setResetKey(k => k + 1); setHistory([]); setCapturedW([]); setCapturedB([]); setTimeW(currentMode.m); setTimeB(currentMode.m); setGameStarted(false); setStatus("TURNO BLANCAS"); }} 
-               className="w-full bg-zinc-50 text-black py-4 rounded-2xl font-black text-[10px] tracking-[0.25em] uppercase hover:bg-gold transition-all duration-500">
+               className="w-full bg-zinc-50 text-black py-4 rounded-2xl font-black text-[10px] tracking-[0.25em] uppercase hover:bg-gold transition-all duration-500 cursor-pointer">
                  Reiniciar Partida
                </button>
             </div>

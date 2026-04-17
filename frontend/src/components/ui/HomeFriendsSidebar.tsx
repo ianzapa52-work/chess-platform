@@ -45,7 +45,7 @@ export default function HomeFriendsSidebar() {
             <button 
               key={f.id} 
               onClick={() => window.dispatchEvent(new CustomEvent('open-chat', { detail: f }))}
-              className={`w-full flex items-center gap-4 p-3 rounded-2xl transition-all border border-transparent hover:bg-gold/5 hover:border-gold/10 group ${!f.online && 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}
+              className={`w-full flex items-center gap-4 p-3 rounded-2xl transition-all border border-transparent hover:bg-gold/5 hover:border-gold/10 group cursor-pointer ${!f.online && 'opacity-40 grayscale hover:opacity-100 hover:grayscale-0'}`}
             >
               <div className="relative shrink-0">
                 <img src={f.avatar} className="w-10 h-10 rounded-xl border border-white/10 group-hover:border-gold/30 object-cover" alt="" />

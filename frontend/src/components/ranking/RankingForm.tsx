@@ -134,7 +134,7 @@ export default function RankingForm() {
 
           <button 
             onClick={openEloReglamento}
-            className="mt-auto w-full py-5 bg-white/[0.03] border border-white/10 rounded-3xl text-[10px] text-white tracking-[0.4em] hover:bg-[#d4af37] hover:text-black transition-all font-black uppercase shadow-lg flex items-center justify-center gap-3 active:scale-95"
+            className="mt-auto w-full py-5 bg-white/[0.03] border border-white/10 rounded-3xl text-[10px] text-white tracking-[0.4em] hover:bg-[#d4af37] hover:text-black transition-all font-black uppercase shadow-lg flex items-center justify-center gap-3 active:scale-95 cursor-pointer"
           >
             <Info size={16} /> Reglamento ELO
           </button>

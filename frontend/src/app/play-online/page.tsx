@@ -127,7 +127,7 @@ export default function OnlinePremiumPage() {
                       <div className="grid grid-cols-3 gap-2">
                         {category.options.map((opt) => (
                           <button key={opt.n} disabled={isSearching} onClick={() => { setCurrentMode(opt); setTimeW(opt.m); setTimeB(opt.m); }}
-                            className={`py-2 rounded-xl text-[10px] font-black transition-all duration-500 border ${currentMode.n === opt.n ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.3)]' : 'bg-zinc-900 border-white/5 hover:border-white/20'}`}>
+                            className={`py-2 rounded-xl text-[10px] font-black transition-all duration-500 border cursor-pointer ${currentMode.n === opt.n ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.3)]' : 'bg-zinc-900 border-white/5 hover:border-white/20'}`}>
                             {opt.n}
                           </button>
                         ))}
@@ -136,7 +136,7 @@ export default function OnlinePremiumPage() {
                   ))}
                 </div>
                 <button onClick={startSearch} disabled={isSearching}
-                  className={`w-full mt-8 py-5 rounded-[1.5rem] font-black text-[11px] tracking-[0.3em] uppercase transition-all duration-1000 ${isSearching ? 'bg-zinc-800 text-gold border border-gold/50 cursor-wait' : 'bg-white text-black hover:bg-gold hover:scale-[1.02]'}`}>
+                  className={`w-full mt-8 py-5 rounded-[1.5rem] font-black text-[11px] tracking-[0.3em] uppercase transition-all duration-1000 cursor-pointer ${isSearching ? 'bg-zinc-800 text-gold border border-gold/50 cursor-wait' : 'bg-white text-black hover:bg-gold hover:scale-[1.02]'}`}>
                   {isSearching ? 'Buscando...' : 'Buscar Partida'}
                 </button>
             </div>
