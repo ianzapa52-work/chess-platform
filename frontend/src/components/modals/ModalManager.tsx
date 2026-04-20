@@ -56,8 +56,9 @@ export default function ModalManager() {
         <RegisterForm onSwitchToLogin={() => setActiveModal('login')} />
       </ModalFrame>
 
+      {/* --- CAMBIO AQUÍ: Ahora le pasamos closeModal al Historial --- */}
       <ModalFrame isOpen={activeModal === 'history'} onClose={closeModal} size="max-w-4xl">
-        <HistoryForm />
+        <HistoryForm onClose={closeModal} />
       </ModalFrame>
 
       <ModalFrame isOpen={activeModal === 'elo-info'} onClose={closeModal} size="max-w-5xl">

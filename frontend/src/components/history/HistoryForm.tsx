@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Game {
   id: string;
@@ -13,7 +14,13 @@ interface Game {
   timeControl: string;
 }
 
-export default function HistoryForm() {
+// Añadimos onClose como prop opcional
+interface HistoryFormProps {
+  onClose?: () => void;
+}
+
+export default function HistoryForm({ onClose }: HistoryFormProps) {
+  const router = useRouter();
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'win' | 'loss' | 'draw'>('all');
@@ -28,18 +35,20 @@ export default function HistoryForm() {
           { id: "1", mode: "online", result: "win", opponent: "GrandMaster_X", eloChange: "+12", date: "2026-02-20", moves: 42, timeControl: "10+0" },
           { id: "2", mode: "ia", result: "loss", opponent: "Stockfish Lvl 8", eloChange: "-8", date: "2026-02-18", moves: 31, timeControl: "3+2" },
           { id: "3", mode: "local", result: "draw", opponent: "Invitado_01", date: "2026-02-15", moves: 58, timeControl: "5+0" },
-          { id: "4", mode: "online", result: "win", opponent: "DeepBlue_2", eloChange: "+15", date: "2026-02-14", moves: 22, timeControl: "1+0" },
-          { id: "5", mode: "online", result: "draw", opponent: "Kasparov_Fan", eloChange: "+0", date: "2026-02-12", moves: 45, timeControl: "10+0" },
-          { id: "6", mode: "ia", result: "win", opponent: "Stockfish Lvl 5", date: "2026-02-10", moves: 18, timeControl: "15+10" },
         ];
         setGames(dummyHistory);
         localStorage.setItem('chess_history', JSON.stringify(dummyHistory));
       }
       setLoading(false);
-      window.dispatchEvent(new CustomEvent('history-updated'));
     }, 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Lógica para cerrar y navegar
+  const handleAnalyze = (id: string) => {
+    if (onClose) onClose(); // Si existe la función (está en un modal), la ejecuta
+    router.push(`/analysis/${id}`);
+  };
 
   const filteredGames = filter === 'all' ? games : games.filter(g => g.result === filter);
 
@@ -121,7 +130,10 @@ export default function HistoryForm() {
                   </p>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.1em] font-sans">{game.moves} JUGADAS</p>
                 </div>
-                <button className="h-10 w-10 md:h-12 md:w-32 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:text-black transition-all group/btn font-black text-[10px] uppercase tracking-widest cursor-pointer font-sans">
+                <button 
+                  onClick={() => handleAnalyze(game.id)}
+                  className="h-10 w-10 md:h-12 md:w-32 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:text-black transition-all group/btn font-black text-[10px] uppercase tracking-widest cursor-pointer font-sans"
+                >
                     <span className="hidden md:block">Analizar</span>
                     <span className="md:hidden">→</span>
                 </button>
