@@ -20,7 +20,23 @@ const searchAnimations = `
   .animate-pulse-subtle { animation: subtle-pulse 6s infinite ease-in-out; }
 `;
 
-function OpponentBox({ name, elo, isActive, seconds, visible }: any) {
+function CapturedBar({ captured }: { captured: string[] }) {
+  return (
+    <div className="p-3 mt-3 rounded-2xl border border-black/30 shadow-inner min-h-[50px] flex items-center bg-gradient-to-br from-[#d2b48c] to-[#a68a64] relative z-10">
+      <div className="flex flex-wrap gap-1 max-w-full">
+        {captured.length > 0 ? (
+          captured.map((img, i) => (
+            <img key={i} src={img} className="w-5 h-5 object-contain drop-shadow-md" alt="piece" />
+          ))
+        ) : (
+          <span className="text-[8px] uppercase tracking-[0.2em] text-black/40 font-black italic ml-1">Sin bajas</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function OpponentBox({ name, elo, isActive, seconds, visible, captured }: any) {
   const formatTime = (s: number) => {
     const mins = Math.floor(s / 60);
     const secs = s % 60;
@@ -47,11 +63,12 @@ function OpponentBox({ name, elo, isActive, seconds, visible }: any) {
           {formatTime(seconds)}
         </div>
       </div>
+      <CapturedBar captured={captured} />
     </div>
   );
 }
 
-function MyPlayerBox({ name, elo, isActive, seconds }: any) {
+function MyPlayerBox({ name, elo, isActive, seconds, captured }: any) {
   const formatTime = (s: number) => {
     const mins = Math.floor(s / 60);
     const secs = s % 60;
@@ -80,6 +97,7 @@ function MyPlayerBox({ name, elo, isActive, seconds }: any) {
           {formatTime(seconds)}
         </div>
       </div>
+      <CapturedBar captured={captured} />
     </div>
   );
 }
@@ -94,10 +112,11 @@ export default function OnlinePremiumPage() {
 
   const [timeW, setTimeW] = useState(600);
   const [timeB, setTimeB] = useState(600);
+  const [capturedW, setCapturedW] = useState<string[]>([]);
+  const [capturedB, setCapturedB] = useState<string[]>([]);
   const [myColor, setMyColor] = useState<'w' | 'b'>('w');
   const [opponent, setOpponent] = useState({ name: "Rival", elo: "????" });
 
-  // Refs para acceder a valores actuales en el intervalo sin stale closures
   const statusRef = useRef(status);
   const gameJoinedRef = useRef(gameJoined);
   const historyLengthRef = useRef(0);
@@ -109,12 +128,10 @@ export default function OnlinePremiumPage() {
 
   const matchmakingSocket = useRef<WebSocket | null>(null);
 
-  // Timer: usa refs para no capturar valores stale. Solo depende de gameJoined.
   useEffect(() => {
     if (!gameJoined) return;
-
     const timer = setInterval(() => {
-      if (historyLengthRef.current === 0) return; // esperar primer movimiento
+      if (historyLengthRef.current === 0) return;
       const s = statusRef.current;
       if (s.includes("FINALIZADA") || s.includes("MATE") || s.includes("TABLAS") ||
           s.includes("COMPLETED") || s.includes("GANAN")) return;
@@ -125,7 +142,6 @@ export default function OnlinePremiumPage() {
         setTimeB(prev => Math.max(0, prev - 1));
       }
     }, 1000);
-
     return () => clearInterval(timer);
   }, [gameJoined]);
 
@@ -134,10 +150,8 @@ export default function OnlinePremiumPage() {
     if (!token) return alert("No hay token de sesión.");
     setIsSearching(true);
     setStatus("BUSCANDO RIVAL...");
-
     const ws = new WebSocket(`ws://localhost:8000/ws/matchmaking/?token=${token}`);
     matchmakingSocket.current = ws;
-
     ws.onopen = () => {
       ws.send(JSON.stringify({
         action: "search_game",
@@ -171,35 +185,29 @@ export default function OnlinePremiumPage() {
     setGameJoined(false);
     setGameId(null);
     setHistory([]);
+    setCapturedW([]);
+    setCapturedB([]);
     historyLengthRef.current = 0;
     setStatus("ESPERANDO JUGADOR");
     setTimeW(currentModeRef.current.m);
     setTimeB(currentModeRef.current.m);
   };
 
-  // Recibe historial y el color del jugador que acaba de mover (para el incremento)
   const handleMoveUpdate = useCallback((newHistory: string[], lastMoveColor: 'w' | 'b' | null) => {
     setHistory(newHistory);
     historyLengthRef.current = newHistory.length;
-
     if (newHistory.length === 0 || lastMoveColor === null) return;
-
     const increment = currentModeRef.current.i;
     if (increment === 0) return;
-
-    // Aplicar incremento al jugador que acaba de mover
-    if (lastMoveColor === 'w') {
-      setTimeW(prev => prev + increment);
-    } else {
-      setTimeB(prev => prev + increment);
-    }
+    if (lastMoveColor === 'w') setTimeW(prev => prev + increment);
+    else setTimeB(prev => prev + increment);
   }, []);
 
-  // Recibe los datos de la partida del servidor (color, jugadores, tiempo)
   const handleGameData = useCallback((data: any, color: 'w' | 'b') => {
     setMyColor(color);
+    if (data.capturedW) setCapturedW(data.capturedW);
+    if (data.capturedB) setCapturedB(data.capturedB);
 
-    // El servidor ahora envía white_player y black_player completos
     if (color === 'w') {
       setOpponent({
         name: data.black_player?.username || "Oponente",
@@ -212,7 +220,6 @@ export default function OnlinePremiumPage() {
       });
     }
 
-    // El servidor envía initial_time: usarlo para inicializar relojes
     if (data.initial_time) {
       setTimeW(data.initial_time);
       setTimeB(data.initial_time);
@@ -225,7 +232,6 @@ export default function OnlinePremiumPage() {
   }, []);
 
   const opponentColor: 'w' | 'b' = myColor === 'w' ? 'b' : 'w';
-
   const rows = [];
   for (let i = 0; i < history.length; i += 2) {
     rows.push({ moveNum: Math.floor(i / 2) + 1, white: history[i], black: history[i + 1] || null });
@@ -244,7 +250,6 @@ export default function OnlinePremiumPage() {
       </div>
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-stretch">
 
-        {/* Columna izquierda */}
         <div className="col-span-12 xl:col-span-3 flex flex-col justify-between py-2">
           <OpponentBox
             name={opponent.name}
@@ -252,6 +257,7 @@ export default function OnlinePremiumPage() {
             isActive={status === (opponentColor === 'w' ? "TURNO BLANCAS" : "TURNO NEGRAS")}
             seconds={opponentColor === 'w' ? timeW : timeB}
             visible={gameJoined || isSearching}
+            captured={opponentColor === 'w' ? capturedB : capturedW}
           />
 
           <div className="bg-zinc-950/60 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl backdrop-blur-xl my-6 min-h-[400px] flex flex-col justify-center relative overflow-hidden">
@@ -297,18 +303,66 @@ export default function OnlinePremiumPage() {
                 </button>
               </div>
             ) : (
-              <div className="text-center animate-in zoom-in duration-500">
-                <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center mb-4 mx-auto border border-gold/20">
-                  <div className={`w-2 h-2 rounded-full ${isGameOver ? 'bg-red-400' : 'bg-gold animate-ping'}`}></div>
+              <div className="text-center animate-in zoom-in duration-500 w-full px-4">
+                <div className="flex justify-center mb-6">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                    <span className="text-[8px] font-black text-green-500 uppercase tracking-[0.2em]">Servidor Activo</span>
+                  </div>
                 </div>
-                <h2 className="text-white font-black text-xs tracking-widest uppercase mb-2">
-                  {isGameOver ? 'Partida Finalizada' : 'Partida en curso'}
-                </h2>
-                <p className="text-gold text-[10px] font-bold tracking-widest uppercase">{status}</p>
+
+                <div className="relative group">
+                  <div className={`absolute inset-0 blur-2xl opacity-20 transition-colors duration-1000 ${
+                    status.includes("BLANCAS") ? 'bg-white' : 'bg-gold'
+                  }`}></div>
+                  
+                  <div className="relative bg-black/40 border border-white/5 rounded-[2rem] p-6 backdrop-blur-md">
+                    <div className="w-16 h-16 bg-gradient-to-b from-zinc-800 to-zinc-950 rounded-2xl flex items-center justify-center mb-4 mx-auto border border-white/10 shadow-xl">
+                      <span className={`text-3xl transition-transform duration-500 ${isGameOver ? 'scale-110' : 'animate-bounce'}`}>
+                        {isGameOver ? '🏆' : '⚔️'}
+                      </span>
+                    </div>
+                    
+                    <h2 className="text-zinc-500 font-black text-[10px] tracking-[0.4em] uppercase mb-1">
+                      {isGameOver ? 'Resultado Final' : 'Estado del Duelo'}
+                    </h2>
+                    
+                    <div className="flex flex-col gap-1">
+                      <p className={`text-xl font-black tracking-tighter uppercase transition-all duration-500 ${
+                        status.includes("MATE") || status.includes("GANAN") ? 'text-green-400 scale-110' : 'text-white'
+                      }`}>
+                        {status}
+                      </p>
+                      {!isGameOver && (
+                        <div className="flex items-center justify-center gap-2 mt-2">
+                           <div className={`h-[2px] w-8 rounded-full ${status.includes("BLANCAS") ? 'bg-white' : 'bg-zinc-800'}`}></div>
+                           <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">En juego</span>
+                           <div className={`h-[2px] w-8 rounded-full ${status.includes("NEGRAS") ? 'bg-gold' : 'bg-zinc-800'}`}></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex items-center justify-center gap-4">
+                  <div className="h-[1px] flex-grow bg-gradient-to-r from-transparent to-white/10"></div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Tu Bando:</span>
+                    <div className={`px-3 py-1 rounded-lg text-[10px] font-black border ${
+                      myColor === 'w' 
+                        ? 'bg-white text-black border-white' 
+                        : 'bg-zinc-900 text-gold border-gold/50'
+                    }`}>
+                      {myColor === 'w' ? 'BLANCAS' : 'NEGRAS'}
+                    </div>
+                  </div>
+                  <div className="h-[1px] flex-grow bg-gradient-to-l from-transparent to-white/10"></div>
+                </div>
+
                 {isGameOver && (
                   <button
                     onClick={resetGame}
-                    className="mt-6 px-6 py-3 bg-gold text-black rounded-2xl font-black text-[10px] tracking-widest uppercase hover:scale-105 transition-transform"
+                    className="mt-8 w-full py-4 bg-gold text-black rounded-2xl font-black text-[11px] tracking-[0.3em] uppercase hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all duration-500 cursor-pointer"
                   >
                     Nueva Partida
                   </button>
@@ -322,10 +376,10 @@ export default function OnlinePremiumPage() {
             elo="2185"
             isActive={status === (myColor === 'w' ? "TURNO BLANCAS" : "TURNO NEGRAS")}
             seconds={myColor === 'w' ? timeW : timeB}
+            captured={myColor === 'w' ? capturedB : capturedW}
           />
         </div>
 
-        {/* Tablero */}
         <div className="col-span-12 xl:col-span-6 flex items-center justify-center">
           <div className="w-full aspect-square max-w-[785px] relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-950/40 backdrop-blur-xl">
             {gameJoined && gameId ? (
@@ -353,7 +407,6 @@ export default function OnlinePremiumPage() {
           </div>
         </div>
 
-        {/* Panel de movimientos */}
         <div className="col-span-12 xl:col-span-3">
           <div className="bg-zinc-950/80 h-full flex flex-col border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl backdrop-blur-xl">
             <div className="p-6 border-b border-white/10 bg-white/[0.02] flex justify-between items-center">
