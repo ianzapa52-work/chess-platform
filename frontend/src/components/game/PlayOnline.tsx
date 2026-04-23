@@ -8,7 +8,7 @@ type BoardMatrix = Array<Array<Piece | null>>;
 
 interface PlayOnlineProps {
   onGameStateChange: (status: string) => void;
-  onMoveUpdate: (history: string[], lastMoveColor: 'w' | 'b' | null) => void;
+  onMoveUpdate: (history: string[], lastMoveColor: 'w' | 'b' | null, serverTimes?: {w: number, b: number}) => void;
   onGameData: (data: any, color: 'w' | 'b') => void;
   serverUrl: string;
 }
@@ -59,7 +59,7 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
 
   const socket = useRef<WebSocket | null>(null);
 
-  const updateBoardFromChess = useCallback((extraData = {}) => {
+  const updateBoardFromChess = useCallback((extraData: any = {}) => {
     const chess = chessRef.current;
     const newBoard = chess.board();
     setBoard([...newBoard]);
@@ -70,7 +70,12 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
     const historyVerbose = chess.history({ verbose: true });
     const lastMoveColor = historyVerbose.length > 0 ? historyVerbose[historyVerbose.length - 1].color : null;
 
-    onMoveUpdate(chess.history(), lastMoveColor);
+    // Sincronizar tiempos si el servidor los envía en el mensaje
+    const serverTimes = (extraData.time_white !== undefined && extraData.time_black !== undefined) 
+      ? { w: extraData.time_white, b: extraData.time_black } 
+      : undefined;
+
+    onMoveUpdate(chess.history(), lastMoveColor, serverTimes);
     onGameData({ ...extraData, capturedW: capW, capturedB: capB }, orientationRef.current);
 
     if (chess.isGameOver()) {
@@ -194,6 +199,7 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
         const isDark = (r + c) % 2 === 1;
         const isSelected = selectedSquare === coord;
         const isLast = lastMove?.from === coord || lastMove?.to === coord;
+        const isLastTurn = (piece?.color === 'w' && turn === 'b') || (piece?.color === 'b' && turn === 'w');
         const isLegal = legalMoves.includes(coord);
 
         squares.push(

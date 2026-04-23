@@ -39,7 +39,7 @@ function CapturedBar({ captured }: { captured: string[] }) {
 function OpponentBox({ name, elo, isActive, seconds, visible, captured }: any) {
   const formatTime = (s: number) => {
     const mins = Math.floor(s / 60);
-    const secs = s % 60;
+    const secs = Math.floor(s % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -71,7 +71,7 @@ function OpponentBox({ name, elo, isActive, seconds, visible, captured }: any) {
 function MyPlayerBox({ name, elo, isActive, seconds, captured }: any) {
   const formatTime = (s: number) => {
     const mins = Math.floor(s / 60);
-    const secs = s % 60;
+    const secs = Math.floor(s % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -199,8 +199,17 @@ export default function OnlinePremiumPage() {
     setTimeB(currentModeRef.current.m);
   };
 
-  const handleMoveUpdate = useCallback((newHistory: string[], lastMoveColor: 'w' | 'b' | null) => {
+  const handleMoveUpdate = useCallback((newHistory: string[], lastMoveColor: 'w' | 'b' | null, serverTimes?: {w: number, b: number}) => {
     setHistory(newHistory);
+    
+    // Si el servidor envía los tiempos, los usamos directamente (incluyen incremento)
+    if (serverTimes) {
+      setTimeW(serverTimes.w);
+      setTimeB(serverTimes.b);
+      return;
+    }
+
+    // Fallback local en caso de que no lleguen serverTimes
     if (newHistory.length === 0 || lastMoveColor === null) return;
     const inc = currentModeRef.current.i;
     if (inc > 0) {
@@ -226,7 +235,11 @@ export default function OnlinePremiumPage() {
       });
     }
 
-    if (data.initial_time) {
+    // Sincronización oficial del reloj desde el backend
+    if (data.time_white !== undefined && data.time_black !== undefined) {
+      setTimeW(data.time_white);
+      setTimeB(data.time_black);
+    } else if (data.initial_time) {
       setTimeW(data.initial_time);
       setTimeB(data.initial_time);
     }
@@ -367,7 +380,6 @@ export default function OnlinePremiumPage() {
           />
         </div>
 
-        {/* --- COLUMNA CENTRAL ACTUALIZADA --- */}
         <div className="col-span-12 xl:col-span-6 flex items-center justify-center">
           <div className="w-full flex justify-center">
             {gameJoined && gameId ? (
