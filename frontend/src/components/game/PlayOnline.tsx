@@ -132,7 +132,6 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
     const chess = chessRef.current;
     if (chess.turn() !== orientationRef.current) return;
 
-    // Detectar si el movimiento es una promoción
     const piece = chess.get(from);
     const isPromotion = 
       piece?.type === 'p' && 
@@ -140,7 +139,6 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
 
     let moveResult = null;
     try { 
-      // Si es promoción, forzamos 'q' (reina)
       moveResult = chess.move({ 
         from, 
         to, 
@@ -159,8 +157,6 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
     setSelectedSquare(null);
     setLegalMoves([]);
 
-    // Construir la cadena del movimiento para el socket
-    // Si es promoción enviamos por ejemplo "e7e8q"
     const moveData = isPromotion ? `${from}${to}q` : from + to;
     
     socket.current?.send(JSON.stringify({ 
@@ -230,9 +226,13 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
   };
 
   return (
-    <div className="p-1 bg-zinc-950 rounded-[2rem] border border-white/10 relative h-full w-full flex items-center justify-center">
-      {!isConnected && <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-[2rem] text-gold font-black tracking-widest text-[10px] uppercase">Conectando...</div>}
-      <div className={`grid grid-cols-8 grid-rows-8 w-full max-w-[700px] aspect-square bg-zinc-900 overflow-hidden rounded-xl border-[4px] border-black shadow-inner ${isDragging ? 'cursor-grabbing' : ''}`}>
+    <div className="relative w-[min(95vw,780px)] aspect-square flex items-center justify-center">
+      {!isConnected && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-[2.5rem] text-gold font-black tracking-widest text-[10px] uppercase">
+          Conectando...
+        </div>
+      )}
+      <div className={`grid grid-cols-8 grid-rows-8 w-full h-full bg-zinc-900 overflow-hidden rounded-[2.5rem] border-[6px] border-zinc-950 shadow-2xl ${isDragging ? 'cursor-grabbing' : ''}`}>
         {renderBoard()}
       </div>
     </div>

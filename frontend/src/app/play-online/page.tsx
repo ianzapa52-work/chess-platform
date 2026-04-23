@@ -118,20 +118,15 @@ export default function OnlinePremiumPage() {
   const [opponent, setOpponent] = useState({ name: "Rival", elo: "????" });
 
   const statusRef = useRef(status);
-  const gameJoinedRef = useRef(gameJoined);
-  const historyLengthRef = useRef(0);
   const currentModeRef = useRef(currentMode);
+  const matchmakingSocket = useRef<WebSocket | null>(null);
 
   useEffect(() => { statusRef.current = status; }, [status]);
-  useEffect(() => { gameJoinedRef.current = gameJoined; }, [gameJoined]);
   useEffect(() => { currentModeRef.current = currentMode; }, [currentMode]);
-
-  const matchmakingSocket = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     if (!gameJoined) return;
     const timer = setInterval(() => {
-      if (historyLengthRef.current === 0) return;
       const s = statusRef.current;
       if (s.includes("FINALIZADA") || s.includes("MATE") || s.includes("TABLAS") ||
           s.includes("COMPLETED") || s.includes("GANAN")) return;
@@ -148,10 +143,13 @@ export default function OnlinePremiumPage() {
   const startSearch = () => {
     const token = localStorage.getItem("access");
     if (!token) return alert("No hay token de sesión.");
+    
     setIsSearching(true);
     setStatus("BUSCANDO RIVAL...");
+
     const ws = new WebSocket(`ws://localhost:8000/ws/matchmaking/?token=${token}`);
     matchmakingSocket.current = ws;
+
     ws.onopen = () => {
       ws.send(JSON.stringify({
         action: "search_game",
@@ -160,6 +158,7 @@ export default function OnlinePremiumPage() {
         increment: currentMode.i
       }));
     };
+
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
       if (data.type === "match_found") {
@@ -169,6 +168,11 @@ export default function OnlinePremiumPage() {
         ws.close();
       }
     };
+
+    ws.onclose = () => {
+      setIsSearching(false);
+    };
+
     ws.onerror = () => {
       setIsSearching(false);
       setStatus("ERROR DE CONEXIÓN");
@@ -176,7 +180,10 @@ export default function OnlinePremiumPage() {
   };
 
   const cancelSearch = () => {
-    matchmakingSocket.current?.close();
+    if (matchmakingSocket.current) {
+      matchmakingSocket.current.close();
+      matchmakingSocket.current = null;
+    }
     setIsSearching(false);
     setStatus("ESPERANDO JUGADOR");
   };
@@ -187,7 +194,6 @@ export default function OnlinePremiumPage() {
     setHistory([]);
     setCapturedW([]);
     setCapturedB([]);
-    historyLengthRef.current = 0;
     setStatus("ESPERANDO JUGADOR");
     setTimeW(currentModeRef.current.m);
     setTimeB(currentModeRef.current.m);
@@ -195,12 +201,12 @@ export default function OnlinePremiumPage() {
 
   const handleMoveUpdate = useCallback((newHistory: string[], lastMoveColor: 'w' | 'b' | null) => {
     setHistory(newHistory);
-    historyLengthRef.current = newHistory.length;
     if (newHistory.length === 0 || lastMoveColor === null) return;
-    const increment = currentModeRef.current.i;
-    if (increment === 0) return;
-    if (lastMoveColor === 'w') setTimeW(prev => prev + increment);
-    else setTimeB(prev => prev + increment);
+    const inc = currentModeRef.current.i;
+    if (inc > 0) {
+      if (lastMoveColor === 'w') setTimeW(prev => prev + inc);
+      else setTimeB(prev => prev + inc);
+    }
   }, []);
 
   const handleGameData = useCallback((data: any, color: 'w' | 'b') => {
@@ -248,6 +254,7 @@ export default function OnlinePremiumPage() {
         <div className="absolute inset-0 opacity-[0.2] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
         <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] bg-gold/20 blur-[140px] rounded-full animate-pulse"></div>
       </div>
+      
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-stretch">
 
         <div className="col-span-12 xl:col-span-3 flex flex-col justify-between py-2">
@@ -262,44 +269,49 @@ export default function OnlinePremiumPage() {
 
           <div className="bg-zinc-950/60 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl backdrop-blur-xl my-6 min-h-[400px] flex flex-col justify-center relative overflow-hidden">
             {!gameJoined ? (
-              <div className={`transition-all duration-1000 ${isSearching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                <p className="text-[10px] font-black tracking-[0.3em] text-gold uppercase mb-6 text-center">Configurar Duelo</p>
-                <div className="space-y-4">
-                  {TIME_MODES.map((category) => (
-                    <div key={category.label} className="space-y-2">
-                      <span className="text-[9px] text-zinc-500 uppercase font-black ml-1">{category.label}</span>
-                      <div className="grid grid-cols-3 gap-2">
-                        {category.options.map((opt) => (
-                          <button
-                            key={opt.n}
-                            onClick={() => {
-                              setCurrentMode(opt);
-                              currentModeRef.current = opt;
-                              setTimeW(opt.m);
-                              setTimeB(opt.m);
-                            }}
-                            className={`py-2 rounded-xl text-[10px] font-black transition-all duration-500 border cursor-pointer ${
-                              currentMode.n === opt.n
-                                ? 'bg-gold text-black border-gold'
-                                : 'bg-zinc-900 border-white/5 hover:border-white/20'
-                            }`}
-                          >
-                            {opt.n}
-                          </button>
-                        ))}
+              <div className="w-full">
+                <div className={`transition-all duration-700 ${isSearching ? 'opacity-30 pointer-events-none scale-95 blur-sm' : 'opacity-100'}`}>
+                  <p className="text-[10px] font-black tracking-[0.3em] text-gold uppercase mb-6 text-center">Configurar Duelo</p>
+                  <div className="space-y-4">
+                    {TIME_MODES.map((category) => (
+                      <div key={category.label} className="space-y-2">
+                        <span className="text-[9px] text-zinc-500 uppercase font-black ml-1">{category.label}</span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {category.options.map((opt) => (
+                            <button
+                              key={opt.n}
+                              onClick={() => {
+                                setCurrentMode(opt);
+                                currentModeRef.current = opt;
+                                setTimeW(opt.m);
+                                setTimeB(opt.m);
+                              }}
+                              className={`py-2 rounded-xl text-[10px] font-black transition-all duration-500 border cursor-pointer ${
+                                currentMode.n === opt.n
+                                  ? 'bg-gold text-black border-gold'
+                                  : 'bg-zinc-900 border-white/5 hover:border-white/20'
+                              }`}
+                            >
+                              {opt.n}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
+
                 <button
                   onClick={isSearching ? cancelSearch : startSearch}
-                  className={`w-full mt-8 py-5 rounded-[1.5rem] font-black text-[11px] tracking-[0.3em] uppercase transition-all duration-500 ${
+                  className={`w-full mt-8 py-5 rounded-[1.5rem] font-black text-[11px] tracking-[0.3em] uppercase transition-all duration-500 relative overflow-hidden ${
                     isSearching
                       ? 'bg-zinc-800 text-red-400 border border-red-500/50 cursor-pointer hover:bg-red-950/40'
                       : 'bg-white text-black hover:bg-gold hover:scale-[1.02]'
                   }`}
                 >
-                  {isSearching ? 'Cancelar Búsqueda' : 'Jugar Ahora'}
+                  <span className="relative z-10">
+                    {isSearching ? 'Cancelar Búsqueda' : 'Jugar Ahora'}
+                  </span>
                 </button>
               </div>
             ) : (
@@ -315,48 +327,23 @@ export default function OnlinePremiumPage() {
                   <div className={`absolute inset-0 blur-2xl opacity-20 transition-colors duration-1000 ${
                     status.includes("BLANCAS") ? 'bg-white' : 'bg-gold'
                   }`}></div>
-                  
                   <div className="relative bg-black/40 border border-white/5 rounded-[2rem] p-6 backdrop-blur-md">
                     <div className="w-16 h-16 bg-gradient-to-b from-zinc-800 to-zinc-950 rounded-2xl flex items-center justify-center mb-4 mx-auto border border-white/10 shadow-xl">
                       <span className={`text-3xl transition-transform duration-500 ${isGameOver ? 'scale-110' : 'animate-bounce'}`}>
                         {isGameOver ? '🏆' : '⚔️'}
                       </span>
                     </div>
-                    
                     <h2 className="text-zinc-500 font-black text-[10px] tracking-[0.4em] uppercase mb-1">
                       {isGameOver ? 'Resultado Final' : 'Estado del Duelo'}
                     </h2>
-                    
                     <div className="flex flex-col gap-1">
                       <p className={`text-xl font-black tracking-tighter uppercase transition-all duration-500 ${
                         status.includes("MATE") || status.includes("GANAN") ? 'text-green-400 scale-110' : 'text-white'
                       }`}>
                         {status}
                       </p>
-                      {!isGameOver && (
-                        <div className="flex items-center justify-center gap-2 mt-2">
-                           <div className={`h-[2px] w-8 rounded-full ${status.includes("BLANCAS") ? 'bg-white' : 'bg-zinc-800'}`}></div>
-                           <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">En juego</span>
-                           <div className={`h-[2px] w-8 rounded-full ${status.includes("NEGRAS") ? 'bg-gold' : 'bg-zinc-800'}`}></div>
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
-
-                <div className="mt-8 flex items-center justify-center gap-4">
-                  <div className="h-[1px] flex-grow bg-gradient-to-r from-transparent to-white/10"></div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Tu Bando:</span>
-                    <div className={`px-3 py-1 rounded-lg text-[10px] font-black border ${
-                      myColor === 'w' 
-                        ? 'bg-white text-black border-white' 
-                        : 'bg-zinc-900 text-gold border-gold/50'
-                    }`}>
-                      {myColor === 'w' ? 'BLANCAS' : 'NEGRAS'}
-                    </div>
-                  </div>
-                  <div className="h-[1px] flex-grow bg-gradient-to-l from-transparent to-white/10"></div>
                 </div>
 
                 {isGameOver && (
@@ -380,8 +367,9 @@ export default function OnlinePremiumPage() {
           />
         </div>
 
+        {/* --- COLUMNA CENTRAL ACTUALIZADA --- */}
         <div className="col-span-12 xl:col-span-6 flex items-center justify-center">
-          <div className="w-full aspect-square max-w-[785px] relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl bg-zinc-950/40 backdrop-blur-xl">
+          <div className="w-full flex justify-center">
             {gameJoined && gameId ? (
               <PlayOnline
                 serverUrl={`ws://localhost:8000/ws/games/${gameId}/`}
@@ -390,15 +378,15 @@ export default function OnlinePremiumPage() {
                 onGameData={handleGameData}
               />
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000">
-                <div className="relative w-80 h-80 flex items-center justify-center">
+              <div className="w-[min(95vw,780px)] aspect-square bg-zinc-950/40 backdrop-blur-xl rounded-[3rem] border border-white/10 shadow-2xl flex flex-col items-center justify-center transition-all duration-1000">
+                <div className="relative w-94 h-94 flex items-center justify-center">
                   <div className={`absolute inset-0 transition-opacity duration-1000 ${isSearching ? 'animate-pulse-subtle opacity-100' : 'opacity-40'}`}>
                     <div className="w-full h-full rounded-full border-4 border-dashed border-gold animate-[spin_20s_linear_infinite]"></div>
                   </div>
                   <div className="relative text-center z-10">
                     <span className={`text-6xl mb-4 block ${isSearching ? 'animate-bounce' : ''}`}>♟️</span>
                     <h3 className="text-white font-black tracking-[0.5em] uppercase text-xl">
-                      {isSearching ? 'En la cola...' : 'WELIKECHESS'}
+                      {isSearching ? 'Buscando...' : 'WELIKECHESS'}
                     </h3>
                   </div>
                 </div>
@@ -414,11 +402,6 @@ export default function OnlinePremiumPage() {
               <div className={`w-2 h-2 rounded-full ${gameJoined ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-zinc-800'}`}></div>
             </div>
             <div className="flex-grow overflow-y-auto p-4 custom-scrollbar bg-black/20">
-              {rows.length === 0 && gameJoined && (
-                <p className="text-zinc-700 text-[10px] text-center mt-8 font-bold uppercase tracking-widest">
-                  Esperando primer movimiento...
-                </p>
-              )}
               {rows.map((row) => (
                 <div key={row.moveNum} className="grid grid-cols-[40px_1fr_1fr] gap-2 mb-2 p-1 animate-in slide-in-from-left-2 duration-300">
                   <span className="font-mono text-[10px] text-zinc-700 self-center">{row.moveNum}.</span>
