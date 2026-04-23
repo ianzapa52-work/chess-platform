@@ -70,7 +70,6 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
     const historyVerbose = chess.history({ verbose: true });
     const lastMoveColor = historyVerbose.length > 0 ? historyVerbose[historyVerbose.length - 1].color : null;
 
-    // Sincronizar tiempos si el servidor los envía en el mensaje
     const serverTimes = (extraData.time_white !== undefined && extraData.time_black !== undefined) 
       ? { w: extraData.time_white, b: extraData.time_black } 
       : undefined;
@@ -80,9 +79,16 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
 
     if (chess.isGameOver()) {
       if (chess.isCheckmate()) {
-        onGameStateChange(`JAQUE MATE - GANAN ${currentTurn === 'w' ? 'NEGRAS' : 'BLANCAS'}`);
+        const winner = currentTurn === 'w' ? 'b' : 'w';
+        const isWinner = winner === orientationRef.current;
+        onGameStateChange(`JAQUE MATE - GANAN ${winner === 'w' ? 'BLANCAS' : 'NEGRAS'}`);
+        
+        window.dispatchEvent(new CustomEvent(isWinner ? 'game-victory' : 'game-defeat', { 
+          detail: { message: isWinner ? "¡Has ganado la partida!" : "Suerte la próxima vez", elo: "15" } 
+        }));
       } else if (chess.isDraw()) {
         onGameStateChange("TABLAS");
+        window.dispatchEvent(new CustomEvent('game-draw', { detail: { message: "Empate técnico" } }));
       } else {
         onGameStateChange("PARTIDA FINALIZADA");
       }
@@ -199,7 +205,6 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
         const isDark = (r + c) % 2 === 1;
         const isSelected = selectedSquare === coord;
         const isLast = lastMove?.from === coord || lastMove?.to === coord;
-        const isLastTurn = (piece?.color === 'w' && turn === 'b') || (piece?.color === 'b' && turn === 'w');
         const isLegal = legalMoves.includes(coord);
 
         squares.push(

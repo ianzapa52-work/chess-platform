@@ -7,6 +7,7 @@ import HeaderActions from "@/components/layout/HeaderActions";
 import ChatWindow from "@/components/ui/ChatWindow";
 import Link from "next/link";
 import IdleTimer from "@/components/utils/IdleTimer";
+import GlobalToasts from "@/components/ui/GlobalToasts";
 
 const inter = Inter({ subsets: ["latin"] });
 const cinzel = Cinzel({ subsets: ["latin"] });
@@ -19,13 +20,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className="scroll-smooth">
       <body className={`${inter.className} antialiased selection:bg-gold/30 transition-colors duration-500 [.light_&]:text-black`}>
         
-        {/* Fondo decorativo adaptable */}
         <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(212,175,55,0.15)_0%,transparent_100%)] opacity-70"></div>
           <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
         </div>
 
-        {/* HEADER */}
         <header className="fixed top-0 left-0 w-full h-20 md:h-24 bg-black/40 [.light_&]:bg-white/80 grid grid-cols-3 items-center px-4 md:px-10 z-[60] backdrop-blur-xl border-b border-white/5 [.light_&]:border-black/10 transition-colors duration-500">
           
           <div className="flex justify-start">
@@ -60,14 +59,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
 
-        {/* CONTENIDO PRINCIPAL */}
         <main className="relative min-h-screen pt-20 md:pt-24">
           {children}
         </main>
 
         <ModalManager />
         <ChatWindow />
-        <IdleTimer /> 
+        <IdleTimer />
+        <GlobalToasts /> 
       </body>
     </html>
   );
