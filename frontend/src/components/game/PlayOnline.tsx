@@ -10,7 +10,7 @@ interface PlayOnlineProps {
   onGameStateChange: (status: string) => void;
   onMoveUpdate: (history: string[], lastMoveColor: 'w' | 'b' | null, serverTimes?: {w: number, b: number}) => void;
   onGameData: (data: any, color: 'w' | 'b') => void;
-  onGameEnded: (data: { result: string; termination_reason: string }) => void;
+  onGameEnded: (data: { result: string; termination_reason: string; eloChange?: number }) => void;
   onDrawOffered: (senderUsername: string) => void;
   serverUrl: string;
   socketRef: React.MutableRefObject<WebSocket | null>;
@@ -62,7 +62,6 @@ export default function PlayOnline({
   const [turn, setTurn] = useState<'w' | 'b'>('w');
   const [orientation, setOrientation] = useState<'w' | 'b'>('w');
   const orientationRef = useRef<'w' | 'b'>('w');
-  // Username propio, guardado al recibir game_state para filtrar draw_offered
   const myUsernameRef = useRef<string | null>(null);
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<string[]>([]);
@@ -91,14 +90,9 @@ export default function PlayOnline({
     if (chess.isGameOver()) {
       if (chess.isCheckmate()) {
         const winner = currentTurn === 'w' ? 'b' : 'w';
-        const isWinner = winner === orientationRef.current;
         onGameStateChange(`JAQUE MATE - GANAN ${winner === 'w' ? 'BLANCAS' : 'NEGRAS'}`);
-        window.dispatchEvent(new CustomEvent(isWinner ? 'game-victory' : 'game-defeat', {
-          detail: { message: isWinner ? "¡Has ganado la partida!" : "Suerte la próxima vez", elo: "15" }
-        }));
       } else if (chess.isDraw()) {
         onGameStateChange("TABLAS");
-        window.dispatchEvent(new CustomEvent('game-draw', { detail: { message: "Empate técnico" } }));
       } else {
         onGameStateChange("PARTIDA FINALIZADA");
       }
@@ -119,18 +113,15 @@ export default function PlayOnline({
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
 
-      // Estado inicial de la partida (al conectar)
       if (msg.type === "game_state") {
         if (msg.fen) chessRef.current.load(msg.fen);
         orientationRef.current = msg.color || 'w';
         setOrientation(msg.color || 'w');
-        // Guardar el username propio según el color asignado
         const myPlayer = msg.color === 'w' ? msg.white_player : msg.black_player;
         if (myPlayer?.username) myUsernameRef.current = myPlayer.username;
         updateBoardFromChess(msg);
       }
 
-      // Actualización tras un movimiento
       if (msg.type === "game_update") {
         chessRef.current.load(msg.fen);
         const history = chessRef.current.history({ verbose: true });
@@ -142,40 +133,56 @@ export default function PlayOnline({
         setLegalMoves([]);
         updateBoardFromChess(msg);
 
-        // Si el servidor indica que la partida terminó en este game_update (timeout, etc.)
         if (msg.status === "completed" && msg.result) {
-          onGameEnded({ result: msg.result, termination_reason: "" });
+          const eloChange = orientationRef.current === 'w' ? msg.white_elo_change : msg.black_elo_change;
+          const eloAbs = Math.abs(eloChange ?? 0);
+          const isWinner =
+            (msg.result === "1-0" && orientationRef.current === 'w') ||
+            (msg.result === "0-1" && orientationRef.current === 'b');
+          const isDraw = msg.result === "1/2-1/2";
+
+          onGameEnded({ result: msg.result, termination_reason: "", eloChange });
+
+          if (isDraw) {
+            window.dispatchEvent(new CustomEvent('game-draw', { detail: { message: "Empate técnico" } }));
+          } else if (isWinner) {
+            window.dispatchEvent(new CustomEvent('game-victory', { detail: { message: "¡Has ganado la partida!", elo: String(eloAbs) } }));
+          } else {
+            window.dispatchEvent(new CustomEvent('game-defeat', { detail: { message: "Has perdido", elo: String(eloAbs) } }));
+          }
         }
       }
 
-      // Mensajes de juego: rendición, tablas aceptadas, oferta de tablas
       if (msg.type === "game_message" || msg.action) {
         const payload = msg.message || msg;
         if (payload.action === "game_ended") {
-          onGameEnded({
-            result: payload.result,
-            termination_reason: payload.termination_reason || ""
-          });
+          const eloChange = orientationRef.current === 'w' ? payload.white_elo_change : payload.black_elo_change;
+          const eloAbs = Math.abs(eloChange ?? 0);
           const isWinner =
             (payload.result === "1-0" && orientationRef.current === 'w') ||
             (payload.result === "0-1" && orientationRef.current === 'b');
           const isDraw = payload.result === "1/2-1/2";
+
+          onGameEnded({
+            result: payload.result,
+            termination_reason: payload.termination_reason || "",
+            eloChange,
+          });
 
           if (isDraw) {
             onGameStateChange("TABLAS");
             window.dispatchEvent(new CustomEvent('game-draw', { detail: { message: "Tablas acordadas" } }));
           } else if (isWinner) {
             onGameStateChange("JAQUE MATE - ¡HAS GANADO!");
-            window.dispatchEvent(new CustomEvent('game-victory', { detail: { message: "¡Has ganado la partida!", elo: "15" } }));
+            window.dispatchEvent(new CustomEvent('game-victory', { detail: { message: "¡Has ganado la partida!", elo: String(eloAbs) } }));
           } else {
             const reason = payload.termination_reason === "resignation" ? "El rival se rindió... espera, tú te rendiste" : "Has perdido";
             onGameStateChange("PARTIDA FINALIZADA");
-            window.dispatchEvent(new CustomEvent('game-defeat', { detail: { message: reason, elo: "15" } }));
+            window.dispatchEvent(new CustomEvent('game-defeat', { detail: { message: reason, elo: String(eloAbs) } }));
           }
         }
 
         if (payload.action === "draw_offered") {
-          // Solo mostrar el banner al rival, no al que ha ofrecido las tablas
           if (payload.sender !== myUsernameRef.current) {
             onDrawOffered(payload.sender);
           }

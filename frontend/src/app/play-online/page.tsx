@@ -70,19 +70,16 @@ function OpponentBox({ name, elo, isActive, seconds, visible, captured }: any) {
     }`}>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
-          {/* Avatar placeholder con inicial */}
           <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-zinc-400 font-black text-sm">
             {name?.[0]?.toUpperCase() || "?"}
           </div>
           <div>
-            {/* Nombre + badge de rango en la misma línea */}
             <div className="flex items-center gap-2 mb-1">
               <h4 className="text-white font-black text-[11px] uppercase tracking-widest">{name}</h4>
               <span className={`px-1.5 py-0.5 text-[7px] font-black rounded-md uppercase tracking-tight border ${title.color} ${title.borderColor} ${title.bgColor}`}>
                 {title.short}
               </span>
             </div>
-            {/* Título completo + ELO */}
             <div className="flex items-center gap-1.5">
               <span className={`text-[8px] font-black uppercase tracking-wider ${title.color}`}>{title.label}</span>
               <span className="text-[8px] text-zinc-600">·</span>
@@ -99,7 +96,7 @@ function OpponentBox({ name, elo, isActive, seconds, visible, captured }: any) {
   );
 }
 
-function MyPlayerBox({ name, elo, isActive, seconds, captured }: any) {
+function MyPlayerBox({ name, elo, isActive, seconds, captured, eloChange }: any) {
   const formatTime = (s: number) => {
     const mins = Math.floor(s / 60);
     const secs = Math.floor(s % 60);
@@ -116,20 +113,24 @@ function MyPlayerBox({ name, elo, isActive, seconds, captured }: any) {
       <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 blur-[50px] -z-10" />
       <div className="flex justify-between items-end relative z-10">
         <div className="space-y-1.5">
-          {/* Fila: badge de rango + nombre */}
           <div className="flex items-center gap-2">
             <span className={`px-2 py-0.5 text-[8px] font-black rounded-md uppercase tracking-tighter border ${title.color} ${title.borderColor} ${title.bgColor}`}>
               {title.short}
             </span>
             <h4 className="text-white font-black text-sm uppercase tracking-wider">{name}</h4>
           </div>
-          {/* Fila: título completo + ELO */}
           <div className="flex items-baseline gap-2">
             <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${title.color}`}>{title.label}</span>
             <span className="text-[10px] text-zinc-600">·</span>
-            <span className="text-2xl font-black text-gold tabular-nums tracking-tighter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">{elo}</span>
+            <span className="text-2xl font-black text-gold tabular-nums tracking-tighter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">
+              {elo}
+            </span>
+            {eloChange !== null && eloChange !== undefined && (
+              <span className={`text-sm font-black tabular-nums transition-all duration-500 ${eloChange >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {eloChange >= 0 ? `+${eloChange}` : `${eloChange}`}
+              </span>
+            )}
           </div>
-          {/* Tier badge */}
           <span className={`inline-block text-[7px] font-black uppercase tracking-[0.25em] px-2 py-0.5 rounded-full border ${title.borderColor} ${title.bgColor} ${title.color}`}>
             {title.tier}
           </span>
@@ -147,7 +148,6 @@ function MyPlayerBox({ name, elo, isActive, seconds, captured }: any) {
   );
 }
 
-// Banner de oferta de tablas
 function DrawOfferBanner({ sender, onAccept, onDecline }: { sender: string; onAccept: () => void; onDecline: () => void }) {
   return (
     <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-4 bg-zinc-950 border border-gold/40 rounded-2xl shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-4 duration-500">
@@ -182,6 +182,7 @@ export default function OnlinePremiumPage() {
 
   const [drawOfferSender, setDrawOfferSender] = useState<string | null>(null);
   const [hasOfferedDraw, setHasOfferedDraw] = useState(false);
+  const [eloChange, setEloChange] = useState<number | null>(null);
 
   const statusRef = useRef(status);
   const currentModeRef = useRef(currentMode);
@@ -247,6 +248,7 @@ export default function OnlinePremiumPage() {
     setMyData(null);
     setDrawOfferSender(null);
     setHasOfferedDraw(false);
+    setEloChange(null);
     setStatus("ESPERANDO JUGADOR");
     setTimeW(currentModeRef.current.m);
     setTimeB(currentModeRef.current.m);
@@ -307,12 +309,13 @@ export default function OnlinePremiumPage() {
     statusRef.current = newStatus;
   }, []);
 
-  const handleGameEnded = useCallback((data: { result: string; termination_reason: string }) => {
+  const handleGameEnded = useCallback((data: { result: string; termination_reason: string; eloChange?: number }) => {
     const resultLabels: Record<string, string> = { "1-0": "VICTORIA BLANCAS", "0-1": "VICTORIA NEGRAS", "1/2-1/2": "TABLAS" };
     const reasonLabels: Record<string, string> = { "resignation": "por abandono", "timeout": "por tiempo", "checkmate": "por jaque mate", "agreed_draw": "acordadas", "draw": "técnicas" };
     const label = resultLabels[data.result] || "PARTIDA FINALIZADA";
     const reason = reasonLabels[data.termination_reason] || "";
     setStatus(`${label}${reason ? ` (${reason})` : ""}`);
+    if (data.eloChange !== undefined) setEloChange(data.eloChange);
   }, []);
 
   const handleDrawOffered = useCallback((sender: string) => setDrawOfferSender(sender), []);
@@ -343,7 +346,6 @@ export default function OnlinePremiumPage() {
       )}
 
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-stretch">
-
         <div className="col-span-12 xl:col-span-3 flex flex-col justify-between py-2">
           <OpponentBox
             name={opponent.name}
@@ -393,6 +395,7 @@ export default function OnlinePremiumPage() {
               </div>
             ) : (
               <div className="text-center animate-in zoom-in duration-500 w-full px-4">
+                {/* ... resto del contenido del status banner ... */}
                 <div className="flex justify-center mb-6">
                   <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -420,31 +423,17 @@ export default function OnlinePremiumPage() {
 
                 {!isGameOver && (
                   <div className="flex gap-3 mt-6">
-                    <button
-                      onClick={handleOfferDraw}
-                      disabled={hasOfferedDraw}
-                      className={`flex-1 py-3 rounded-2xl font-black text-[9px] tracking-[0.2em] uppercase transition-all duration-300 border ${
-                        hasOfferedDraw
-                          ? 'bg-zinc-900 border-white/5 text-white/20 cursor-not-allowed'
-                          : 'bg-zinc-800 border-white/10 text-white/60 hover:bg-zinc-700 hover:border-white/20 cursor-pointer'
-                      }`}
-                    >
+                    <button onClick={handleOfferDraw} disabled={hasOfferedDraw} className={`flex-1 py-3 rounded-2xl font-black text-[9px] tracking-[0.2em] uppercase transition-all duration-300 border ${hasOfferedDraw ? 'bg-zinc-900 border-white/5 text-white/20 cursor-not-allowed' : 'bg-zinc-800 border-white/10 text-white/60 hover:bg-zinc-700 hover:border-white/20 cursor-pointer'}`}>
                       {hasOfferedDraw ? '½ Ofrecidas' : '½ Tablas'}
                     </button>
-                    <button
-                      onClick={handleResign}
-                      className="flex-1 py-3 bg-red-950/30 border border-red-500/20 text-red-400 rounded-2xl font-black text-[9px] tracking-[0.2em] uppercase hover:bg-red-950/50 hover:border-red-500/40 transition-all duration-300 cursor-pointer"
-                    >
+                    <button onClick={handleResign} className="flex-1 py-3 bg-red-950/30 border border-red-500/20 text-red-400 rounded-2xl font-black text-[9px] tracking-[0.2em] uppercase hover:bg-red-950/50 hover:border-red-500/40 transition-all duration-300 cursor-pointer">
                       Rendirse
                     </button>
                   </div>
                 )}
 
                 {isGameOver && (
-                  <button
-                    onClick={resetGame}
-                    className="mt-8 w-full py-4 bg-gold text-black rounded-2xl font-black text-[11px] tracking-[0.3em] uppercase hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all duration-500 cursor-pointer"
-                  >
+                  <button onClick={resetGame} className="mt-8 w-full py-4 bg-gold text-black rounded-2xl font-black text-[11px] tracking-[0.3em] uppercase hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all duration-500 cursor-pointer">
                     Nueva Partida
                   </button>
                 )}
@@ -458,6 +447,7 @@ export default function OnlinePremiumPage() {
             isActive={status === (myColor === 'w' ? "TURNO BLANCAS" : "TURNO NEGRAS")}
             seconds={myColor === 'w' ? timeW : timeB}
             captured={myColor === 'w' ? capturedB : capturedW}
+            eloChange={eloChange}
           />
         </div>
 
@@ -508,7 +498,6 @@ export default function OnlinePremiumPage() {
             </div>
           </div>
         </div>
-
       </div>
     </main>
   );
