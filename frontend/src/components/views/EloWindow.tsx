@@ -7,7 +7,7 @@ const RANKINGS = [
   { tier: "Maestro Internacional (IM)", range: "2400 - 2499", status: "Internacional", highlight: false },
   { tier: "Maestro FIDE (FM)", range: "2300 - 2399", status: "Avanzado", highlight: false },
   { tier: "Experto", range: "2000 - 2199", status: "Nacional", highlight: false },
-  { tier: "Aficionado", range: "0 - 1199", status: "Iniciación", highlight: false },
+  { tier: "Aficionado", range: "0 - 1999", status: "Iniciación", highlight: false },
 ];
 
 export default function EloWindow() {

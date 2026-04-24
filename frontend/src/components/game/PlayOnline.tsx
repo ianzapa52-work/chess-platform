@@ -10,7 +10,10 @@ interface PlayOnlineProps {
   onGameStateChange: (status: string) => void;
   onMoveUpdate: (history: string[], lastMoveColor: 'w' | 'b' | null, serverTimes?: {w: number, b: number}) => void;
   onGameData: (data: any, color: 'w' | 'b') => void;
+  onGameEnded: (data: { result: string; termination_reason: string }) => void;
+  onDrawOffered: (senderUsername: string) => void;
   serverUrl: string;
+  socketRef: React.MutableRefObject<WebSocket | null>;
 }
 
 const PIECE_MAP: Record<string, string> = {
@@ -45,19 +48,27 @@ const getCapturedPieces = (chess: Chess) => {
   return { capW, capB };
 };
 
-export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData, serverUrl }: PlayOnlineProps) {
+export default function PlayOnline({
+  onGameStateChange,
+  onMoveUpdate,
+  onGameData,
+  onGameEnded,
+  onDrawOffered,
+  serverUrl,
+  socketRef,
+}: PlayOnlineProps) {
   const chessRef = useRef(new Chess());
   const [board, setBoard] = useState<BoardMatrix>([]);
   const [turn, setTurn] = useState<'w' | 'b'>('w');
   const [orientation, setOrientation] = useState<'w' | 'b'>('w');
   const orientationRef = useRef<'w' | 'b'>('w');
+  // Username propio, guardado al recibir game_state para filtrar draw_offered
+  const myUsernameRef = useRef<string | null>(null);
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<string[]>([]);
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-
-  const socket = useRef<WebSocket | null>(null);
 
   const updateBoardFromChess = useCallback((extraData: any = {}) => {
     const chess = chessRef.current;
@@ -70,8 +81,8 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
     const historyVerbose = chess.history({ verbose: true });
     const lastMoveColor = historyVerbose.length > 0 ? historyVerbose[historyVerbose.length - 1].color : null;
 
-    const serverTimes = (extraData.time_white !== undefined && extraData.time_black !== undefined) 
-      ? { w: extraData.time_white, b: extraData.time_black } 
+    const serverTimes = (extraData.time_white !== undefined && extraData.time_black !== undefined)
+      ? { w: extraData.time_white, b: extraData.time_black }
       : undefined;
 
     onMoveUpdate(chess.history(), lastMoveColor, serverTimes);
@@ -82,9 +93,8 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
         const winner = currentTurn === 'w' ? 'b' : 'w';
         const isWinner = winner === orientationRef.current;
         onGameStateChange(`JAQUE MATE - GANAN ${winner === 'w' ? 'BLANCAS' : 'NEGRAS'}`);
-        
-        window.dispatchEvent(new CustomEvent(isWinner ? 'game-victory' : 'game-defeat', { 
-          detail: { message: isWinner ? "¡Has ganado la partida!" : "Suerte la próxima vez", elo: "15" } 
+        window.dispatchEvent(new CustomEvent(isWinner ? 'game-victory' : 'game-defeat', {
+          detail: { message: isWinner ? "¡Has ganado la partida!" : "Suerte la próxima vez", elo: "15" }
         }));
       } else if (chess.isDraw()) {
         onGameStateChange("TABLAS");
@@ -102,15 +112,25 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
     if (!token) return;
     const ws = new WebSocket(`${serverUrl}?token=${token}`);
     socket.current = ws;
+    socketRef.current = ws;
+
     ws.onopen = () => setIsConnected(true);
+
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
+
+      // Estado inicial de la partida (al conectar)
       if (msg.type === "game_state") {
         if (msg.fen) chessRef.current.load(msg.fen);
         orientationRef.current = msg.color || 'w';
         setOrientation(msg.color || 'w');
+        // Guardar el username propio según el color asignado
+        const myPlayer = msg.color === 'w' ? msg.white_player : msg.black_player;
+        if (myPlayer?.username) myUsernameRef.current = myPlayer.username;
         updateBoardFromChess(msg);
       }
+
+      // Actualización tras un movimiento
       if (msg.type === "game_update") {
         chessRef.current.load(msg.fen);
         const history = chessRef.current.history({ verbose: true });
@@ -121,16 +141,60 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
         setSelectedSquare(null);
         setLegalMoves([]);
         updateBoardFromChess(msg);
+
+        // Si el servidor indica que la partida terminó en este game_update (timeout, etc.)
+        if (msg.status === "completed" && msg.result) {
+          onGameEnded({ result: msg.result, termination_reason: "" });
+        }
       }
-      if (msg.type === "move_error") {
+
+      // Mensajes de juego: rendición, tablas aceptadas, oferta de tablas
+      if (msg.type === "game_message" || msg.action) {
+        const payload = msg.message || msg;
+        if (payload.action === "game_ended") {
+          onGameEnded({
+            result: payload.result,
+            termination_reason: payload.termination_reason || ""
+          });
+          const isWinner =
+            (payload.result === "1-0" && orientationRef.current === 'w') ||
+            (payload.result === "0-1" && orientationRef.current === 'b');
+          const isDraw = payload.result === "1/2-1/2";
+
+          if (isDraw) {
+            onGameStateChange("TABLAS");
+            window.dispatchEvent(new CustomEvent('game-draw', { detail: { message: "Tablas acordadas" } }));
+          } else if (isWinner) {
+            onGameStateChange("JAQUE MATE - ¡HAS GANADO!");
+            window.dispatchEvent(new CustomEvent('game-victory', { detail: { message: "¡Has ganado la partida!", elo: "15" } }));
+          } else {
+            const reason = payload.termination_reason === "resignation" ? "El rival se rindió... espera, tú te rendiste" : "Has perdido";
+            onGameStateChange("PARTIDA FINALIZADA");
+            window.dispatchEvent(new CustomEvent('game-defeat', { detail: { message: reason, elo: "15" } }));
+          }
+        }
+
+        if (payload.action === "draw_offered") {
+          // Solo mostrar el banner al rival, no al que ha ofrecido las tablas
+          if (payload.sender !== myUsernameRef.current) {
+            onDrawOffered(payload.sender);
+          }
+        }
+      }
+
+      if (msg.type === "move_error" || msg.type === "error") {
         setSelectedSquare(null);
         setLegalMoves([]);
         updateBoardFromChess();
       }
     };
+
     ws.onclose = () => setIsConnected(false);
     return () => { ws.close(); };
-  }, [serverUrl, updateBoardFromChess]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverUrl]);
+
+  const socket = useRef<WebSocket | null>(null);
 
   const selectSquare = useCallback((coord: Square) => {
     const moves = chessRef.current.moves({ square: coord, verbose: true });
@@ -144,17 +208,13 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
     if (chess.turn() !== orientationRef.current) return;
 
     const piece = chess.get(from);
-    const isPromotion = 
-      piece?.type === 'p' && 
+    const isPromotion =
+      piece?.type === 'p' &&
       ((piece.color === 'w' && to[1] === '8') || (piece.color === 'b' && to[1] === '1'));
 
     let moveResult = null;
-    try { 
-      moveResult = chess.move({ 
-        from, 
-        to, 
-        promotion: isPromotion ? 'q' : undefined 
-      }); 
+    try {
+      moveResult = chess.move({ from, to, promotion: isPromotion ? 'q' : undefined });
     } catch { }
 
     if (!moveResult) {
@@ -169,11 +229,7 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
     setLegalMoves([]);
 
     const moveData = isPromotion ? `${from}${to}q` : from + to;
-    
-    socket.current?.send(JSON.stringify({ 
-      action: "make_move", 
-      move: moveData 
-    }));
+    socket.current?.send(JSON.stringify({ action: "make_move", move: moveData }));
 
     chess.undo();
   }, [isConnected]);
@@ -208,18 +264,23 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
         const isLegal = legalMoves.includes(coord);
 
         squares.push(
-          <div key={coord} onClick={() => handleSquareClick(coord, piece)}
+          <div
+            key={coord}
+            onClick={() => handleSquareClick(coord, piece)}
             onDragOver={e => e.preventDefault()}
             onDrop={e => {
               const from = e.dataTransfer.getData("fromSquare") as Square;
               if (from) handleMove(from, coord);
               setIsDragging(false);
             }}
-            className={`relative flex items-center justify-center select-none cursor-pointer ${isDark ? 'bg-[#b8860b]' : 'bg-[#f0e68c]'} ${isSelected ? '!bg-yellow-300/70' : ''} ${isLast && !isSelected ? 'after:absolute after:inset-0 after:bg-black/20 after:z-10' : ''}`}>
+            className={`relative flex items-center justify-center select-none cursor-pointer ${isDark ? 'bg-[#b8860b]' : 'bg-[#f0e68c]'} ${isSelected ? '!bg-yellow-300/70' : ''} ${isLast && !isSelected ? 'after:absolute after:inset-0 after:bg-black/20 after:z-10' : ''}`}
+          >
             {((orientation === 'w' && c === 0) || (orientation === 'b' && c === 7)) && <span className="absolute top-0.5 left-1 text-[9px] font-bold opacity-40">{8 - r}</span>}
             {((orientation === 'w' && r === 7) || (orientation === 'b' && r === 0)) && <span className="absolute bottom-0.5 right-1 text-[9px] font-bold opacity-40 uppercase">{String.fromCharCode(97 + c)}</span>}
             {isLegal && <div className={`absolute z-30 rounded-full ${piece ? 'w-full h-full border-4 border-black/25 bg-black/10' : 'w-[34%] h-[34%] bg-black/20'}`} />}
-            {piece && <img src={`/pieces/${piece.color}_${PIECE_MAP[piece.type]}.svg`}
+            {piece && (
+              <img
+                src={`/pieces/${piece.color}_${PIECE_MAP[piece.type]}.svg`}
                 draggable={piece.color === orientationRef.current && piece.color === turn}
                 onDragStart={e => {
                   if (piece.color !== orientationRef.current || piece.color !== turn) return e.preventDefault();
@@ -228,7 +289,10 @@ export default function PlayOnline({ onGameStateChange, onMoveUpdate, onGameData
                   setIsDragging(true);
                 }}
                 onDragEnd={() => setIsDragging(false)}
-                className={`w-[90%] h-[90%] z-20 drop-shadow-xl transition-transform ${isSelected ? 'scale-110 -translate-y-1' : ''}`} alt="" />}
+                className={`w-[90%] h-[90%] z-20 drop-shadow-xl transition-transform ${isSelected ? 'scale-110 -translate-y-1' : ''}`}
+                alt=""
+              />
+            )}
           </div>
         );
       }
