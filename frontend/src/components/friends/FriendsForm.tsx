@@ -104,8 +104,11 @@ export default function FriendsForm() {
             </div>
             <div className="relative flex-grow max-w-md">
               <input 
-                type="text" placeholder="FILTRAR CONTACTO..." value={search} onChange={(e) => setSearch(e.target.value)}
-                className="chess-input pl-6 uppercase font-bold text-xs cursor-text"
+                type="text" 
+                placeholder="FILTRAR CONTACTO..." 
+                value={search} 
+                onChange={(e) => setSearch(e.target.value)}
+                className="chess-input pl-6 uppercase font-serif font-bold text-[10px] tracking-[0.5em] cursor-text"
               />
             </div>
           </div>
@@ -126,9 +129,9 @@ export default function FriendsForm() {
                     <h3 className="text-gold font-serif text-sm font-bold tracking-[0.5em] uppercase">Partidas En Curso</h3>
                 </div>
             </div>
-            <div className="flex-grow overflow-y-auto p-10 space-y-4 custom-scrollbar">
-                {liveGames.map(game => (
-                    <div key={game.id} className="w-full bg-black/60 border border-white/5 rounded-3xl p-6 flex items-center justify-between hover:border-gold/40 transition-all group shrink-0">
+            <div className="flex-grow overflow-x-auto overflow-y-hidden p-10 flex flex-row gap-6 custom-scrollbar items-center">
+              {liveGames.map(game => (
+                  <div key={game.id} className="min-w-[400px] bg-black/60 border border-white/5 rounded-3xl p-6 flex items-center justify-between hover:border-gold/40 transition-all group shrink-0">
                         <div className="flex items-center gap-6 min-w-0">
                             <div className="relative shrink-0">
                                 <img src={game.avatar} className="w-16 h-16 rounded-2xl object-cover border border-white/10" alt="" />

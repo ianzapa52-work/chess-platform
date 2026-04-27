@@ -94,7 +94,7 @@ export default function RankingForm() {
                 placeholder="BUSCAR JUGADOR..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-black/40 border border-white/10 rounded-2xl pl-14 pr-8 py-4 text-white tracking-[0.3em] outline-none focus:border-[#d4af37]/50 w-full transition-all text-xs uppercase cursor-pointer"
+                className="bg-black/40 border border-white/10 rounded-2xl pl-14 pr-8 py-4 text-white tracking-[0.3em] outline-none focus:border-[#d4af37]/50 w-full transition-all text-xs uppercase"
               />
             </div>
           </div>
