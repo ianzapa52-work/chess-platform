@@ -69,6 +69,94 @@ export default function PlayOnline({
   const [isConnected, setIsConnected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
+  // ── Premove ──────────────────────────────────────────────────────────────
+  const [premove, setPremove] = useState<{ from: Square; to: Square } | null>(null);
+  const premoveRef = useRef<{ from: Square; to: Square } | null>(null);
+
+  const clearPremove = useCallback(() => {
+    setPremove(null);
+    premoveRef.current = null;
+  }, []);
+
+  // ── Validar premove: solo acepta movimientos legales ─────────────────────
+  // Simulamos el tablero con el turno del jugador para comprobar legalidad
+  const setPremoveIfLegal = useCallback((from: Square, to: Square) => {
+    const chess = chessRef.current;
+    const myColor = orientationRef.current;
+
+    // Modificamos el FEN para poner el turno en el color del jugador
+    const fenParts = chess.fen().split(' ');
+    fenParts[1] = myColor;
+    const tempFen = fenParts.join(' ');
+
+    const tempChess = new Chess();
+    try {
+      tempChess.load(tempFen);
+    } catch {
+      return; // FEN inválido, descartamos
+    }
+
+    // Verificamos que la pieza en `from` pertenece al jugador
+    const piece = tempChess.get(from);
+    if (!piece || piece.color !== myColor) return;
+
+    // Comprobamos si `to` está entre los destinos legales
+    const legalTargets = tempChess.moves({ square: from, verbose: true }).map(m => m.to);
+    if (!legalTargets.includes(to)) return; // movimiento ilegal, ignorar silenciosamente
+
+    const pm = { from, to };
+    setPremove(pm);
+    premoveRef.current = pm;
+    setSelectedSquare(null);
+    setLegalMoves([]);
+  }, []);
+
+  // ── Helper unificado para fin de partida ─────────────────────────────────
+  // Cubre: jaque mate, timeout, rendición, tablas — siempre aplica elo correctamente
+  const handleGameEnd = useCallback((
+    result: string,
+    terminationReason: string,
+    whiteEloChange?: number,
+    blackEloChange?: number
+  ) => {
+    clearPremove();
+    const myColor = orientationRef.current;
+    const eloChange = myColor === 'w' ? (whiteEloChange ?? 0) : (blackEloChange ?? 0);
+    const eloAbs = Math.abs(eloChange);
+
+    const isWinner =
+      (result === "1-0" && myColor === 'w') ||
+      (result === "0-1" && myColor === 'b');
+    const isDraw = result === "1/2-1/2";
+
+    onGameEnded({ result, termination_reason: terminationReason, eloChange });
+
+    if (isDraw) {
+      onGameStateChange("TABLAS");
+      window.dispatchEvent(new CustomEvent('game-draw', {
+        detail: { message: "Tablas" }
+      }));
+    } else if (isWinner) {
+      const msg = terminationReason === "timeout"
+        ? "¡Ganaste por tiempo!"
+        : "¡Has ganado la partida!";
+      onGameStateChange("JAQUE MATE - ¡HAS GANADO!");
+      window.dispatchEvent(new CustomEvent('game-victory', {
+        detail: { message: msg, elo: String(eloAbs) }
+      }));
+    } else {
+      const msg = terminationReason === "timeout"
+        ? "Perdiste por tiempo"
+        : terminationReason === "resignation"
+          ? "El rival se rindió... espera, tú te rendiste"
+          : "Has perdido";
+      onGameStateChange("PARTIDA FINALIZADA");
+      window.dispatchEvent(new CustomEvent('game-defeat', {
+        detail: { message: msg, elo: String(eloAbs) }
+      }));
+    }
+  }, [clearPremove, onGameEnded, onGameStateChange]);
+
   const updateBoardFromChess = useCallback((extraData: any = {}) => {
     const chess = chessRef.current;
     const newBoard = chess.board();
@@ -78,7 +166,9 @@ export default function PlayOnline({
 
     const { capW, capB } = getCapturedPieces(chess);
     const historyVerbose = chess.history({ verbose: true });
-    const lastMoveColor = historyVerbose.length > 0 ? historyVerbose[historyVerbose.length - 1].color : null;
+    const lastMoveColor = historyVerbose.length > 0
+      ? historyVerbose[historyVerbose.length - 1].color
+      : null;
 
     const serverTimes = (extraData.time_white !== undefined && extraData.time_black !== undefined)
       ? { w: extraData.time_white, b: extraData.time_black }
@@ -101,11 +191,40 @@ export default function PlayOnline({
     }
   }, [onMoveUpdate, onGameStateChange, onGameData]);
 
+  // ── Ejecutar premove tras recibir movimiento del rival ───────────────────
+  const executePremoveIfAny = useCallback(() => {
+    const pm = premoveRef.current;
+    if (!pm) return;
+    clearPremove();
+
+    const chess = chessRef.current;
+    if (chess.turn() !== orientationRef.current) return;
+
+    const piece = chess.get(pm.from);
+    const isPromotion =
+      piece?.type === 'p' &&
+      ((piece.color === 'w' && pm.to[1] === '8') || (piece.color === 'b' && pm.to[1] === '1'));
+
+    let moveResult = null;
+    try {
+      moveResult = chess.move({ from: pm.from, to: pm.to, promotion: isPromotion ? 'q' : undefined });
+    } catch { }
+
+    if (!moveResult) return;
+
+    setBoard([...chess.board()]);
+    setLastMove({ from: pm.from, to: pm.to });
+
+    const moveData = isPromotion ? `${pm.from}${pm.to}q` : pm.from + pm.to;
+    socketRef.current?.send(JSON.stringify({ action: "make_move", move: moveData }));
+
+    chess.undo();
+  }, [clearPremove, socketRef]);
+
   useEffect(() => {
     const token = localStorage.getItem("access");
     if (!token) return;
     const ws = new WebSocket(`${serverUrl}?token=${token}`);
-    socket.current = ws;
     socketRef.current = ws;
 
     ws.onopen = () => setIsConnected(true);
@@ -132,54 +251,30 @@ export default function PlayOnline({
         setSelectedSquare(null);
         setLegalMoves([]);
         updateBoardFromChess(msg);
+        executePremoveIfAny();
 
+        // ── Fin de partida desde game_update (incluye timeout) ───────────
         if (msg.status === "completed" && msg.result) {
-          const eloChange = orientationRef.current === 'w' ? msg.white_elo_change : msg.black_elo_change;
-          const eloAbs = Math.abs(eloChange ?? 0);
-          const isWinner =
-            (msg.result === "1-0" && orientationRef.current === 'w') ||
-            (msg.result === "0-1" && orientationRef.current === 'b');
-          const isDraw = msg.result === "1/2-1/2";
-
-          onGameEnded({ result: msg.result, termination_reason: "", eloChange });
-
-          if (isDraw) {
-            window.dispatchEvent(new CustomEvent('game-draw', { detail: { message: "Empate técnico" } }));
-          } else if (isWinner) {
-            window.dispatchEvent(new CustomEvent('game-victory', { detail: { message: "¡Has ganado la partida!", elo: String(eloAbs) } }));
-          } else {
-            window.dispatchEvent(new CustomEvent('game-defeat', { detail: { message: "Has perdido", elo: String(eloAbs) } }));
-          }
+          handleGameEnd(
+            msg.result,
+            msg.termination_reason || "",
+            msg.white_elo_change,
+            msg.black_elo_change
+          );
         }
       }
 
       if (msg.type === "game_message" || msg.action) {
         const payload = msg.message || msg;
+
+        // ── Fin de partida desde game_message (rendición, tablas, timeout) ──
         if (payload.action === "game_ended") {
-          const eloChange = orientationRef.current === 'w' ? payload.white_elo_change : payload.black_elo_change;
-          const eloAbs = Math.abs(eloChange ?? 0);
-          const isWinner =
-            (payload.result === "1-0" && orientationRef.current === 'w') ||
-            (payload.result === "0-1" && orientationRef.current === 'b');
-          const isDraw = payload.result === "1/2-1/2";
-
-          onGameEnded({
-            result: payload.result,
-            termination_reason: payload.termination_reason || "",
-            eloChange,
-          });
-
-          if (isDraw) {
-            onGameStateChange("TABLAS");
-            window.dispatchEvent(new CustomEvent('game-draw', { detail: { message: "Tablas acordadas" } }));
-          } else if (isWinner) {
-            onGameStateChange("JAQUE MATE - ¡HAS GANADO!");
-            window.dispatchEvent(new CustomEvent('game-victory', { detail: { message: "¡Has ganado la partida!", elo: String(eloAbs) } }));
-          } else {
-            const reason = payload.termination_reason === "resignation" ? "El rival se rindió... espera, tú te rendiste" : "Has perdido";
-            onGameStateChange("PARTIDA FINALIZADA");
-            window.dispatchEvent(new CustomEvent('game-defeat', { detail: { message: reason, elo: String(eloAbs) } }));
-          }
+          handleGameEnd(
+            payload.result,
+            payload.termination_reason || "",
+            payload.white_elo_change,
+            payload.black_elo_change
+          );
         }
 
         if (payload.action === "draw_offered") {
@@ -192,6 +287,7 @@ export default function PlayOnline({
       if (msg.type === "move_error" || msg.type === "error") {
         setSelectedSquare(null);
         setLegalMoves([]);
+        clearPremove();
         updateBoardFromChess();
       }
     };
@@ -200,8 +296,6 @@ export default function PlayOnline({
     return () => { ws.close(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverUrl]);
-
-  const socket = useRef<WebSocket | null>(null);
 
   const selectSquare = useCallback((coord: Square) => {
     const moves = chessRef.current.moves({ square: coord, verbose: true });
@@ -212,7 +306,13 @@ export default function PlayOnline({
   const handleMove = useCallback((from: Square, to: Square) => {
     if (!isConnected || from === to) return;
     const chess = chessRef.current;
-    if (chess.turn() !== orientationRef.current) return;
+    const myColor = orientationRef.current;
+
+    // ── Turno del rival → intentar registrar premove (solo si es legal) ──
+    if (chess.turn() !== myColor) {
+      setPremoveIfLegal(from, to);
+      return;
+    }
 
     const piece = chess.get(from);
     const isPromotion =
@@ -236,27 +336,45 @@ export default function PlayOnline({
     setLegalMoves([]);
 
     const moveData = isPromotion ? `${from}${to}q` : from + to;
-    socket.current?.send(JSON.stringify({ action: "make_move", move: moveData }));
+    socketRef.current?.send(JSON.stringify({ action: "make_move", move: moveData }));
 
     chess.undo();
-  }, [isConnected]);
+  }, [isConnected, socketRef, setPremoveIfLegal]);
 
   const handleSquareClick = useCallback((coord: Square, piece: Piece | null) => {
     const myColor = orientationRef.current;
     const currentTurn = chessRef.current.turn();
+    const isMyTurn = currentTurn === myColor;
+
+    if (premoveRef.current && coord === premoveRef.current.from) {
+      clearPremove();
+      setSelectedSquare(null);
+      setLegalMoves([]);
+      return;
+    }
+
     if (selectedSquare) {
       if (selectedSquare === coord) {
         setSelectedSquare(null);
         setLegalMoves([]);
-      } else if (piece && piece.color === myColor && piece.color === currentTurn) {
+        clearPremove();
+      } else if (piece && piece.color === myColor && isMyTurn) {
         selectSquare(coord);
+      } else if (piece && piece.color === myColor && !isMyTurn) {
+        setSelectedSquare(coord);
+        setLegalMoves([]);
       } else {
         handleMove(selectedSquare, coord);
       }
-    } else if (piece && piece.color === myColor && piece.color === currentTurn) {
-      selectSquare(coord);
+    } else if (piece && piece.color === myColor) {
+      if (isMyTurn) {
+        selectSquare(coord);
+      } else {
+        setSelectedSquare(coord);
+        setLegalMoves([]);
+      }
     }
-  }, [selectedSquare, handleMove, selectSquare]);
+  }, [selectedSquare, handleMove, selectSquare, clearPremove]);
 
   const renderBoard = () => {
     const squares = [];
@@ -269,6 +387,8 @@ export default function PlayOnline({
         const isSelected = selectedSquare === coord;
         const isLast = lastMove?.from === coord || lastMove?.to === coord;
         const isLegal = legalMoves.includes(coord);
+        const isPremoveFrom = premove?.from === coord;
+        const isPremoveTo = premove?.to === coord;
 
         squares.push(
           <div
@@ -280,23 +400,44 @@ export default function PlayOnline({
               if (from) handleMove(from, coord);
               setIsDragging(false);
             }}
-            className={`relative flex items-center justify-center select-none cursor-pointer ${isDark ? 'bg-[#b8860b]' : 'bg-[#f0e68c]'} ${isSelected ? '!bg-yellow-300/70' : ''} ${isLast && !isSelected ? 'after:absolute after:inset-0 after:bg-black/20 after:z-10' : ''}`}
+            className={`relative flex items-center justify-center select-none cursor-pointer
+              ${isDark ? 'bg-[#b8860b]' : 'bg-[#f0e68c]'}
+              ${isSelected ? '!bg-yellow-300/70' : ''}
+              ${isPremoveFrom || isPremoveTo ? '!bg-red-400/60' : ''}
+              ${isLast && !isSelected && !isPremoveFrom && !isPremoveTo
+                ? 'after:absolute after:inset-0 after:bg-black/20 after:z-10'
+                : ''}
+            `}
           >
-            {((orientation === 'w' && c === 0) || (orientation === 'b' && c === 7)) && <span className="absolute top-0.5 left-1 text-[9px] font-bold opacity-40">{8 - r}</span>}
-            {((orientation === 'w' && r === 7) || (orientation === 'b' && r === 0)) && <span className="absolute bottom-0.5 right-1 text-[9px] font-bold opacity-40 uppercase">{String.fromCharCode(97 + c)}</span>}
-            {isLegal && <div className={`absolute z-30 rounded-full ${piece ? 'w-full h-full border-4 border-black/25 bg-black/10' : 'w-[34%] h-[34%] bg-black/20'}`} />}
+            {((orientation === 'w' && c === 0) || (orientation === 'b' && c === 7)) && (
+              <span className="absolute top-0.5 left-1 text-[9px] font-bold opacity-40">{8 - r}</span>
+            )}
+            {((orientation === 'w' && r === 7) || (orientation === 'b' && r === 0)) && (
+              <span className="absolute bottom-0.5 right-1 text-[9px] font-bold opacity-40 uppercase">
+                {String.fromCharCode(97 + c)}
+              </span>
+            )}
+            {isLegal && (
+              <div className={`absolute z-30 rounded-full ${
+                piece
+                  ? 'w-full h-full border-4 border-black/25 bg-black/10'
+                  : 'w-[34%] h-[34%] bg-black/20'
+              }`} />
+            )}
             {piece && (
               <img
                 src={`/pieces/${piece.color}_${PIECE_MAP[piece.type]}.svg`}
-                draggable={piece.color === orientationRef.current && piece.color === turn}
+                draggable={piece.color === orientationRef.current}
                 onDragStart={e => {
-                  if (piece.color !== orientationRef.current || piece.color !== turn) return e.preventDefault();
+                  if (piece.color !== orientationRef.current) return e.preventDefault();
                   e.dataTransfer.setData("fromSquare", coord);
                   selectSquare(coord);
                   setIsDragging(true);
                 }}
                 onDragEnd={() => setIsDragging(false)}
-                className={`w-[90%] h-[90%] z-20 drop-shadow-xl transition-transform ${isSelected ? 'scale-110 -translate-y-1' : ''}`}
+                className={`w-[90%] h-[90%] z-20 drop-shadow-xl transition-transform ${
+                  isSelected ? 'scale-110 -translate-y-1' : ''
+                }`}
                 alt=""
               />
             )}
@@ -312,6 +453,20 @@ export default function PlayOnline({
       {!isConnected && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-[2.5rem] text-gold font-black tracking-widest text-[10px] uppercase">
           Conectando...
+        </div>
+      )}
+      {premove && (
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-full">
+          <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+          <span className="text-[8px] font-black text-red-400 uppercase tracking-widest">
+            Premovimiento: {premove.from} → {premove.to}
+          </span>
+          <button
+            onClick={clearPremove}
+            className="text-red-400/60 hover:text-red-400 text-[10px] font-black ml-1 cursor-pointer"
+          >
+            ✕
+          </button>
         </div>
       )}
       <div className={`grid grid-cols-8 grid-rows-8 w-full h-full bg-zinc-900 overflow-hidden rounded-[2.5rem] border-[6px] border-zinc-950 shadow-2xl ${isDragging ? 'cursor-grabbing' : ''}`}>

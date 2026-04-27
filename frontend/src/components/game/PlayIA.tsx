@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess, Square } from 'chess.js';
 
 interface PlayIAProps {
@@ -23,59 +23,145 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
   const [capB, setCapB] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
+  // ── Premove ──────────────────────────────────────────────────────────────
+  const [premove, setPremove] = useState<{ from: Square; to: Square } | null>(null);
+  const premoveRef = useRef<{ from: Square; to: Square } | null>(null);
+
+  const clearPremove = useCallback(() => {
+    setPremove(null);
+    premoveRef.current = null;
+  }, []);
+
   useEffect(() => {
     setGame(new Chess());
     setLastMove(null);
     setSelectedSquare(null);
     setCapW([]);
     setCapB([]);
+    clearPremove();
     onGameStateChange("TU TURNO");
-  }, [resetSignal, onGameStateChange]);
+  }, [resetSignal, onGameStateChange, clearPremove]);
 
-  const executeMove = useCallback((moveData: any) => {
+  const executeMove = useCallback((moveData: any, gameCopy?: Chess, existingCapW?: string[], existingCapB?: string[]): Chess | null => {
     try {
-      const gameCopy = new Chess(game.fen());
-      const result = gameCopy.move(moveData);
+      const g = gameCopy ?? new Chess(game.fen());
+      const result = g.move(moveData);
+      if (!result) return null;
 
-      if (result) {
-        let newCapW = [...capW];
-        let newCapB = [...capB];
+      const newCapW = [...(existingCapW ?? capW)];
+      const newCapB = [...(existingCapB ?? capB)];
 
-        if (result.captured) {
-          const pieceImg = `/pieces/${result.color === 'w' ? 'b' : 'w'}_${PIECE_MAP[result.captured]}.svg`;
-          if (result.color === 'w') newCapB.push(pieceImg);
-          else newCapW.push(pieceImg);
-          setCapB(newCapB);
-          setCapW(newCapW);
-        }
-
-        setGame(gameCopy);
-        setLastMove({ from: result.from, to: result.to });
-        onMove(gameCopy.history(), newCapW, newCapB);
-
-        let status = gameCopy.turn() === orientation ? "TU TURNO" : "IA PENSANDO...";
-        if (gameCopy.isCheckmate()) status = "¡JAQUE MATE!";
-        else if (gameCopy.isDraw()) status = "TABLAS";
-        onGameStateChange(status);
-        return true;
+      if (result.captured) {
+        const pieceImg = `/pieces/${result.color === 'w' ? 'b' : 'w'}_${PIECE_MAP[result.captured]}.svg`;
+        if (result.color === 'w') newCapB.push(pieceImg);
+        else newCapW.push(pieceImg);
+        setCapB(newCapB);
+        setCapW(newCapW);
       }
-      return false;
-    } catch (e) { return false; }
+
+      setGame(g);
+      setLastMove({ from: result.from, to: result.to });
+
+      let status = g.turn() === orientation ? "TU TURNO" : "IA PENSANDO...";
+      if (g.isCheckmate()) status = "¡JAQUE MATE!";
+      else if (g.isDraw()) status = "TABLAS";
+      onGameStateChange(status);
+      onMove(g.history(), newCapW, newCapB);
+      return g;
+    } catch { return null; }
   }, [game, capW, capB, onMove, onGameStateChange, orientation]);
 
+  // ── Ejecutar premove tras movimiento de la IA ────────────────────────────
+  const executePremoveIfAny = useCallback((currentGame: Chess, currentCapW: string[], currentCapB: string[]) => {
+    const pm = premoveRef.current;
+    if (!pm) return;
+    clearPremove();
+
+    if (currentGame.turn() !== orientation) return; // no es nuestro turno aún
+
+    const piece = currentGame.get(pm.from);
+    if (!piece || piece.color !== orientation) return;
+
+    const legalTargets = currentGame.moves({ square: pm.from, verbose: true }).map(m => m.to);
+    if (!legalTargets.includes(pm.to)) return; // movimiento ya no es legal
+
+    executeMove({ from: pm.from, to: pm.to, promotion: 'q' }, new Chess(currentGame.fen()), currentCapW, currentCapB);
+  }, [clearPremove, executeMove, orientation]);
+
+  // ── Validar y registrar premove (solo mientras es turno de la IA) ────────
+  const setPremoveIfLegal = useCallback((from: Square, to: Square) => {
+    const fenParts = game.fen().split(' ');
+    fenParts[1] = orientation === 'w' ? 'w' : 'b'; // simulamos nuestro turno
+    const tempChess = new Chess();
+    try { tempChess.load(fenParts.join(' ')); } catch { return; }
+
+    const piece = tempChess.get(from);
+    if (!piece || piece.color !== orientation) return;
+
+    const legalTargets = tempChess.moves({ square: from, verbose: true }).map(m => m.to);
+    if (!legalTargets.includes(to)) return;
+
+    const pm = { from, to };
+    setPremove(pm);
+    premoveRef.current = pm;
+    setSelectedSquare(null);
+  }, [game, orientation]);
+
+  // ── IA mueve y luego intenta ejecutar premove ────────────────────────────
   useEffect(() => {
     const isIATurn = game.turn() !== orientation;
     if (isIATurn && !game.isGameOver()) {
       const timer = setTimeout(() => {
         const moves = game.moves();
-        if (moves.length > 0) {
-          const move = moves[Math.floor(Math.random() * moves.length)];
-          executeMove(move);
+        if (moves.length === 0) return;
+        const move = moves[Math.floor(Math.random() * moves.length)];
+        const resultGame = executeMove(move);
+        if (resultGame) {
+          // Intentar ejecutar premove tras el movimiento de la IA
+          executePremoveIfAny(resultGame, capW, capB);
         }
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [game, executeMove, orientation]);
+  }, [game, executeMove, orientation, executePremoveIfAny, capW, capB]);
+
+  const handleMove = useCallback((from: Square, to: Square) => {
+    if (game.turn() !== orientation) {
+      // Es turno de la IA → registrar premove
+      setPremoveIfLegal(from, to);
+      return;
+    }
+
+    const result = executeMove({ from, to, promotion: 'q' });
+    if (!result) {
+      setSelectedSquare(null);
+      clearPremove();
+    } else {
+      setSelectedSquare(null);
+    }
+  }, [game, orientation, executeMove, setPremoveIfLegal, clearPremove]);
+
+  const handleSquareClick = useCallback((coord: Square, piece: ReturnType<Chess['board']>[0][0]) => {
+    // Click en casilla origen del premove → cancelar
+    if (premoveRef.current && coord === premoveRef.current.from) {
+      clearPremove();
+      setSelectedSquare(null);
+      return;
+    }
+
+    if (selectedSquare) {
+      if (selectedSquare === coord) {
+        setSelectedSquare(null);
+        clearPremove();
+      } else if (piece && piece.color === orientation && game.turn() === orientation) {
+        setSelectedSquare(coord);
+      } else {
+        handleMove(selectedSquare, coord);
+      }
+    } else if (piece && piece.color === orientation) {
+      setSelectedSquare(coord);
+    }
+  }, [selectedSquare, game, orientation, handleMove, clearPremove]);
 
   const board = game.board();
   const displayBoard = orientation === 'w' ? board : [...board].reverse().map(row => [...row].reverse());
@@ -95,6 +181,8 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
             const isCheck = game.isCheck() && piece?.type === 'k' && piece?.color === game.turn();
             const isLegal = selectedSquare && game.moves({ square: selectedSquare, verbose: true }).some(m => m.to === coord);
             const isPieceMine = piece && piece.color === orientation;
+            const isPremoveFrom = premove?.from === coord;
+            const isPremoveTo = premove?.to === coord;
 
             return (
               <div
@@ -102,22 +190,17 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   const fromSquare = e.dataTransfer.getData("fromSquare") as Square;
-                  executeMove({ from: fromSquare, to: coord, promotion: 'q' });
+                  if (fromSquare) handleMove(fromSquare, coord);
                   setSelectedSquare(null);
                   setIsDragging(false);
                 }}
-                onClick={() => {
-                  if (game.turn() !== orientation) return;
-                  if (selectedSquare) {
-                    executeMove({ from: selectedSquare, to: coord, promotion: 'q' });
-                    setSelectedSquare(null);
-                  } else if (isPieceMine) setSelectedSquare(coord);
-                }}
+                onClick={() => handleSquareClick(coord, piece)}
                 className={`relative flex items-center justify-center transition-colors duration-200
                   ${isDark ? 'bg-[#a0522d]' : 'bg-[#e9ca9c]'} 
-                  ${isSelected ? 'bg-gold/50' : ''}
-                  ${isCheck ? 'bg-red-500/60 animate-pulse' : ''}
-                  ${isLastMove ? 'after:absolute after:inset-0 after:bg-gold/25 after:z-10' : ''}
+                  ${isSelected ? '!bg-gold/50' : ''}
+                  ${isPremoveFrom || isPremoveTo ? '!bg-red-400/60' : ''}
+                  ${isCheck ? '!bg-red-500/60 animate-pulse' : ''}
+                  ${isLastMove && !isSelected && !isPremoveFrom && !isPremoveTo ? 'after:absolute after:inset-0 after:bg-gold/25 after:z-10' : ''}
                 `}
               >
                 {j === 0 && <span className={`absolute top-0.5 left-1 text-[11px] font-bold font-mono ${isDark ? 'text-[#e9ca9c] opacity-70' : 'text-[#3e2723] opacity-80'}`}>{8 - rowIdx}</span>}
@@ -128,11 +211,9 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
                 {piece && (
                   <img 
                     src={`/pieces/${piece.color}_${PIECE_MAP[piece.type]}.svg`} 
-                    // Siempre draggable para feedback de cursor
                     draggable={true}
                     onDragStart={(e) => {
-                      // Solo permitimos mover si es nuestro turno y nuestra pieza
-                      if(!isPieceMine || game.turn() !== orientation) return e.preventDefault();
+                      if (!isPieceMine) return e.preventDefault();
                       e.dataTransfer.setData("fromSquare", coord);
                       setSelectedSquare(coord);
                       setIsDragging(true);
