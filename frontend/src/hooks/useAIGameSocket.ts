@@ -1,11 +1,9 @@
-// src/hooks/useAIGameSocket.ts
-
 import { useEffect, useRef, useCallback, useState } from 'react';
 
 export interface AIGameSocketResult {
   sendMove: (uci: string) => Promise<AIResponse>;
-  connected: boolean;       // true solo cuando OPEN
-  connecting: boolean;      // true durante el handshake
+  connected: boolean;
+  connecting: boolean;
   reconnect: () => void;
 }
 
@@ -19,7 +17,7 @@ export interface AIResponse {
 export function useAIGameSocket(difficulty: number): AIGameSocketResult {
   const ws = useRef<WebSocket | null>(null);
   const [connected, setConnected] = useState(false);
-  const [connecting, setConnecting] = useState(true); // empieza en true, se conecta al montar
+  const [connecting, setConnecting] = useState(true);
 
   const pendingResolve = useRef<((value: AIResponse) => void) | null>(null);
   const pendingReject = useRef<((reason: string) => void) | null>(null);
@@ -53,16 +51,15 @@ export function useAIGameSocket(difficulty: number): AIGameSocketResult {
   }, []);
 
   const connect = useCallback(() => {
-    // Cerrar conexión anterior limpiamente
     if (ws.current && ws.current.readyState < WebSocket.CLOSING) {
-      ws.current.onclose = null; // evitar que el onclose anterior ponga disconnected
+      ws.current.onclose = null;
       ws.current.close();
     }
 
     setConnected(false);
-    setConnecting(true); // ← en cuanto empezamos a conectar, marcamos connecting
+    setConnecting(true);
 
-    const url = `ws://localhost:8000/ws/ai/${difficulty}/`;
+    const url = `ws://localhost:8000/ws/stockfish/${difficulty}/`;
     const socket = new WebSocket(url);
 
     socket.onopen = () => {
@@ -94,7 +91,7 @@ export function useAIGameSocket(difficulty: number): AIGameSocketResult {
     connect();
     return () => {
       if (ws.current) {
-        ws.current.onclose = null; // evitar setState en unmount
+        ws.current.onclose = null;
         ws.current.close();
       }
     };
