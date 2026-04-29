@@ -288,14 +288,14 @@ export default function PlayIAPage() {
               <p className="text-[8px] font-black tracking-[0.35em] text-zinc-600 uppercase mb-2.5">Nivel IA</p>
               <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/60 rounded-2xl border border-white/15">
                 {([
-                  { lvl: 1,  label: 'Novato',      sub: '0 – 999',     color: 'emerald' },
-                  { lvl: 5,  label: 'Aficionado B', sub: '1400 – 1599', color: 'blue'    },
-                  { lvl: 7,  label: 'Aficionado A', sub: '1800 – 1999', color: 'indigo'  },
-                  { lvl: 10, label: 'Experto',      sub: '2000 – 2299', color: 'purple'  },
-                  { lvl: 13, label: 'FM',           sub: '2300 – 2399', color: 'gold'    },
-                  { lvl: 15, label: 'IM',           sub: '2400 – 2499', color: 'gold'    },
-                  { lvl: 18, label: 'GM',           sub: '2500+',       color: 'rose'    },
-                  { lvl: 20, label: 'Stockfish',    sub: '3200+',       color: 'red'     },
+                  { lvl: 1,  label: 'Novato',      sub: '< 1400',     color: 'emerald' },
+                  { lvl: 5,  label: 'Aficionado B', sub: '1400', color: 'blue'    },
+                  { lvl: 7,  label: 'Aficionado A', sub: '1800', color: 'indigo'  },
+                  { lvl: 10, label: 'Experto',      sub: '2000', color: 'purple'  },
+                  { lvl: 13, label: 'FM',           sub: '2300', color: 'gold'    },
+                  { lvl: 15, label: 'IM',           sub: '2400', color: 'gold'    },
+                  { lvl: 18, label: 'GM',           sub: '2500',       color: 'rose'    },
+                  { lvl: 20, label: 'ORÁCULO',    sub: '3200',       color: 'red'     },
                 ] as const).map(({ lvl, label, sub, color }) => {
                   const isActive = difficulty === lvl;
                   const colorMap: any = {

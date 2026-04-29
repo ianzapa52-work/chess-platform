@@ -187,7 +187,7 @@ export default function FriendsForm() {
   );
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-180px)] gap-8 w-full max-w-[1800px] mx-auto p-4 relative font-sans overflow-hidden">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-130px)] gap-8 w-full max-w-[1800px] mx-auto p-4 relative font-sans overflow-hidden">
 
       {toast && (
         <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl text-sm font-bold tracking-widest uppercase shadow-2xl transition-all

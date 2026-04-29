@@ -8,7 +8,6 @@ import LoginForm from '../auth/LoginForm';
 import RegisterForm from '../auth/RegisterForm';
 import HistoryForm from '../history/HistoryForm';
 
-const EloWindow = dynamic(() => import('../views/EloWindow'), { ssr: false });
 const AvatarWindow = dynamic(() => import('../views/AvatarWindow'), { ssr: false });
 const InviteWindow = dynamic(() => import('../views/InviteWindow'), { ssr: false });
 
@@ -56,13 +55,8 @@ export default function ModalManager() {
         <RegisterForm onSwitchToLogin={() => setActiveModal('login')} />
       </ModalFrame>
 
-      {/* --- CAMBIO AQUÍ: Ahora le pasamos closeModal al Historial --- */}
       <ModalFrame isOpen={activeModal === 'history'} onClose={closeModal} size="max-w-4xl">
         <HistoryForm onClose={closeModal} />
-      </ModalFrame>
-
-      <ModalFrame isOpen={activeModal === 'elo-info'} onClose={closeModal} size="max-w-5xl">
-        <EloWindow />
       </ModalFrame>
 
       <ModalFrame isOpen={activeModal === 'avatar'} onClose={closeModal} size="max-w-7xl">

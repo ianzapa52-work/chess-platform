@@ -179,7 +179,7 @@ export default function ProfileForm() {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-180px)] gap-6 w-full max-w-[1800px] mx-auto p-4 relative overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-130px)] gap-6 w-full max-w-[1800px] mx-auto p-4 relative overflow-hidden">
 
       {/* ── PANEL IZQUIERDO ── */}
       <div className="flex flex-col w-full lg:w-72 xl:w-80 gap-4 shrink-0 h-full">
