@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import PlayLocal from '@/components/game/PlayLocal';
+import GameHistory from '@/components/ui/GameHistory';
 
 const TIME_MODES = [
   { label: "Bullet", options: [{ n: "1+0", m: 60, i: 0 }, { n: "1+1", m: 60, i: 1 }, { n: "2+1", m: 120, i: 1 }] },
@@ -66,7 +67,6 @@ function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut
   );
 }
 
-// ── Overlay tiempo agotado ────────────────────────────────────────────────────
 function TimeoutOverlay({ loser, onReset }: { loser: 'w' | 'b'; onReset: () => void }) {
   const winner = loser === 'w' ? 'Usuario Local 2' : 'Usuario Local 1';
   const loserName = loser === 'w' ? 'Usuario Local 1' : 'Usuario Local 2';
@@ -122,14 +122,8 @@ export default function LocalPremiumPage() {
   const [timeB, setTimeB] = useState(600);
   const [isNoTimeMode, setIsNoTimeMode] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  // quién se quedó sin tiempo: 'w' | 'b' | null
   const [timedOutPlayer, setTimedOutPlayer] = useState<'w' | 'b' | null>(null);
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [history]);
+  const [isGameOver, setIsGameOver] = useState(false); // Añadido
 
   useEffect(() => {
     if (isNoTimeMode || !gameStarted || status.includes("MATE") || status.includes("TABLAS") || timedOutPlayer) return;
@@ -181,17 +175,15 @@ export default function LocalPremiumPage() {
     setTimeB(currentMode.m);
     setGameStarted(false);
     setTimedOutPlayer(null);
+    setIsGameOver(false);
     setStatus("TURNO BLANCAS");
   };
 
-  const rows = [];
-  for (let i = 0; i < history.length; i += 2) {
-    rows.push({ moveNum: Math.floor(i / 2) + 1, white: history[i], black: history[i + 1] || null });
-  }
+  const totalMoves = Math.ceil(history.length / 2);
+  const gameOverStatus = status.includes("MATE") || status.includes("TABLAS") || timedOutPlayer ? status : "";
 
   return (
     <main className="min-h-screen bg-[#020202] text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden">
-
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[#00050a]" />
         <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-blue-600/25 blur-[200px] rounded-full animate-pulse" />
@@ -201,7 +193,6 @@ export default function LocalPremiumPage() {
       </div>
 
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-start">
-
         <div className="col-span-12 xl:col-span-3 flex flex-col gap-2">
           <PlayerBox
             name="Usuario Local 2" captured={capturedW}
@@ -274,49 +265,28 @@ export default function LocalPremiumPage() {
           />
         </div>
 
-        {/* ── Tablero ──────────────────────────────────────────────────────── */}
         <div className="col-span-12 xl:col-span-6 flex justify-center">
           <div className="relative">
             <PlayLocal
               resetSignal={resetKey} onGameStateChange={setStatus}
               onMove={handleMove} orientation={boardOrientation}
             />
-            {/* Overlay — bloquea el tablero cuando el tiempo llega a 0 */}
             {timedOutPlayer && (
               <TimeoutOverlay loser={timedOutPlayer} onReset={resetGame} />
             )}
           </div>
         </div>
 
-        {/* ── Historial ────────────────────────────────────────────────────── */}
         <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)]">
-          <div className="bg-[#050505]/80 h-full flex flex-col border-2 border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl relative backdrop-blur-xl">
-            <div className="p-6 border-b border-white/10 bg-white/[0.02] flex justify-between items-center">
-              <span className="text-gold/90 text-[10px] font-black tracking-[0.4em] uppercase">Historial de movimientos</span>
-              <div className="w-2 h-2 rounded-full bg-gold shadow-[0_0_10px_#d4af37] animate-pulse" />
-            </div>
-
-            <div ref={scrollRef} className="flex-grow overflow-y-auto p-4 custom-scrollbar bg-black/30">
-              {rows.map((row) => (
-                <div key={row.moveNum} className="grid grid-cols-[30px_1fr_1fr] gap-3 mb-2 items-center p-2 rounded-xl hover:bg-white/[0.04] transition-all border-b border-white/[0.02]">
-                  <span className="font-mono text-[10px] text-zinc-600 font-bold">{row.moveNum}.</span>
-                  <div className="bg-white/5 rounded-lg py-1.5 px-3 border border-white/5 text-center text-zinc-100 font-mono text-sm font-bold">{row.white}</div>
-                  <div className={`rounded-lg py-1.5 px-3 text-center text-zinc-400 font-mono text-sm ${row.black ? 'bg-zinc-800/40 border border-white/5' : ''}`}>{row.black || ""}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="p-6 border-t border-white/10 bg-black/80">
-              <button
-                onClick={resetGame}
-                className="w-full bg-zinc-50 text-black py-4 rounded-2xl font-black text-[10px] tracking-[0.25em] uppercase hover:bg-gold transition-colors duration-200 cursor-pointer"
-              >
-                Reiniciar Partida
-              </button>
-            </div>
-          </div>
+          <GameHistory
+            history={history}
+            status={gameOverStatus}
+            isGameOver={!!gameOverStatus || !!timedOutPlayer}
+            gameStarted={gameStarted}
+            onReset={resetGame}
+            orientation={boardOrientation}
+          />
         </div>
-
       </div>
     </main>
   );

@@ -25,6 +25,8 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
   const [isDragging, setIsDragging] = useState(false);
   const [isAIThinking, setIsAIThinking] = useState(false);
 
+  const moveHistoryRef = React.useRef<string[]>([]);
+
   const [showDisconnected, setShowDisconnected] = useState(false);
 
   const [premove, setPremove] = useState<{ from: Square; to: Square } | null>(null);
@@ -59,6 +61,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
     setCapB([]);
     capWRef.current = [];
     capBRef.current = [];
+    moveHistoryRef.current = [];
     setPremove(null);
     premoveRef.current = null;
     setIsAIThinking(false);
@@ -76,6 +79,12 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
     currentCapW: string[],
     currentCapB: string[]
   ) => {
+    // Acumular SAN en historial como en PlayOnline/PlayLocal
+    const san = g.history({ verbose: true }).slice(-1)[0]?.san || result.san || '';
+    if (san) {
+      moveHistoryRef.current = [...moveHistoryRef.current, san];
+    }
+
     const newCapW = [...currentCapW];
     const newCapB = [...currentCapB];
 
@@ -92,7 +101,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
     setGame(g);
     gameRef.current = g;
     setLastMove({ from: result.from, to: result.to });
-    onMove(g.history(), newCapW, newCapB);
+    onMove(moveHistoryRef.current, newCapW, newCapB);
 
     return { newCapW, newCapB };
   }, [onMove]);
@@ -164,6 +173,18 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
       const aiFrom  = response.aiMove.slice(0, 2) as Square;
       const aiTo    = response.aiMove.slice(2, 4) as Square;
 
+      const preAIMoveFen = gameCopy.fen();
+      const tempChessForSAN = new Chess(preAIMoveFen);
+      let aiSan = response.aiMove;
+      try {
+        const aiMoveResult = tempChessForSAN.move(response.aiMove);
+        aiSan = tempChessForSAN.history({ verbose: true }).slice(-1)[0]?.san || response.aiMove;
+      } catch (e) {
+        console.warn('SAN de IA no disponible, usando UCI:', response.aiMove);
+      }
+
+      moveHistoryRef.current = [...moveHistoryRef.current, aiSan];
+
       const capturedByAI = gameCopy.get(aiTo);
       const finalCapW = [...newCapW];
       const finalCapB = [...newCapB];
@@ -182,7 +203,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
       setGame(afterAI);
       gameRef.current = afterAI;
       setLastMove({ from: aiFrom, to: aiTo });
-      onMove(afterAI.history(), finalCapW, finalCapB);
+      onMove(moveHistoryRef.current, finalCapW, finalCapB);
 
       if (!checkGameOver(afterAI)) {
         const pm = premoveRef.current;
@@ -193,7 +214,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
             if (piece && piece.color === orientation) {
               const legalTargets = afterAI.moves({ square: pm.from, verbose: true }).map(m => m.to);
               if (legalTargets.includes(pm.to)) {
-                setTimeout(() => handleMove(pm.from, pm.to), 50); // Pequeño respiro para el premove
+                setTimeout(() => handleMove(pm.from, pm.to), 50);
                 return;
               }
             }
@@ -243,6 +264,21 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
             className="text-red-400 text-[9px] font-black uppercase tracking-widest underline underline-offset-2 hover:text-white transition-colors cursor-pointer ml-1"
           >
             Reconectar
+          </button>
+        </div>
+      )}
+
+      {premove && (
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-full">
+          <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+          <span className="text-[8px] font-black text-red-400 uppercase tracking-widest">
+            Premovimiento: {premove.from} → {premove.to}
+          </span>
+          <button
+            onClick={clearPremove}
+            className="text-red-400/60 hover:text-red-400 text-[10px] font-black ml-1 cursor-pointer"
+          >
+            ✕
           </button>
         </div>
       )}
@@ -314,11 +350,6 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
                       `}
                       alt=""
                     />
-                  )}
-                  {isAIThinking && isLastMove && (
-                    <div className="absolute inset-0 z-40 flex items-center justify-center">
-                      <div className="w-3 h-3 rounded-full bg-gold animate-ping opacity-70" />
-                    </div>
                   )}
                 </div>
               );

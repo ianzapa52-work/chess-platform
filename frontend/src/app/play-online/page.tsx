@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PlayOnline from '@/components/game/PlayOnline';
+import GameHistoryOnline from '@/components/ui/GameHistoryOnline'; // ← Import actualizado
 import { getTitleByElo } from '@/components/profile/ProfileForm';
 
 interface TimeOption { n: string; m: number; i: number; mode: string; }
@@ -321,27 +322,20 @@ export default function OnlinePremiumPage() {
   const handleDrawOffered = useCallback((sender: string) => setDrawOfferSender(sender), []);
 
   const opponentColor: 'w' | 'b' = myColor === 'w' ? 'b' : 'w';
-  const rows = [];
-  for (let i = 0; i < history.length; i += 2) {
-    rows.push({ moveNum: Math.floor(i / 2) + 1, white: history[i], black: history[i + 1] || null });
-  }
-
   const isGameOver = status.includes("MATE") || status.includes("TABLAS") ||
     status.includes("FINALIZADA") || status.includes("GANAN") || status.includes("VICTORIA") || status.includes("¡HAS GANADO");
 
   const myElo = myData ? getEloForMode(myData, currentMode.mode) : "????";
   const myName = myData?.username || "Tu Perfil";
+  const gameOverStatus = isGameOver ? status : "";
 
   return (
     <main className="min-h-screen bg-[#020202] text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden">
       <style>{searchAnimations}</style>
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[#070502]" />
-        {/* Orbe top — centrado arriba */}
         <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-gold/20 blur-[200px] rounded-full animate-pulse"></div>
-        {/* Orbe bottom — centrado abajo, desfasado */}
         <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-gold/10 blur-[200px] rounded-full animate-pulse [animation-delay:2s]"></div>
-        {/* Rejilla — puntos más visibles */}
         <div className="absolute inset-0 opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:32px_32px]"></div>
         <div className="absolute inset-0 opacity-[0.2] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       </div>
@@ -400,7 +394,6 @@ export default function OnlinePremiumPage() {
               </div>
             ) : (
               <div className="text-center animate-in zoom-in duration-500 w-full px-4">
-                {/* ... resto del contenido del status banner ... */}
                 <div className="flex justify-center mb-6">
                   <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -486,22 +479,17 @@ export default function OnlinePremiumPage() {
           </div>
         </div>
 
-        <div className="col-span-12 xl:col-span-3">
-          <div className="bg-zinc-950/80 h-full flex flex-col border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl backdrop-blur-xl">
-            <div className="p-6 border-b border-white/10 bg-white/[0.02] flex justify-between items-center">
-              <span className="text-gold/90 text-[10px] font-black tracking-[0.4em] uppercase">Movimientos</span>
-              <div className={`w-2 h-2 rounded-full ${gameJoined ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-zinc-800'}`} />
-            </div>
-            <div className="flex-grow overflow-y-auto p-4 custom-scrollbar bg-black/20">
-              {rows.map((row) => (
-                <div key={row.moveNum} className="grid grid-cols-[40px_1fr_1fr] gap-2 mb-2 p-1 animate-in slide-in-from-left-2 duration-300">
-                  <span className="font-mono text-[10px] text-zinc-700 self-center">{row.moveNum}.</span>
-                  <div className="bg-zinc-900 border border-white/5 py-2 px-3 rounded-lg text-white font-mono text-sm text-center">{row.white}</div>
-                  {row.black && <div className="bg-zinc-800/40 border border-white/5 py-2 px-3 rounded-lg text-zinc-400 font-mono text-sm text-center">{row.black}</div>}
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* GameHistoryOnline correctamente conectado */}
+        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)]">
+          <GameHistoryOnline
+            history={history}
+            status={gameOverStatus}
+            isGameOver={isGameOver && gameJoined}
+            gameStarted={gameJoined}
+            orientation={myColor}
+            socketRef={gameSocketRef}
+            onDrawOfferedFromChat={() => setHasOfferedDraw(true)}
+          />
         </div>
       </div>
     </main>

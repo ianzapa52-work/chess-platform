@@ -21,6 +21,8 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orie
   const [capW, setCapW] = useState<string[]>([]);
   const [capB, setCapB] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  
+  const moveHistoryRef = React.useRef<string[]>([]);
 
   useEffect(() => {
     setGame(new Chess());
@@ -28,6 +30,7 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orie
     setSelectedSquare(null);
     setCapW([]);
     setCapB([]);
+    moveHistoryRef.current = [];
   }, [resetSignal]);
 
   const executeMove = useCallback((moveData: any) => {
@@ -36,6 +39,12 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orie
       const result = gameCopy.move(moveData);
 
       if (result) {
+        const san = gameCopy.history({ verbose: true }).slice(-1)[0]?.san || result.san || '';
+        if (san) {
+          const moveIndex = moveHistoryRef.current.length;
+          moveHistoryRef.current = [...moveHistoryRef.current, san];
+        }
+
         let newCapW = [...capW];
         let newCapB = [...capB];
 
@@ -55,7 +64,7 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orie
         else if (gameCopy.isDraw()) status = "TABLAS";
 
         onGameStateChange(status);
-        onMove(gameCopy.history(), newCapW, newCapB);
+        onMove(moveHistoryRef.current, newCapW, newCapB);
         return true;
       }
       return false;

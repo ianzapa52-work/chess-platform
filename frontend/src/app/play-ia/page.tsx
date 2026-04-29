@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PlayIA from '@/components/game/PlayIA';
+import GameHistory from '@/components/ui/GameHistory';
 
 const COUNTDOWN_OPTIONS = [
   { n: "1 min",  m: 60  },
@@ -12,7 +13,6 @@ const COUNTDOWN_OPTIONS = [
   { n: "15 min", m: 900 },
 ];
 
-// ── Caja IA ─────────────────────────────────────────────────────────────────
 function IABox({ captured }: { captured: string[] }) {
   return (
     <div className="p-5 rounded-[2rem] border border-white/[0.08] bg-black/40 backdrop-blur-xl shadow-xl">
@@ -46,7 +46,6 @@ function IABox({ captured }: { captured: string[] }) {
   );
 }
 
-// ── Caja jugador ─────────────────────────────────────────────────────────────
 function PlayerBox({
   captured, isActive, seconds, showClock, isTimedOut,
 }: {
@@ -124,7 +123,6 @@ function PlayerBox({
   );
 }
 
-// ── Overlay tiempo agotado ────────────────────────────────────────────────────
 function TimeoutOverlay({ onReset }: { onReset: () => void }) {
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center rounded-xl overflow-hidden">
@@ -196,11 +194,6 @@ export default function PlayIAPage() {
     return () => ro.disconnect();
   }, []);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [history]);
-
   useEffect(() => {
     if (modeRef.current !== 'countdown' || !gameStarted) return;
 
@@ -249,16 +242,10 @@ export default function PlayIAPage() {
     statusRef.current = ns;
   }, []);
 
-  const isGameOver = status.includes("MATE") || status.includes("TABLAS") || status.includes("TIEMPO");
-
-  const rows: { moveNum: number; white: string; black: string | null }[] = [];
-  for (let i = 0; i < history.length; i += 2) {
-    rows.push({ moveNum: Math.floor(i / 2) + 1, white: history[i], black: history[i + 1] || null });
-  }
+  const isGameOver = status.includes("MATE") || status.includes("TABLAS") || status.includes("TIEMPO") || isTimedOut;
 
   return (
     <main className="min-h-screen bg-[#020202] text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden">
-
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[#06010a]" />
         <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[85%] h-[75%]
@@ -275,15 +262,10 @@ export default function PlayIAPage() {
       </div>
 
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
-
-        {/* ── Panel izquierdo ─────────────────────────────────────────────── */}
         <div className="col-span-12 xl:col-span-3 flex flex-col gap-3">
-
           <IABox captured={capturedW} />
 
           <div className="bg-black/50 border border-white/[0.07] rounded-[2rem] p-5 shadow-2xl backdrop-blur-xl space-y-5">
-
-            {/* Nivel IA */}
             <div>
               <p className="text-[8px] font-black tracking-[0.35em] text-zinc-600 uppercase mb-2.5">Nivel IA</p>
               <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/60 rounded-2xl border border-white/15">
@@ -334,7 +316,6 @@ export default function PlayIAPage() {
 
             <div className="h-px bg-white/[0.04]" />
 
-            {/* Modo de tiempo */}
             <div>
               <p className="text-[8px] font-black tracking-[0.35em] text-zinc-600 uppercase mb-2.5">Tu tiempo</p>
               <div className="flex gap-1.5 p-1 bg-black/60 rounded-2xl border border-white/15">
@@ -373,7 +354,6 @@ export default function PlayIAPage() {
               </div>
             </div>
 
-            {/* Selector de tiempo (Se oculta al empezar a jugar) */}
             <div
               style={{
                 height: (mode === 'countdown' && !gameStarted) ? cdHeight : 0,
@@ -408,7 +388,6 @@ export default function PlayIAPage() {
                 </div>
               </div>
             </div>
-
           </div>
 
           <PlayerBox
@@ -420,7 +399,6 @@ export default function PlayIAPage() {
           />
         </div>
 
-        {/* ── Tablero ──────────────────────────────────────────────────────── */}
         <div className="col-span-12 xl:col-span-6 flex flex-col items-center gap-4">
           <div className="relative w-full flex justify-center">
             <PlayIA
@@ -434,59 +412,16 @@ export default function PlayIAPage() {
           </div>
         </div>
 
-        {/* ── Historial ────────────────────────────────────────────────────── */}
         <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)]">
-          <div className="bg-black/50 h-full flex flex-col border border-white/[0.07] rounded-[2.5rem] overflow-hidden shadow-2xl backdrop-blur-xl">
-
-            <div className="px-6 py-5 border-b border-white/[0.05] flex justify-between items-center">
-              <div>
-                <p className="text-[8px] font-black tracking-[0.35em] text-zinc-600 uppercase">Movimientos</p>
-                <p className="text-white/60 font-bold text-xs mt-0.5">{Math.ceil(history.length / 2)} jugadas</p>
-              </div>
-              <div className={`w-2 h-2 rounded-full transition-colors duration-500 ${
-                gameStarted && !isGameOver
-                  ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]'
-                  : 'bg-zinc-800'
-              }`} />
-            </div>
-
-            <div ref={scrollRef} className="flex-grow overflow-y-auto p-4 space-y-1 custom-scrollbar">
-              {rows.length === 0 && (
-                <div className="h-full flex items-center justify-center">
-                  <p className="text-[9px] text-zinc-700 font-bold uppercase tracking-widest">Sin movimientos</p>
-                </div>
-              )}
-              {rows.map((row) => (
-                <div key={row.moveNum} className="grid grid-cols-[28px_1fr_1fr] gap-2 items-center px-2 py-1.5 rounded-xl hover:bg-white/[0.03] transition-colors">
-                  <span className="font-mono text-[9px] text-zinc-700 font-bold text-right">{row.moveNum}.</span>
-                  <div className="bg-white/[0.05] rounded-lg py-1.5 px-2.5 text-center text-zinc-100 font-mono text-sm font-bold border border-white/[0.06]">{row.white}</div>
-                  <div className={`rounded-lg py-1.5 px-2.5 text-center text-zinc-400 font-mono text-sm ${row.black ? 'bg-zinc-800/30 border border-white/[0.04]' : ''}`}>
-                    {row.black || ""}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {isGameOver && (
-              <div className="px-5 py-4 border-t border-white/[0.05] bg-red-900/10">
-                <p className="text-center text-[9px] font-black text-red-300 uppercase tracking-widest">{status}</p>
-              </div>
-            )}
-
-            <div className="p-5 border-t border-white/[0.05]">
-              <button
-                onClick={resetGame}
-                className="w-full py-3.5 rounded-2xl font-black text-[10px] tracking-[0.25em] uppercase
-                  transition-colors duration-200 cursor-pointer
-                  bg-white/5 border border-white/10 text-zinc-400
-                  hover:bg-gold hover:border-gold hover:text-black"
-              >
-                Nueva partida
-              </button>
-            </div>
-          </div>
+          <GameHistory
+            history={history}
+            status={status}
+            isGameOver={isGameOver}
+            gameStarted={gameStarted}
+            onReset={resetGame}
+            orientation="w"
+          />
         </div>
-
       </div>
     </main>
   );
