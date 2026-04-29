@@ -137,7 +137,7 @@ export default function GameHistory({
             transition-all duration-300 cursor-pointer
             backdrop-blur-xl"
         >
-          Nueva Partida
+          Reiniciar Partida
         </button>
       </div>
     </div>

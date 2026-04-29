@@ -48,7 +48,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
       status,
       notifications,
       darkMode,
-      manualAway: status === 'away', // ← único cambio
+      manualAway: status === 'away',
     };
     localStorage.setItem("user_settings", JSON.stringify(settings));
 
@@ -120,7 +120,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
       </div>
 
       <div className="flex justify-center pt-4">
-        <button onClick={handleSave} disabled={isSaving || isSaved} className={`min-w-[340px] py-6 rounded-full font-black uppercase tracking-[0.5em] text-[12px] transition-all flex items-center justify-center gap-3 ${isSaved ? 'bg-emerald-600 text-white' : 'bg-gold text-black hover:scale-105'}`}>
+        <button onClick={handleSave} disabled={isSaving || isSaved} className={`min-w-[340px] py-6 rounded-full font-black uppercase tracking-[0.5em] text-[12px] transition-all flex items-center justify-center gap-3 ${isSaved ? 'bg-emerald-600 text-white' : 'bg-gold text-black hover:scale-105 cursor-pointer'}`}>
           {isSaving ? <Loader2 className="animate-spin" size={20} /> : isSaved ? <Check size={20} /> : "Sincronizar Cambios"}
         </button>
       </div>

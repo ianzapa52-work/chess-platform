@@ -98,7 +98,7 @@ export default function FriendsForm() {
   const [me, setMe] = useState<ApiMe | null>(null);
   const [friendDetails, setFriendDetails] = useState<Friend[]>([]);
   const [requests, setRequests] = useState<PendingRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
@@ -109,31 +109,56 @@ export default function FriendsForm() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
+  const fetchAll = useCallback(async (isInitial = false) => {
+    if (isInitial) setInitialLoading(true);
     setError(null);
     try {
       const [meData, pendingData] = await Promise.all([
         apiFetch<ApiMe>('/api/users/me/'),
         apiFetch<PendingRequest[]>('/api/users/pending_friend_requests/'),
       ]);
-      setMe(meData);
-      setRequests(pendingData);
-      const profiles = await Promise.allSettled(meData.friends.map(u => apiFetch<ApiPublicUser>(`/api/users/${u}/`)));
+
+      // Solo actualiza si los datos cambiaron realmente
+      setMe(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(meData)) return prev;
+        return meData;
+      });
+
+      setRequests(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(pendingData)) return prev;
+        return pendingData;
+      });
+
+      const profiles = await Promise.allSettled(
+        meData.friends.map(u => apiFetch<ApiPublicUser>(`/api/users/${u}/`))
+      );
       const resolved: Friend[] = profiles
         .filter((r): r is PromiseFulfilledResult<ApiPublicUser> => r.status === 'fulfilled')
-        .map(({ value: u }) => ({ id: u.id, username: u.username, avatar: u.avatar, elo_blitz: u.elo_blitz, elo_rapid: u.elo_rapid, elo_bullet: u.elo_bullet }));
-      setFriendDetails(resolved);
+        .map(({ value: u }) => ({
+          id: u.id,
+          username: u.username,
+          avatar: u.avatar,
+          elo_blitz: u.elo_blitz,
+          elo_rapid: u.elo_rapid,
+          elo_bullet: u.elo_bullet,
+        }));
+
+      setFriendDetails(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(resolved)) return prev;
+        return resolved;
+      });
+
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error cargando datos');
+      // En refresco silencioso, no sobreescribir la UI si ya hay datos
+      if (isInitial) setError(e instanceof Error ? e.message : 'Error cargando datos');
     } finally {
-      setLoading(false);
+      if (isInitial) setInitialLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchAll();
-    const interval = setInterval(fetchAll, 10000);
+    fetchAll(true);
+    const interval = setInterval(() => fetchAll(false), 5000);
     return () => clearInterval(interval);
   }, [fetchAll]);
 
@@ -142,7 +167,7 @@ export default function FriendsForm() {
     try {
       await apiFetch(`/api/users/${req.sender_username}/respond_friend_request/`, { method: 'POST', body: JSON.stringify({ action: 'accept' }) });
       showToast(`¡${req.sender_username} añadido como amigo!`);
-      await fetchAll();
+      await fetchAll(false);
     } catch (e: unknown) { showToast(e instanceof Error ? e.message : 'Error', false); }
     finally { setActionLoading(null); }
   };
@@ -170,7 +195,7 @@ export default function FriendsForm() {
     setActionLoading(friend.username);
     setConfirmDelete(null);
     try {
-      await apiFetch(`/api/users/${friend.username}/remove_friend/`, { method: 'DELETE' });
+      await apiFetch(`/api/users/${friend.username}/remove_friend/`, { method: 'POST' });
       setFriendDetails(prev => prev.filter(f => f.id !== friend.id));
       showToast(`${friend.username} eliminado de tu lista.`);
     } catch (e: unknown) { showToast(e instanceof Error ? e.message : 'Error al eliminar amigo', false); }
@@ -203,7 +228,7 @@ export default function FriendsForm() {
       {/* ── LEFT PANEL ── */}
       <div className="hidden lg:flex flex-col w-80 gap-5 shrink-0 h-full">
 
-        {/* ══ PROFILE CARD — completely redesigned ══ */}
+        {/* ══ PROFILE CARD ══ */}
         <div
           className="relative rounded-[36px] overflow-hidden shrink-0"
           style={{
@@ -211,13 +236,11 @@ export default function FriendsForm() {
             border: '1px solid rgba(212,175,55,0.15)',
           }}
         >
-          {/* Corner filigree lines */}
           <div className="absolute top-0 left-0 w-20 h-px" style={{ background: 'linear-gradient(90deg, #d4af37, transparent)' }} />
           <div className="absolute top-0 left-0 w-px h-20" style={{ background: 'linear-gradient(180deg, #d4af37, transparent)' }} />
           <div className="absolute bottom-0 right-0 w-20 h-px" style={{ background: 'linear-gradient(270deg, #d4af37, transparent)' }} />
           <div className="absolute bottom-0 right-0 w-px h-20" style={{ background: 'linear-gradient(0deg, #d4af37, transparent)' }} />
 
-          {/* Ambient glow */}
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 pointer-events-none"
             style={{ background: 'radial-gradient(ellipse, rgba(212,175,55,0.07) 0%, transparent 70%)' }}
@@ -225,14 +248,12 @@ export default function FriendsForm() {
 
           <div className="relative z-10 flex flex-col items-center px-6 pt-6 pb-6">
 
-            {/* Section label */}
             <div className="flex items-center gap-3 mb-5 w-full justify-center">
               <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.25))' }} />
               <span className="text-[9px] text-gold/60 tracking-[0.55em] font-bold uppercase shrink-0">Mi Perfil</span>
               <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, rgba(212,175,55,0.25), transparent)' }} />
             </div>
 
-            {/* Avatar with gradient ring */}
             <div className="relative mb-5">
               <div
                 className="absolute -inset-[2px] rounded-[30px]"
@@ -245,7 +266,6 @@ export default function FriendsForm() {
                   alt="Me"
                 />
               </div>
-              {/* Online badge */}
               <div className="absolute -bottom-1.5 -right-1.5 z-10">
                 <div
                   className="w-6 h-6 rounded-full border-[2.5px] border-[#0d0d0d] flex items-center justify-center"
@@ -256,7 +276,6 @@ export default function FriendsForm() {
               </div>
             </div>
 
-            {/* Username */}
             <h3 className="text-white font-serif font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-0.5">
               {me?.username ?? '· · ·'}
             </h3>
@@ -265,10 +284,8 @@ export default function FriendsForm() {
               <span className="text-[9px] text-green-400/80 tracking-[0.4em] uppercase font-medium">En línea</span>
             </div>
 
-            {/* Separator */}
             <div className="w-full h-px mb-5" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent)' }} />
 
-            {/* Stats mini grid */}
             <div className="w-full grid grid-cols-3 gap-2 mb-1">
               <MiniStat label="Amigos" value={friendDetails.length} icon={<Users size={12} />} />
               <MiniStat label="Blitz" value={me?.elo_blitz ?? '—'} icon={<Zap size={12} />} highlight />
@@ -292,7 +309,7 @@ export default function FriendsForm() {
         <div className="chess-panel flex-grow overflow-hidden">
           <div className="flex items-center justify-between mb-5">
             <h4 className="chess-label italic cursor-default">Actividad</h4>
-            <button onClick={fetchAll} className="text-zinc-600 hover:text-gold transition-colors cursor-pointer p-1 rounded-lg hover:bg-white/5" title="Refrescar">
+            <button onClick={() => fetchAll(false)} className="text-zinc-600 hover:text-gold transition-colors cursor-pointer p-1 rounded-lg hover:bg-white/5" title="Refrescar">
               <RefreshCw size={13} />
             </button>
           </div>
@@ -321,7 +338,6 @@ export default function FriendsForm() {
               </div>
             </div>
             <div className="relative flex-grow max-w-md">
-              <Search size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Buscar contacto..."
@@ -333,7 +349,7 @@ export default function FriendsForm() {
           </div>
 
           <div className="flex-grow overflow-y-auto px-6 py-4 custom-scrollbar">
-            {loading ? (
+            {initialLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-zinc-500">
                 <Loader2 size={32} className="animate-spin text-gold" />
                 <span className="text-xs tracking-widest uppercase">Cargando amigos...</span>
@@ -341,7 +357,7 @@ export default function FriendsForm() {
             ) : error ? (
               <div className="flex flex-col items-center justify-center h-full gap-4">
                 <p className="text-red-500 text-sm tracking-widest uppercase">{error}</p>
-                <button onClick={fetchAll} className="px-6 py-3 bg-gold/10 border border-gold/30 text-gold rounded-2xl text-xs tracking-widest hover:bg-gold hover:text-black transition-all cursor-pointer">
+                <button onClick={() => fetchAll(true)} className="px-6 py-3 bg-gold/10 border border-gold/30 text-gold rounded-2xl text-xs tracking-widest hover:bg-gold hover:text-black transition-all cursor-pointer">
                   Reintentar
                 </button>
               </div>
@@ -415,7 +431,7 @@ function EloBar({ label, value, max, color }: { label: string; value: number; ma
         <span className="text-sm font-black font-serif" style={{ color }}>{value || '—'}</span>
       </div>
       <div className="h-0.5 w-full rounded-full bg-white/5 overflow-hidden">
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+        <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>
   );
@@ -461,7 +477,7 @@ function InvitePanel({ onSend, actionLoading }: { onSend: (u: string) => void; a
 function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingRequest; onAccept: () => void; onReject: () => void; actionLoading: string | null }) {
   const isLoading = actionLoading === req.sender_username;
   return (
-    <div className="bg-white/[0.03] border border-white/5 rounded-[28px] p-5 hover:border-gold/20 transition-all">
+    <div className="bg-white/[0.03] border border-white/5 rounded-[28px] p-5 hover:border-gold/20 transition-all animate-fadeIn">
       <div className="flex items-center gap-3 mb-4 cursor-default">
         <img src={avatarSrc(req.sender_avatar)} className="w-12 h-12 rounded-2xl object-cover border border-white/10" alt="" />
         <div className="min-w-0 flex-grow">
@@ -487,18 +503,18 @@ function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingR
 function FriendRow({ friend, rank, onChat, onDelete, actionLoading }: { friend: Friend; rank: number; onChat: () => void; onDelete: () => void; actionLoading: string | null }) {
   const isDeleting = actionLoading === friend.username;
   return (
-    <div className="friend-row group cursor-default relative">
+    <div className="friend-row group cursor-default relative animate-fadeIn">
       <div className="w-7 h-7 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center shrink-0 group-hover:border-gold/20 transition-colors">
         <span className="text-[10px] text-zinc-600 font-bold group-hover:text-gold/60 transition-colors">{rank}</span>
       </div>
-      <div className="avatar-container group-hover:scale-105 shrink-0">
-        <img src={friend.avatar ?? '/avatars/b_king_avatar.png'} className="avatar-img border-gold shadow-gold/20" alt="" />
+      <div className="avatar-container group-hover:scale-105 shrink-0 w-14 h-14">
+        <img src={friend.avatar ?? '/avatars/b_king_avatar.png'} className="avatar-img border-gold shadow-gold/20 w-14 h-14" alt="" />
       </div>
       <div className="flex-grow min-w-0">
-        <h3 className="text-white font-serif font-bold text-lg tracking-widest uppercase truncate group-hover:text-gold transition-colors">{friend.username}</h3>
+        <h3 className="text-white font-serif font-bold text-2xl tracking-widest uppercase truncate group-hover:text-gold transition-colors">{friend.username}</h3>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-gold font-bold tracking-widest flex items-center gap-1"><Zap size={10} /> {friend.elo_blitz} Blitz</span>
-          <span className="text-[10px] text-zinc-600 italic">{friend.elo_rapid} Rapid · {friend.elo_bullet} Bullet</span>
+          <span className="text-sm text-gold font-bold tracking-widest flex items-center gap-1"><Zap size={12} /> {friend.elo_blitz} Blitz</span>
+          <span className="text-xs text-zinc-600 italic">{friend.elo_rapid} Rapid · {friend.elo_bullet} Bullet</span>
         </div>
       </div>
       <div className="flex gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0 duration-200">
@@ -521,7 +537,7 @@ function FriendRow({ friend, rank, onChat, onDelete, actionLoading }: { friend: 
 function LogItem({ user, action, time, type = 'default' }: { user: string; action: string; time: string; type?: 'system' | 'request' | 'default' }) {
   const dotColor = type === 'system' ? 'bg-green-500' : type === 'request' ? 'bg-gold' : 'bg-zinc-600';
   return (
-    <div className="log-item cursor-default group">
+    <div className="log-item cursor-default group animate-fadeIn">
       <div className="flex items-center gap-2">
         <div className={`w-1.5 h-1.5 rounded-full ${dotColor} shrink-0`} />
         <p className="truncate">
