@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Cinzel } from "next/font/google";
+
+const cinzel = Cinzel({ subsets: ["latin"] });
 
 interface GameFromAPI {
   id: string;
@@ -11,7 +14,7 @@ interface GameFromAPI {
   created_at: string;
   white_username: string;
   black_username: string;
-  winner_username: string | null; // ahora viene del backend corregido
+  winner_username: string | null;
 }
 
 interface HistoryFormProps {
@@ -29,7 +32,6 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
     const fetchHistory = async () => {
       const token = localStorage.getItem("access_token");
 
-      // Obtener el username real desde la API
       try {
         const meRes = await fetch("http://localhost:8000/api/users/me/", {
           headers: { "Authorization": `Bearer ${token}` }
@@ -70,14 +72,8 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
   };
 
   const getResultType = (game: GameFromAPI): "win" | "loss" | "draw" => {
-    // Tablas: resultado explícito o sin ganador
     if (game.result === "1/2-1/2" || game.winner_username === null) return "draw";
-
-    // FIX: comparar winner_username (string) con myUsername
-    // Antes el backend enviaba `winner` como ID entero en GameDetailSerializer,
-    // ahora winner_username viene correctamente del campo añadido al serializer
     if (game.winner_username === myUsername) return "win";
-
     return "loss";
   };
 
@@ -96,7 +92,7 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
 
   if (loading) {
     return (
-      <div className="w-full h-[600px] flex flex-col items-center justify-center gap-6 font-sans">
+      <div className={`${cinzel.className} w-full h-[600px] flex flex-col items-center justify-center gap-6`}>
         <div className="w-16 h-16 border-2 border-gold/10 border-t-gold rounded-full animate-spin"></div>
         <p className="text-gold text-[10px] tracking-[0.6em] uppercase font-bold animate-pulse">Sincronizando Archivos...</p>
       </div>
@@ -104,13 +100,19 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
   }
 
   return (
-    <div className="relative w-full max-w-5xl mx-auto h-[85vh] flex flex-col overflow-hidden">
+    <div className={`${cinzel.className} relative w-full max-w-5xl mx-auto h-[85vh] flex flex-col overflow-hidden`}>
 
+      {/* HEADER */}
       <div className="flex flex-col items-center shrink-0 pt-10 px-6">
-        <h2 className="text-4xl md:text-5xl font-black text-white tracking-[0.2em] uppercase mb-2 text-center">Historial</h2>
-        <div className="text-gold/60 text-[10px] tracking-[0.4em] uppercase font-bold mb-8">Registros de Batalla Real</div>
+        <h2 className="text-6xl md:text-5xl font-black text-white tracking-[0.25em] uppercase mb-3 text-center">
+          Historial
+        </h2>
+        <div className="text-gold/70 text-[11px] tracking-[0.5em] uppercase font-black mb-8">
+          Registros de Batalla Real
+        </div>
         <div className="w-full h-px bg-white/10"></div>
 
+        {/* FILTROS */}
         <div className="flex flex-wrap justify-center gap-2 py-6">
           {(['all', 'win', 'loss', 'draw'] as const).map((f) => (
             <button
@@ -129,6 +131,7 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
         <div className="w-full h-px bg-white/10"></div>
       </div>
 
+      {/* LISTA */}
       <div className="flex-1 overflow-y-auto px-6 py-8 custom-scrollbar space-y-3">
         {filteredGames.length > 0 ? filteredGames.map((game) => {
           const resType = getResultType(game);
@@ -143,7 +146,9 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
               <div className="flex items-center gap-6">
                 <div className="hidden md:flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-black/40 border border-white/5 font-black">
                   <span className="text-gold text-[10px] uppercase">{game.mode}</span>
-                  <span className="text-zinc-500 text-[8px] uppercase">{game.status === 'in_progress' ? 'LIVE' : 'FIN'}</span>
+                  <span className="text-zinc-500 text-[8px] uppercase">
+                    {game.status === 'in_progress' ? 'LIVE' : 'FIN'}
+                  </span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -184,9 +189,12 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
         )}
       </div>
 
+      {/* FOOTER */}
       <div className="shrink-0 pt-2 pb-8 flex flex-col items-center px-6">
         <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-50 mb-6"></div>
-        <p className="text-[10px] text-zinc-500 font-bold tracking-[0.3em] uppercase">Welikechess • Cloud Sync</p>
+        <p className="text-[10px] text-zinc-500 font-bold tracking-[0.3em] uppercase">
+          Welikechess • Cloud Sync
+        </p>
       </div>
     </div>
   );
