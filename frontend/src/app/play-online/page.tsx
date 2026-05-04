@@ -265,16 +265,15 @@ export default function OnlinePremiumPage() {
       if (turn === 'w') {
         const real = Math.max(0, anchor.w - elapsedSec);
         setTimeW(real);
-        if (real === 0) {
-          setShowGameEndWindow(true);
-          if (myColorRef.current === 'b') handleClaimTimeout();
+        if (real === 0 && myColorRef.current === 'b') {
+
+          handleClaimTimeout();
         }
       } else {
         const real = Math.max(0, anchor.b - elapsedSec);
         setTimeB(real);
-        if (real === 0) {
-          setShowGameEndWindow(true);
-          if (myColorRef.current === 'w') handleClaimTimeout();
+        if (real === 0 && myColorRef.current === 'w') {
+          handleClaimTimeout();
         }
       }
     }, 100); // Tick cada 100ms: visualmente más fluido y más preciso
