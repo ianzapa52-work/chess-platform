@@ -15,16 +15,19 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 async function apiFetch<T>(path: string): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  
   const res = await fetch(`${API}${path}`, {
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
+  
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail ?? `Error ${res.status}`);
   }
+  
   return res.json() as Promise<T>;
 }
 
@@ -36,6 +39,14 @@ export default function HomeFriendsSidebar() {
 
   const fetchFriends = useCallback(async () => {
     try {
+      // ✅ SOLUCIÓN: Verificar token ANTES de API call
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      if (!token) {
+        setFriends([]);
+        setLoading(false);
+        return;
+      }
+
       // 1. Obtener mi perfil con la lista de usernames de amigos
       const me = await apiFetch<{ friends: string[] }>('/api/users/me/');
 
@@ -54,16 +65,14 @@ export default function HomeFriendsSidebar() {
       );
 
       const resolved: Friend[] = profiles
-        .filter(
-          (r): r is PromiseFulfilledResult<Friend> => r.status === 'fulfilled'
-        )
+        .filter((r): r is PromiseFulfilledResult<Friend> => r.status === 'fulfilled')
         .map(({ value }) => value)
-        // Ordenar por elo_blitz descendente (misma lógica que FriendsForm)
         .sort((a, b) => b.elo_blitz - a.elo_blitz);
 
       setFriends(resolved);
     } catch (e) {
       console.error('HomeFriendsSidebar:', e);
+      setFriends([]); // ← LIMPIAR EN ERROR
     } finally {
       setLoading(false);
     }
@@ -71,12 +80,10 @@ export default function HomeFriendsSidebar() {
 
   useEffect(() => {
     fetchFriends();
-    // Refrescar cada 10 s igual que FriendsForm
     const interval = setInterval(fetchFriends, 10_000);
     return () => clearInterval(interval);
   }, [fetchFriends]);
 
-  // Permitir que FriendsForm dispare una sincronización inmediata
   useEffect(() => {
     const onUpdate = () => fetchFriends();
     window.addEventListener('social-update', onUpdate);

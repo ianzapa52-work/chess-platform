@@ -266,7 +266,6 @@ export default function OnlinePremiumPage() {
         const real = Math.max(0, anchor.w - elapsedSec);
         setTimeW(real);
         if (real === 0 && myColorRef.current === 'b') {
-
           handleClaimTimeout();
         }
       } else {
