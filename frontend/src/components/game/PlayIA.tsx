@@ -66,7 +66,8 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
     premoveRef.current = null;
     setIsAIThinking(false);
     onGameStateChange("TU TURNO");
-  }, [resetSignal, onGameStateChange]);
+    reconnect();
+  }, [resetSignal, onGameStateChange, reconnect]);
 
   const clearPremove = useCallback(() => {
     setPremove(null);

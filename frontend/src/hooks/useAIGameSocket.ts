@@ -56,6 +56,9 @@ export function useAIGameSocket(difficulty: number): AIGameSocketResult {
       ws.current.close();
     }
 
+    pendingResolve.current = null;
+    pendingReject.current = null;
+
     setConnected(false);
     setConnecting(true);
 
@@ -99,12 +102,16 @@ export function useAIGameSocket(difficulty: number): AIGameSocketResult {
 
   const sendMove = useCallback((uci: string): Promise<AIResponse> => {
     return new Promise((resolve, reject) => {
+      if (pendingResolve.current) {
+        reject('Nuevo movimiento enviado antes de recibir respuesta');
+        return;
+      }
+
       const doSend = () => {
         if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
           reject('WebSocket no conectado tras espera. Pulsa Reconectar.');
           return;
         }
-        pendingReject.current?.('Nuevo movimiento enviado antes de recibir respuesta');
         pendingResolve.current = resolve;
         pendingReject.current = reject;
         ws.current.send(JSON.stringify({ action: 'move', move: uci }));
