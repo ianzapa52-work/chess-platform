@@ -121,6 +121,15 @@ export default function ChatWindow() {
         setMyUsername(myUser => {
           if (!isOpenRef.current && incoming.sender_username !== myUser) {
             setUnreadCount(prev => prev + 1);
+            window.dispatchEvent(new CustomEvent('app-notification', {
+              detail: {
+                type: 'message',
+                data: {
+                  message: incoming.text,
+                  username: incoming.sender_username,
+                },
+              },
+            }));
           }
           return myUser;
         });
@@ -232,6 +241,7 @@ export default function ChatWindow() {
       )}
 
       <aside
+        data-chat-open={isOpen ? "true" : "false"}
         className={`fixed top-0 right-0 h-full w-full max-w-[450px] bg-[#050505]/95 border-l border-gold/20
           z-[999] shadow-[-20px_0_50px_rgba(0,0,0,0.9)] flex flex-col
           transition-transform duration-500 ease-in-out

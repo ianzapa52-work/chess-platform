@@ -5,7 +5,6 @@ import { Cinzel } from "next/font/google";
 
 const cinzel = Cinzel({ subsets: ["latin"] });
 
-const MASTER_PASSWORD = "e5!e3-Nf3-Nc1_202x";
 const STORAGE_KEY = "wlc_unlocked";
 
 export default function PasswordGate({ children }: { children: React.ReactNode }) {
@@ -29,12 +28,30 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
     }
   }, [mounted, unlocked]);
 
-  function handleSubmit() {
-    if (input === MASTER_PASSWORD) {
-      setStatus("success");
-      sessionStorage.setItem(STORAGE_KEY, "1");
-      setTimeout(() => setUnlocked(true), 700);
-    } else {
+  async function handleSubmit() {
+    if (!input) return;
+
+    try {
+      const res = await fetch("http://localhost:8000/api/core/verify-master-password/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: input }),
+      });
+
+      if (res.ok) {
+        setStatus("success");
+        sessionStorage.setItem(STORAGE_KEY, "1");
+        setTimeout(() => setUnlocked(true), 700);
+      } else {
+        setStatus("error");
+        setAttempts((a) => a + 1);
+        setInput("");
+        setTimeout(() => {
+          setStatus("idle");
+          inputRef.current?.focus();
+        }, 1200);
+      }
+    } catch {
       setStatus("error");
       setAttempts((a) => a + 1);
       setInput("");
