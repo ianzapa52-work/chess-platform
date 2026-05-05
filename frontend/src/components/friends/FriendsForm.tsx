@@ -104,12 +104,25 @@ export default function FriendsForm() {
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Friend | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [presence, setPresence] = useState<'online' | 'away' | 'offline'>('online');
+
+  const readPresence = useCallback(() => {
+    const settings = JSON.parse(localStorage.getItem('user_settings') || '{}');
+    setPresence(settings.status || 'online');
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsAuthenticated(!!localStorage.getItem('access_token'));
+      readPresence();
+      window.addEventListener('user-updated', readPresence);
+      window.addEventListener('user-settings-changed', readPresence);
+      return () => {
+        window.removeEventListener('user-updated', readPresence);
+        window.removeEventListener('user-settings-changed', readPresence);
+      };
     }
-  }, []);
+  }, [readPresence]);
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -285,9 +298,16 @@ export default function FriendsForm() {
               <div className="absolute -bottom-1.5 -right-1.5 z-10">
                 <div
                   className="w-6 h-6 rounded-full border-[2.5px] border-[#0d0d0d] flex items-center justify-center"
-                  style={{ background: '#22c55e', boxShadow: '0 0 10px rgba(34,197,94,0.55)' }}
+                  style={{
+                    background: presence === 'online' ? '#22c55e' : presence === 'away' ? '#f59e0b' : '#71717a',
+                    boxShadow: presence === 'online'
+                      ? '0 0 10px rgba(34,197,94,0.55)'
+                      : presence === 'away'
+                      ? '0 0 10px rgba(245,158,11,0.55)'
+                      : 'none',
+                  }}
                 >
-                  <div className="w-2 h-2 rounded-full bg-white/80 animate-pulse" />
+                  <div className={`w-2 h-2 rounded-full bg-white/80 ${presence !== 'offline' ? 'animate-pulse' : ''}`} />
                 </div>
               </div>
             </div>
@@ -295,8 +315,19 @@ export default function FriendsForm() {
               {me?.username ?? '· · ·'}
             </h3>
             <div className="flex items-center gap-1.5 mb-5">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400" style={{ boxShadow: '0 0 6px rgba(74,222,128,0.6)' }} />
-              <span className="text-[9px] text-green-400/80 tracking-[0.4em] uppercase font-medium">En línea</span>
+              {(() => {
+                const s = presence === 'online'
+                  ? { dot: 'bg-green-400', shadow: '0 0 6px rgba(74,222,128,0.6)', text: 'En línea', textColor: 'text-green-400/80' }
+                  : presence === 'away'
+                  ? { dot: 'bg-amber-400', shadow: '0 0 6px rgba(251,191,36,0.6)', text: 'Meditando', textColor: 'text-amber-400/80' }
+                  : { dot: 'bg-zinc-500',  shadow: 'none',                          text: 'Incógnito', textColor: 'text-zinc-500/80' };
+                return (
+                  <>
+                    <div className={`w-1.5 h-1.5 rounded-full ${s.dot}`} style={{ boxShadow: s.shadow }} />
+                    <span className={`text-[9px] ${s.textColor} tracking-[0.4em] uppercase font-medium`}>{s.text}</span>
+                  </>
+                );
+              })()}
             </div>
             <div className="w-full h-px mb-5" style={{ background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent)' }} />
             <div className="w-full grid grid-cols-3 gap-2 mb-1">
