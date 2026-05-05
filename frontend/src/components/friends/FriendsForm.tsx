@@ -234,7 +234,7 @@ export default function FriendsForm() {
   };
 
   const handleOpenChat = (friend: Friend) => {
-    window.dispatchEvent(new CustomEvent('open-chat', { detail: { ...friend, status: 'offline' } }));
+    window.dispatchEvent(new CustomEvent('open-chat', { detail: { username: friend.username } }));
   };
 
   const filteredFriends = useMemo(() =>
