@@ -76,25 +76,45 @@ export default function RankingForm() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>('blitz');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAuthenticated(!!localStorage.getItem('access_token'));
+    }
+  }, []);
 
   const fetchLeaderboard = async (selectedMode: Mode) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("access_token");
+
+      const token = typeof window !== 'undefined'
+        ? localStorage.getItem('access_token')
+        : null;
+
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
       const response = await fetch(
         `http://localhost:8000/api/users/leaderboard/?mode=${selectedMode}&limit=50`,
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        }
+        { headers }
       );
-      if (!response.ok) throw new Error('Error en servidor');
+
+      // Sin autenticación o sin permisos: mostrar vacío sin error
+      if (response.status === 401 || response.status === 403) {
+        setPlayers([]);
+        return;
+      }
+
+      if (!response.ok) throw new Error(`Error ${response.status}`);
+
       const data: PlayerFromAPI[] = await response.json();
       setPlayers(data.map(u => mapAPIPlayer(u, selectedMode)));
     } catch (error) {
       console.error('Error cargando ranking:', error);
+      setPlayers([]);
     } finally {
       setLoading(false);
     }
@@ -109,6 +129,12 @@ export default function RankingForm() {
 
   const topThree = useMemo(() => players.slice(0, 3), [players]);
   const leader = topThree[0];
+
+  const emptyMessage = !isAuthenticated
+    ? 'Inicia sesión para ver el ranking'
+    : search
+      ? 'Sin resultados'
+      : 'No hay jugadores aún';
 
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-130px)] gap-6 w-full max-w-[1800px] mx-auto p-4 relative font-['Outfit'] text-[1.1rem]">
@@ -249,7 +275,7 @@ export default function RankingForm() {
           {filteredPlayers.length === 0 && !loading && (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-zinc-700 py-20">
               <Trophy size={44} strokeWidth={1} />
-              <p className="text-sm tracking-widest uppercase">Sin resultados</p>
+              <p className="text-sm tracking-widest uppercase text-center">{emptyMessage}</p>
             </div>
           )}
           {filteredPlayers.map((player, index) => (

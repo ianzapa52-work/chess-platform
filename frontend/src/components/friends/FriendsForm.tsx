@@ -103,6 +103,13 @@ export default function FriendsForm() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Friend | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAuthenticated(!!localStorage.getItem('access_token'));
+    }
+  }, []);
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -110,6 +117,14 @@ export default function FriendsForm() {
   };
 
   const fetchAll = useCallback(async (isInitial = false) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+
+    // Sin token: no intentar fetch, mostrar estado vacío limpiamente
+    if (!token) {
+      if (isInitial) setInitialLoading(false);
+      return;
+    }
+
     if (isInitial) setInitialLoading(true);
     setError(null);
     try {
@@ -148,6 +163,11 @@ export default function FriendsForm() {
       });
 
     } catch (e: unknown) {
+      // 401/403: sesión expirada o sin permisos — no mostrar error ruidoso
+      if (e instanceof Error && (e.message.includes('401') || e.message.includes('403'))) {
+        if (isInitial) setInitialLoading(false);
+        return;
+      }
       if (isInitial) setError(e instanceof Error ? e.message : 'Error cargando datos');
     } finally {
       if (isInitial) setInitialLoading(false);
@@ -208,6 +228,12 @@ export default function FriendsForm() {
     [...friendDetails].filter(f => f.username.toLowerCase().includes(search.toLowerCase())).sort((a, b) => b.elo_blitz - a.elo_blitz),
     [search, friendDetails]
   );
+
+  const emptyMessage = !isAuthenticated
+    ? 'Inicia sesión para ver tus amigos'
+    : search
+      ? 'Sin resultados'
+      : 'Aún no tienes amigos';
 
   return (
     <div className="flex flex-col md:flex-row h-[calc(100vh-130px)] gap-8 w-full max-w-[1800px] mx-auto p-4 relative font-sans overflow-hidden">
@@ -353,8 +379,10 @@ export default function FriendsForm() {
                 <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center">
                   <Users size={36} strokeWidth={1} />
                 </div>
-                <p className="text-xs tracking-widest uppercase">{search ? 'Sin resultados' : 'Aún no tienes amigos'}</p>
-                {!search && <p className="text-[10px] text-zinc-700 tracking-wider">Usa el panel de invitaciones para añadir</p>}
+                <p className="text-xs tracking-widest uppercase text-center">{emptyMessage}</p>
+                {!search && isAuthenticated && (
+                  <p className="text-[10px] text-zinc-700 tracking-wider">Usa el panel de invitaciones para añadir</p>
+                )}
               </div>
             ) : (
               <div className="space-y-2">
@@ -482,7 +510,6 @@ function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingR
   );
 }
 
-// Botones siempre visibles — sin opacity-0 ni translate-x
 function FriendRow({ friend, rank, onChat, onDelete, actionLoading }: { friend: Friend; rank: number; onChat: () => void; onDelete: () => void; actionLoading: string | null }) {
   const isDeleting = actionLoading === friend.username;
   return (
@@ -500,7 +527,6 @@ function FriendRow({ friend, rank, onChat, onDelete, actionLoading }: { friend: 
           <span className="text-xs text-zinc-600 italic">{friend.elo_rapid} Rapid · {friend.elo_bullet} Bullet</span>
         </div>
       </div>
-      {/* Botones siempre visibles */}
       <div className="flex gap-2 shrink-0">
         <button title="Retar" className="p-3.5 bg-gold/10 text-gold border border-gold/30 rounded-xl hover:bg-gold hover:text-black transition-all active:scale-90 cursor-pointer">
           <Swords size={18} strokeWidth={2.5} />
