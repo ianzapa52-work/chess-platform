@@ -365,8 +365,8 @@ export default function PlayOnline({
                 {isLegal && (
                   <div className={`absolute z-20 rounded-full pointer-events-none
                     transition-transform duration-100
-                    ${isDragTarget ? 'scale-125' : 'scale-100'}
-                    ${piece ? 'inset-0 border-[5px] border-black/25' : 'w-[34%] h-[34%] bg-black/20'}`}
+                    ${isDragTarget ? 'scale-90' : 'scale-100'}
+                    ${piece ? 'inset-0 rounded-full bg-black/15 shadow-[inset_0_0_0_5px_rgba(0,0,0,0.3)]' : 'w-[34%] h-[34%] bg-black/20'}`}
                   />
                 )}
                 {piece && (
