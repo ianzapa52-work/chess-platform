@@ -189,6 +189,10 @@ function DrawOfferBanner({ sender, onAccept, onDecline }: { sender: string; onAc
 
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────
 export default function OnlinePremiumPage() {
+  useEffect(() => {
+    document.title = "WELIKECHESS | Jugar Online";
+  }, []);
+
   const [isSearching, setIsSearching] = useState(false);
   const [gameJoined, setGameJoined] = useState(false);
   const [gameId, setGameId] = useState<string | null>(null);

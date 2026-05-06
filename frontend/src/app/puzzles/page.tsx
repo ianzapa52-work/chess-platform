@@ -320,6 +320,10 @@ function RightPanel({ solvedCount, puzzle }: { solvedCount: number; puzzle: ApiP
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function PuzzlesPremiumPage() {
+  useEffect(() => {
+    document.title = "WELIKECHESS | Puzzles";
+  }, []);
+  
   const [puzzle, setPuzzle]   = useState<ApiPuzzle | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);

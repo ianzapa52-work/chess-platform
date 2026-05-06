@@ -14,6 +14,10 @@ const FAMOUS_GAME = [
 ];
 
 export default function AnalysisPage() {
+  useEffect(() => {
+    document.title = "WELIKECHESS | Análisis";
+  }, []);
+  
   const [game, setGame] = useState(new Chess());
   const [boardOrientation, setBoardOrientation] = useState<'w' | 'b'>('w');
   

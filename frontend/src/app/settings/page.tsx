@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SettingsForm from "@/components/settings/SettingsForm";
 
 export default function SettingsPage() {
+  useEffect(() => {
+    document.title = "WELIKECHESS | Ajustes";
+  }, []);
+
   const [isOpen, setIsOpen] = useState(true);
 
   if (!isOpen) return null;

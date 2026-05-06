@@ -1,5 +1,9 @@
 import RankingForm from "@/components/ranking/RankingForm";
 
+export const metadata = {
+  title: "WELIKECHESS | Ranking",
+};
+
 export default function RankingPage() {
   return (
     <>

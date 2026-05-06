@@ -111,6 +111,10 @@ function TimeoutOverlay({ loser, onReset }: { loser: 'w' | 'b'; onReset: () => v
 }
 
 export default function LocalPremiumPage() {
+  useEffect(() => {
+    document.title = "WELIKECHESS | Jugar Local";
+  }, []);
+  
   const [boardOrientation, setBoardOrientation] = useState<'w' | 'b'>('w');
   const [history, setHistory] = useState<string[]>([]);
   const [status, setStatus] = useState("TURNO BLANCAS");

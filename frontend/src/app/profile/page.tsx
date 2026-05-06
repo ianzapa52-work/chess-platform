@@ -1,7 +1,7 @@
 import ProfileForm from "@/components/profile/ProfileForm";
 
 export const metadata = {
-  title: "Perfil de Maestro | WELIKECHESS",
+  title: "WELIKECHESS | Mi Perfil",
 };
 
 export default function ProfilePage() {

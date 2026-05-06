@@ -32,6 +32,10 @@ interface UserStats {
 }
 
 export default function HomePage() {
+  useEffect(() => {
+    document.title = "WELIKECHESS | Home";
+  }, []);
+
   const today = new Date();
   const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
   const quote = quotes[daysSinceEpoch % quotes.length];

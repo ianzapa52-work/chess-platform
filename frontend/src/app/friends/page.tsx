@@ -1,7 +1,7 @@
 import FriendsForm from "@/components/friends/FriendsForm";
 
 export const metadata = {
-  title: "Red de Amigos | WELIKECHESS",
+  title: "WELIKECHESS | Amigos",
 };
 
 export default function FriendsPage() {

@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+
+  useEffect(() => {
+    document.title = "WELIKECHESS | Autenticación";
+  }, []);
+
 
   return (
     <main className="min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-96px)] bg-[#050505] relative overflow-hidden flex items-center justify-center p-6">

@@ -161,6 +161,10 @@ function TimeoutOverlay({ onReset }: { onReset: () => void }) {
 }
 
 export default function PlayIAPage() {
+  useEffect(() => {
+    document.title = "WELIKECHESS | Jugar Vs IA";
+  }, []);
+  
   const [history, setHistory]         = useState<string[]>([]);
   const [status, setStatus]           = useState("TU TURNO");
   const [capturedW, setCapturedW]     = useState<string[]>([]);

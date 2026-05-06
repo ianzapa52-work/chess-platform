@@ -1,10 +1,15 @@
+import { useEffect } from "react";
 import HistoryForm from "@/components/history/HistoryForm";
 
 export const metadata = {
-  title: "Historial de Partidas | WELIKECHESS",
+  title: "WELIKECHESS | Historial de Partidas",
 };
 
 export default function HistoryPage() {
+  useEffect(() => {
+    document.title = "WELIKECHESS | Jugar Vs IA";
+  }, []);
+
   return (
     <main className="min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-96px)] bg-[#050505] relative overflow-hidden flex flex-col justify-center">
       {/* LUZ DE FONDO AMBIENTAL */}
