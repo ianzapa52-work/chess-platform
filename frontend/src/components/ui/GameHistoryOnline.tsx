@@ -155,7 +155,7 @@ export default function GameHistoryOnline({
 
     if (trimmed === '/draw') {
       if (hasOfferedDraw) {
-        setMessages(prev => [...prev, "Sistema: ❌ /draw ya usado esta partida (también desde botón)"]);
+        setMessages(prev => [...prev, "Sistema: ❌ /draw ya usado esta partida"]);
         setNewMessage("");
         return true;
       }

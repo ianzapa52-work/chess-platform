@@ -217,11 +217,8 @@ export default function OnlinePremiumPage() {
   const gameSocketRef = useRef<WebSocket | null>(null);
 
   // ── NUEVOS REFS PARA EL RELOJ ANCLADO AL SERVIDOR ──────────
-  // Guarda los tiempos exactos que mandó el servidor y el momento en que los recibimos
   const serverTimeAnchorRef = useRef<{ w: number; b: number; receivedAt: number } | null>(null);
-  // Qué color está moviendo actualmente (para saber qué reloj descontar)
   const activeTurnRef = useRef<'w' | 'b'>('w');
-  // Guard para evitar mandar claim_victory varias veces seguidas
   const timeoutClaimedRef = useRef(false);
 
   useEffect(() => { statusRef.current = status; }, [status]);
@@ -239,11 +236,6 @@ export default function OnlinePremiumPage() {
   }, []);
 
   // ── RELOJ ANCLADO AL SERVIDOR ──────────────────────────────
-  // En vez de decrementar -1 cada segundo (que se desvía),
-  // calculamos cuánto tiempo real ha pasado desde que el servidor
-  // nos mandó los tiempos, y los mostramos interpolados.
-  // Cada vez que llega un game_update, el ancla se resetea con
-  // los tiempos frescos del servidor → siempre en sincronía.
   useEffect(() => {
     if (!gameJoined) return;
 
@@ -258,7 +250,6 @@ export default function OnlinePremiumPage() {
       const anchor = serverTimeAnchorRef.current;
       if (!anchor) return;
 
-      // Segundos transcurridos desde la última actualización del servidor
       const elapsedSec = (Date.now() - anchor.receivedAt) / 1000;
       const turn = activeTurnRef.current;
 
@@ -275,7 +266,7 @@ export default function OnlinePremiumPage() {
           handleClaimTimeout();
         }
       }
-    }, 100); // Tick cada 100ms: visualmente más fluido y más preciso
+    }, 100);
 
     return () => clearInterval(timer);
   }, [gameJoined, handleClaimTimeout]);
@@ -340,7 +331,6 @@ export default function OnlinePremiumPage() {
     setTimeW(currentModeRef.current.m);
     setTimeB(currentModeRef.current.m);
     setShowGameEndWindow(false);
-    // Limpiar el ancla y el guard de timeout al resetear
     serverTimeAnchorRef.current = null;
     timeoutClaimedRef.current = false;
   };
@@ -381,23 +371,17 @@ export default function OnlinePremiumPage() {
     setHistory(newHistory);
 
     if (serverTimes) {
-      // Anclar el reloj al tiempo exacto que mandó el servidor
-      // y registrar en qué momento lo recibimos (Date.now())
       serverTimeAnchorRef.current = {
         w: serverTimes.w,
         b: serverTimes.b,
         receivedAt: Date.now(),
       };
-      // Mostrar de inmediato los valores del servidor (sin esperar al siguiente tick)
       setTimeW(serverTimes.w);
       setTimeB(serverTimes.b);
-      // Resetear el guard de timeout en cada movimiento
       timeoutClaimedRef.current = false;
       return;
     }
 
-    // Fallback: si por algún motivo no vienen tiempos del servidor,
-    // aplicamos el incremento localmente como antes
     if (newHistory.length === 0 || lastMoveColor === null) return;
     const inc = currentModeRef.current.i;
     if (inc > 0) {
@@ -420,7 +404,6 @@ export default function OnlinePremiumPage() {
       if (data.white_player) setOpponent({ name: data.white_player.username, elo: getEloForMode(data.white_player, mode) });
     }
 
-    // Al recibir el estado inicial de la partida, anclar el reloj
     if (data.time_white !== undefined && data.time_black !== undefined) {
       serverTimeAnchorRef.current = {
         w: data.time_white,
@@ -444,7 +427,6 @@ export default function OnlinePremiumPage() {
     setStatus(newStatus);
     statusRef.current = newStatus;
 
-    // Sincronizar qué reloj está corriendo según el turno actual
     if (newStatus === "TURNO BLANCAS") activeTurnRef.current = 'w';
     else if (newStatus === "TURNO NEGRAS") activeTurnRef.current = 'b';
   }, []);
@@ -456,7 +438,6 @@ export default function OnlinePremiumPage() {
     const reason = reasonLabels[data.termination_reason] || "";
     setStatus(`${label}${reason ? ` (${reason})` : ""}`);
     if (data.eloChange !== undefined) setEloChange(data.eloChange);
-    // Limpiar el ancla cuando la partida termina para parar el reloj
     serverTimeAnchorRef.current = null;
   }, []);
 
@@ -513,20 +494,31 @@ export default function OnlinePremiumPage() {
         />
       )}
 
-      <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-stretch">
+      <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
+        {/* ── Left sidebar (IGUAL QUE PLAYIA) ── */}
+        <div className="col-span-12 xl:col-span-3 flex flex-col gap-3">
+          {/* Rival Box - Aparece arriba cuando se une */}
+          <div
+            style={{
+              maxHeight: gameJoined ? '200px' : '0px',
+              opacity: gameJoined ? 1 : 0,
+              marginBottom: gameJoined ? '0px' : '-12px',
+              overflow: 'hidden',
+              transition: 'max-height 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms ease, margin-bottom 500ms cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+          >
+            <OpponentBox
+              name={opponent.name}
+              elo={opponent.elo}
+              isActive={status === (opponentColor === 'w' ? "TURNO BLANCAS" : "TURNO NEGRAS")}
+              seconds={opponentColor === 'w' ? timeW : timeB}
+              visible={true}
+              captured={opponentColor === 'w' ? capturedB : capturedW}
+            />
+          </div>
 
-        {/* ── Left sidebar ── */}
-        <div className="col-span-12 xl:col-span-3 flex flex-col justify-between py-2">
-          <OpponentBox
-            name={opponent.name}
-            elo={opponent.elo}
-            isActive={status === (opponentColor === 'w' ? "TURNO BLANCAS" : "TURNO NEGRAS")}
-            seconds={opponentColor === 'w' ? timeW : timeB}
-            visible={gameJoined || isSearching}
-            captured={opponentColor === 'w' ? capturedB : capturedW}
-          />
-
-          <div className="bg-zinc-950/60 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl backdrop-blur-xl my-6 min-h-[400px] flex flex-col justify-center relative overflow-hidden">
+          {/* Panel central de configuración/juego */}
+          <div className="bg-zinc-950/60 border border-white/10 rounded-[2.5rem] p-8 shadow-2xl backdrop-blur-xl space-y-5 flex-1 flex flex-col">
             {!gameJoined ? (
               <div className="w-full">
                 <div className={`transition-all duration-700 ${isSearching ? 'opacity-30 pointer-events-none scale-95 blur-sm' : 'opacity-100'}`}>
@@ -564,7 +556,7 @@ export default function OnlinePremiumPage() {
                 </button>
               </div>
             ) : (
-              <div className="text-center animate-in zoom-in duration-500 w-full px-4">
+              <div className="text-center animate-in zoom-in duration-500 w-full px-4 flex-1 flex flex-col justify-center">
                 {!isGameOver && (
                   <>
                     <div className="flex justify-center mb-6">
@@ -608,6 +600,7 @@ export default function OnlinePremiumPage() {
             )}
           </div>
 
+          {/* Tu Player Box - Siempre abajo */}
           <MyPlayerBox
             name={myName}
             elo={myElo}
@@ -619,8 +612,8 @@ export default function OnlinePremiumPage() {
         </div>
 
         {/* ── Board column ── */}
-        <div className="col-span-12 xl:col-span-6 flex items-center justify-center">
-          <div className="w-full flex justify-center">
+        <div className="col-span-12 xl:col-span-6 flex flex-col items-center gap-4">
+          <div className="relative w-full flex justify-center">
             {gameJoined && gameId ? (
               <div className="relative w-[min(95vw,780px)]">
                 <PlayOnline
