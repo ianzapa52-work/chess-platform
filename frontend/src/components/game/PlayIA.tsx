@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess, Square } from 'chess.js';
 import { useAIGameSocket } from '@/hooks/useAIGameSocket';
+import { useDragController } from '@/hooks/useDragController';
 
 interface PlayIAProps {
   difficulty: number;
@@ -16,126 +17,6 @@ const PIECE_MAP: Record<string, string> = {
   p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king"
 };
 
-// ── Cursor global ─────────────────────────────────────────────────────────────
-let cursorStyle: HTMLStyleElement | null = null;
-function setCursorGrabbing() {
-  if (cursorStyle) return;
-  cursorStyle = document.createElement('style');
-  cursorStyle.textContent = '*{cursor:grabbing!important}';
-  document.head.appendChild(cursorStyle);
-}
-function clearCursorGrabbing() {
-  cursorStyle?.remove();
-  cursorStyle = null;
-}
-
-// ── Drag controller ───────────────────────────────────────────────────────────
-type DragCallbacks = {
-  onStart : (from: Square) => void;
-  onOver  : (sq: Square | null) => void;
-  onEnd   : (from: Square, to: Square | null) => void;
-  canDrag : (coord: Square) => boolean;
-  pieceSrc: (coord: Square) => string | null;
-};
-
-function createDragController(
-  boardEl: HTMLDivElement,
-  getOrientation: () => 'w' | 'b',
-  callbacks: DragCallbacks,
-) {
-  let floatImg  : HTMLImageElement | null = null;
-  let sourceImg : HTMLImageElement | null = null;
-  let fromSquare: Square | null = null;
-  let lastOver  : Square | null = null;
-  let raf       : number | null = null;
-  let pendingX = 0, pendingY = 0;
-
-  function squareSize() { return boardEl.getBoundingClientRect().width / 8; }
-  function pointToSquare(clientX: number, clientY: number): Square | null {
-    const rect = boardEl.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return null;
-    const col = Math.floor(x / (rect.width  / 8));
-    const row = Math.floor(y / (rect.height / 8));
-    if (col < 0 || col > 7 || row < 0 || row > 7) return null;
-    const o = getOrientation();
-    return (String.fromCharCode(97 + (o === 'w' ? col : 7 - col)) +
-            (8 - (o === 'w' ? row : 7 - row))) as Square;
-  }
-  function flushPosition() {
-    raf = null;
-    if (floatImg)
-      floatImg.style.transform =
-        `translate3d(${pendingX}px,${pendingY}px,0) translate(-50%,-50%)`;
-  }
-  function onMove(e: PointerEvent) {
-    if (!fromSquare) return;
-    pendingX = e.clientX; pendingY = e.clientY;
-    if (!raf) raf = requestAnimationFrame(flushPosition);
-    const sq = pointToSquare(e.clientX, e.clientY);
-    if (sq !== lastOver) { lastOver = sq; callbacks.onOver(sq); }
-  }
-  function onUp(e: PointerEvent) {
-    if (!fromSquare) return;
-    if (raf) { cancelAnimationFrame(raf); raf = null; }
-    const to   = pointToSquare(e.clientX, e.clientY);
-    const from = fromSquare;
-    floatImg?.remove(); floatImg = null;
-    if (sourceImg) { sourceImg.style.opacity = ''; sourceImg = null; }
-    clearCursorGrabbing();
-    fromSquare = null; lastOver = null;
-    document.removeEventListener('pointermove',   onMove);
-    document.removeEventListener('pointerup',     onUp);
-    document.removeEventListener('pointercancel', onUp);
-    callbacks.onEnd(from, to);
-  }
-  function onDown(e: PointerEvent) {
-    if (e.button !== 0) return;
-    const sq = pointToSquare(e.clientX, e.clientY);
-    if (!sq || !callbacks.canDrag(sq)) return;
-    const src = callbacks.pieceSrc(sq);
-    if (!src) return;
-    setCursorGrabbing();
-    e.preventDefault();
-    fromSquare = sq;
-    const imgEl = boardEl.querySelector<HTMLImageElement>(`[data-square="${sq}"] img`);
-    if (imgEl) { sourceImg = imgEl; imgEl.style.opacity = '0.25'; }
-    const size = squareSize() * 0.92;
-    const fi   = document.createElement('img');
-    fi.src           = src;
-    fi.draggable     = false;
-    fi.style.cssText = `
-      position:fixed;top:0;left:0;
-      width:${size}px;height:${size}px;
-      pointer-events:none;z-index:9999;
-      will-change:transform;
-      filter:drop-shadow(0 8px 24px rgba(0,0,0,0.7));
-      transform:translate3d(${e.clientX}px,${e.clientY}px,0) translate(-50%,-50%);
-    `;
-    document.body.appendChild(fi);
-    floatImg = fi;
-    pendingX = e.clientX; pendingY = e.clientY;
-    document.addEventListener('pointermove',   onMove,  { passive: true });
-    document.addEventListener('pointerup',     onUp);
-    document.addEventListener('pointercancel', onUp);
-    callbacks.onStart(sq);
-  }
-  boardEl.addEventListener('pointerdown', onDown);
-  function destroy() {
-    boardEl.removeEventListener('pointerdown', onDown);
-    floatImg?.remove();
-    if (sourceImg) sourceImg.style.opacity = '';
-    clearCursorGrabbing();
-    document.removeEventListener('pointermove',   onMove);
-    document.removeEventListener('pointerup',     onUp);
-    document.removeEventListener('pointercancel', onUp);
-    if (raf) cancelAnimationFrame(raf);
-  }
-  return { destroy };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSignal, orientation }: PlayIAProps) {
   const [game, setGame]               = useState(new Chess());
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
@@ -143,20 +24,16 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
   const [capW, setCapW]               = useState<string[]>([]);
   const [capB, setCapB]               = useState<string[]>([]);
   const [appearing, setAppearing]     = useState(true);
-  const [dragFrom, setDragFrom]       = useState<Square | null>(null);
-  const [dragOver, setDragOver]       = useState<Square | null>(null);
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [showDisconnected, setShowDisconnected] = useState(false);
   const [premove, setPremove]         = useState<{ from: Square; to: Square } | null>(null);
 
-  const boardRef       = useRef<HTMLDivElement>(null);
-  const controllerRef  = useRef<{ destroy: () => void } | null>(null);
-  const executeMoveRef = useRef<(from: Square, to: Square) => boolean>(() => false);
   const gameRef        = useRef(game);
   const premoveRef     = useRef<{ from: Square; to: Square } | null>(null);
   const capWRef        = useRef<string[]>([]);
   const capBRef        = useRef<string[]>([]);
   const moveHistoryRef = useRef<string[]>([]);
+  const handleMoveRef  = useRef<(from: Square, to: Square) => void>(() => {});
 
   useEffect(() => { gameRef.current = game; },  [game]);
   useEffect(() => { capWRef.current = capW; },  [capW]);
@@ -176,7 +53,6 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
     setLastMove(null); setSelectedSquare(null);
     setCapW([]); setCapB([]);
     capWRef.current = []; capBRef.current = [];
-    setDragFrom(null); setDragOver(null);
     moveHistoryRef.current = [];
     setPremove(null); premoveRef.current = null;
     setIsAIThinking(false);
@@ -186,44 +62,6 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
     reconnect();
     return () => clearTimeout(t);
   }, [resetSignal, onGameStateChange, reconnect]);
-
-  // Drag controller — recreate when puzzle/orientation changes
-  useEffect(() => {
-    const el = boardRef.current;
-    if (!el) return;
-    controllerRef.current?.destroy();
-    controllerRef.current = createDragController(
-      el,
-      () => orientation,
-      {
-        canDrag: (coord) => {
-          if (gameRef.current.turn() !== orientation) return false;
-          const file = coord.charCodeAt(0) - 97;
-          const rank = 8 - parseInt(coord[1]);
-          const piece = gameRef.current.board()[rank]?.[file];
-          return !!piece && piece.color === orientation;
-        },
-        pieceSrc: (coord) => {
-          const file = coord.charCodeAt(0) - 97;
-          const rank = 8 - parseInt(coord[1]);
-          const piece = gameRef.current.board()[rank]?.[file];
-          if (!piece) return null;
-          return `/pieces/${piece.color}_${PIECE_MAP[piece.type]}.svg`;
-        },
-        onStart: (from) => { setDragFrom(from); setSelectedSquare(from); setDragOver(from); },
-        onOver:  (sq)   => setDragOver(sq),
-        onEnd:   (from, to) => {
-          setDragFrom(null); setDragOver(null);
-          if (to && to !== from) {
-            executeMoveRef.current(from, to);
-            setSelectedSquare(null);
-          }
-        },
-      },
-    );
-    return () => { controllerRef.current?.destroy(); controllerRef.current = null; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetSignal, orientation]);
 
   const clearPremove = useCallback(() => {
     setPremove(null); premoveRef.current = null;
@@ -263,7 +101,6 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
     const currentGame = gameRef.current;
 
     if (currentGame.turn() !== orientation) {
-      // Premove
       const fenParts = currentGame.fen().split(' ');
       fenParts[1] = orientation;
       const tempChess = new Chess();
@@ -345,7 +182,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
             if (piece && piece.color === orientation) {
               const legal = afterAI.moves({ square: pm.from, verbose: true }).map(m => m.to);
               if (legal.includes(pm.to)) {
-                setTimeout(() => handleMove(pm.from, pm.to), 50);
+                setTimeout(() => handleMoveRef.current(pm.from, pm.to), 50);
                 return;
               }
             }
@@ -360,12 +197,36 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
     }
   }, [orientation, applyMoveResult, clearPremove, checkGameOver, sendMove, onGameStateChange, onMove]);
 
-  useEffect(() => {
-    executeMoveRef.current = (from, to) => { handleMove(from, to); return true; };
-  }, [handleMove]);
+  useEffect(() => { handleMoveRef.current = handleMove; }, [handleMove]);
+
+  const { boardRef, dragFrom, dragOver, isDragging } = useDragController({
+    orientation,
+    canDrag: (coord) => {
+      if (gameRef.current.turn() !== orientation) return false;
+      const file = coord.charCodeAt(0) - 97;
+      const rank = 8 - parseInt(coord[1]);
+      const piece = gameRef.current.board()[rank]?.[file];
+      return !!piece && piece.color === orientation;
+    },
+    pieceSrc: (coord) => {
+      const file = coord.charCodeAt(0) - 97;
+      const rank = 8 - parseInt(coord[1]);
+      const piece = gameRef.current.board()[rank]?.[file];
+      if (!piece) return null;
+      return `/pieces/${piece.color}_${PIECE_MAP[piece.type]}.svg`;
+    },
+    onDragStart: (from) => setSelectedSquare(from),
+    onDragEnd: (from, to) => {
+      if (to && to !== from) {
+        handleMoveRef.current(from, to);
+        setSelectedSquare(null);
+      }
+    },
+    deps: [resetSignal, orientation],
+  });
 
   const handleSquareClick = useCallback((coord: Square, piece: ReturnType<Chess['board']>[0][0]) => {
-    if (dragFrom) return;
+    if (isDragging) return;
     if (premoveRef.current && coord === premoveRef.current.from) {
       clearPremove(); setSelectedSquare(null); return;
     }
@@ -374,13 +235,13 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
       if (piece && piece.color === orientation && gameRef.current.turn() === orientation) {
         setSelectedSquare(coord);
       } else {
-        handleMove(selectedSquare, coord);
+        handleMoveRef.current(selectedSquare, coord);
         setSelectedSquare(null);
       }
     } else if (piece && piece.color === orientation) {
       setSelectedSquare(coord);
     }
-  }, [dragFrom, selectedSquare, orientation, handleMove, clearPremove]);
+  }, [isDragging, selectedSquare, orientation, clearPremove]);
 
   // ── Render ──────────────────────────────────────────────────────────────────
   const board        = game.board();
@@ -391,7 +252,6 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
   const legalTargets = selectedSquare
     ? game.moves({ square: selectedSquare, verbose: true }).map(m => m.to)
     : [];
-  const isDragging = !!dragFrom;
 
   return (
     <div className="relative flex flex-col items-center">
