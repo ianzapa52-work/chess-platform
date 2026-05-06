@@ -513,7 +513,7 @@ export default function OnlinePremiumPage() {
               isActive={status === (opponentColor === 'w' ? "TURNO BLANCAS" : "TURNO NEGRAS")}
               seconds={opponentColor === 'w' ? timeW : timeB}
               visible={true}
-              captured={opponentColor === 'w' ? capturedB : capturedW}
+              captured={opponentColor === 'w' ? capturedW : capturedB}
             />
           </div>
 

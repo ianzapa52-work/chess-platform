@@ -272,7 +272,6 @@ export function useDragController({
       document.removeEventListener('pointercancel', onCancel);
       setDragFrom(null); setDragOver(null);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
   return { boardRef, dragFrom, dragOver, isDragging: dragFrom !== null, selectedSquare, clearSelection };

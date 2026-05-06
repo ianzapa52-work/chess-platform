@@ -36,14 +36,19 @@ const getCapturedPieces = (chess: Chess) => {
       if (sq) current[sq.color][sq.type as keyof typeof current['w']]++;
     });
   });
+  
   const capW: string[] = [];
   const capB: string[] = [];
-  for (const type in initial.w) {
-    const diffW = initial.w[type as keyof typeof initial.w] - current.w[type as keyof typeof current.w];
-    for (let i = 0; i < diffW; i++) capW.push(`/pieces/w_${PIECE_MAP[type]}.svg`);
-    const diffB = initial.b[type as keyof typeof initial.b] - current.b[type as keyof typeof current.b];
-    for (let i = 0; i < diffB; i++) capB.push(`/pieces/b_${PIECE_MAP[type]}.svg`);
+
+  for (const type in initial.b) {
+    const t = type as keyof typeof initial.b;
+    const diffB = initial.b[t] - current.b[t]; // negras perdidas → blancas capturaron
+    for (let i = 0; i < diffB; i++) capW.push(`/pieces/b_${PIECE_MAP[t]}.svg`);
+
+    const diffW = initial.w[t] - current.w[t]; // blancas perdidas → negras capturaron
+    for (let i = 0; i < diffW; i++) capB.push(`/pieces/w_${PIECE_MAP[t]}.svg`);
   }
+
   return { capW, capB };
 };
 
