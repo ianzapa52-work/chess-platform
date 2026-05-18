@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className={`${inter.className} antialiased selection:bg-gold/30 transition-colors duration-500 [.light_&]:text-black`}
       >
         <script dangerouslySetInnerHTML={{__html:`try{var s=localStorage.getItem('user_settings');if(s){var p=JSON.parse(s);if(p.darkMode===false)document.documentElement.classList.add('light')}}catch(e){}`}} />
-        {/* <PasswordGate> */}
+        <PasswordGate>
           <NotificationProvider>
             {/* Fondo decorativo */}
             <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -85,7 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* Notificaciones toast — siempre al final para estar encima de todo */}
             <NotificationToast />
           </NotificationProvider>
-        {/* </PasswordGate> */}
+        </PasswordGate>
       </body>
     </html>
   );
