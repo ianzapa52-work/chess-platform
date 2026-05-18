@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import PlayIA from '@/components/game/PlayIA';
 import GameHistory from '@/components/ui/GameHistory';
+import { useTheme } from '@/hooks/useTheme';
 
 const COUNTDOWN_OPTIONS = [
   { n: "1 min",  m: 60  },
@@ -13,24 +14,30 @@ const COUNTDOWN_OPTIONS = [
   { n: "15 min", m: 900 },
 ];
 
-function IABox({ captured }: { captured: string[] }) {
+function IABox({ captured, isLight }: { captured: string[]; isLight: boolean }) {
   return (
-    <div className="p-5 rounded-[2rem] border border-white/[0.08] bg-black/40 backdrop-blur-xl shadow-xl">
+    <div className={`p-5 rounded-[2rem] border backdrop-blur-xl shadow-xl ${
+      isLight ? 'bg-white border-gray-200' : 'border-white/[0.08] bg-black/40'
+    }`}>
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center shadow-inner">
+          <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shadow-inner ${
+            isLight ? 'bg-gray-100 border-gray-200' : 'bg-zinc-900 border-white/10'
+          }`}>
             <span className="text-xl leading-none">♟</span>
           </div>
           <div>
-            <p className="text-white font-black text-[13px] uppercase tracking-widest leading-none mb-1">Einstein IA</p>
-            <p className="text-[10px] text-zinc-500 font-bold tracking-tight">Stockfish · Sin reloj</p>
+            <p className={`font-black text-[13px] uppercase tracking-widest leading-none mb-1 ${isLight ? 'text-gray-900' : 'text-white'}`}>Einstein IA</p>
+            <p className={`text-[10px] font-bold tracking-tight ${isLight ? 'text-gray-500' : 'text-zinc-500'}`}>Stockfish · Sin reloj</p>
           </div>
         </div>
-        <div className="px-3 py-1.5 rounded-xl bg-black/60 border border-white/[0.06] font-mono text-base font-black text-zinc-500 tracking-widest">
+        <div className={`px-3 py-1.5 rounded-xl border font-mono text-base font-black tracking-widest ${
+          isLight ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-black/60 border-white/[0.06] text-zinc-500'
+        }`}>
           ∞
         </div>
       </div>
-      <div className="h-px bg-white/[0.05] mb-3" />
+      <div className={`h-px mb-3 ${isLight ? 'bg-gray-100' : 'bg-white/[0.05]'}`} />
       <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-[52px] flex items-center bg-gradient-to-br from-[#d2b48c] to-[#a68a64]">
         <div className="flex flex-wrap gap-1 max-w-full">
           {captured.length > 0 ? (
@@ -47,10 +54,10 @@ function IABox({ captured }: { captured: string[] }) {
 }
 
 function PlayerBox({
-  captured, isActive, seconds, showClock, isTimedOut,
+  captured, isActive, seconds, showClock, isTimedOut, isLight,
 }: {
   captured: string[]; isActive: boolean; seconds: number;
-  showClock: boolean; isTimedOut: boolean;
+  showClock: boolean; isTimedOut: boolean; isLight: boolean;
 }) {
   const mins    = Math.floor(seconds / 60);
   const secs    = Math.floor(seconds % 60);
@@ -63,10 +70,14 @@ function PlayerBox({
       isTimedOut
         ? 'bg-red-950/40 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
         : isActive
-          ? 'bg-black/50 border-gold shadow-[0_0_40px_rgba(212,175,55,0.12)]'
-          : 'bg-black/40 border-white/[0.06]'
+          ? isLight
+            ? 'bg-amber-50 border-gold shadow-[0_0_30px_rgba(212,175,55,0.15)]'
+            : 'bg-black/50 border-gold shadow-[0_0_40px_rgba(212,175,55,0.12)]'
+          : isLight
+            ? 'bg-white border-gray-200'
+            : 'bg-black/40 border-white/[0.06]'
     }`}>
-      {isActive && !isTimedOut && <div className="absolute inset-0 bg-gold/[0.03] pointer-events-none" />}
+      {isActive && !isTimedOut && <div className={`absolute inset-0 pointer-events-none ${isLight ? 'bg-gold/[0.04]' : 'bg-gold/[0.03]'}`} />}
       {isTimedOut && <div className="absolute inset-0 bg-red-500/[0.05] pointer-events-none" />}
 
       <div className="relative flex justify-between items-center mb-3">
@@ -74,19 +85,19 @@ function PlayerBox({
           <div className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all duration-500 ${
             isTimedOut ? 'bg-red-500/20 border-red-500/40'
               : isActive ? 'bg-gold/20 border-gold/40'
-              : 'bg-zinc-800/80 border-white/10'
+              : isLight ? 'bg-gray-100 border-gray-200' : 'bg-zinc-800/80 border-white/10'
           }`}>
             <span className={`text-xl leading-none transition-all duration-500 ${
-              isTimedOut ? 'text-red-400' : isActive ? 'text-gold' : 'text-zinc-500'
+              isTimedOut ? 'text-red-400' : isActive ? 'text-gold' : isLight ? 'text-gray-500' : 'text-zinc-500'
             }`}>♙</span>
           </div>
           <div>
             <p className={`font-black text-[13px] uppercase tracking-widest leading-none mb-0.5 transition-colors duration-500 ${
-              isTimedOut ? 'text-red-400' : isActive ? 'text-white' : 'text-zinc-400'
+              isTimedOut ? 'text-red-400' : isActive ? isLight ? 'text-gray-900' : 'text-white' : isLight ? 'text-gray-600' : 'text-zinc-400'
             }`}>
               {isTimedOut ? '¡Tiempo!' : 'Tú'}
             </p>
-            <p className="text-[10px] text-zinc-600 font-bold tracking-tight">Jugador local</p>
+            <p className={`text-[10px] font-bold tracking-tight ${isLight ? 'text-gray-400' : 'text-zinc-600'}`}>Jugador local</p>
           </div>
         </div>
 
@@ -100,14 +111,14 @@ function PlayerBox({
                   ? 'bg-red-500/10 border-red-500/30 text-red-400'
                   : isActive
                     ? 'bg-gold/15 border-gold/50 text-gold shadow-[0_0_15px_rgba(212,175,55,0.15)]'
-                    : 'bg-black/60 border-white/5 text-zinc-600'
+                    : isLight ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-black/60 border-white/5 text-zinc-600'
           }`}>
             {timeStr}
           </div>
         )}
       </div>
 
-      <div className="h-px bg-white/[0.05] mb-3" />
+      <div className={`h-px mb-3 ${isLight ? 'bg-gray-100' : 'bg-white/[0.05]'}`} />
       <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-[52px] flex items-center bg-gradient-to-br from-[#d2b48c] to-[#a68a64]">
         <div className="flex flex-wrap gap-1 max-w-full">
           {captured.length > 0 ? (
@@ -128,14 +139,12 @@ function TimeoutOverlay({ onReset }: { onReset: () => void }) {
     <div className="absolute inset-0 z-50 flex items-center justify-center rounded-xl overflow-hidden">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
       <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-transparent" />
-
       <div className="relative flex flex-col items-center gap-6 px-8 text-center">
         <div className="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500/50
           flex items-center justify-center
           shadow-[0_0_60px_rgba(239,68,68,0.4),0_0_120px_rgba(239,68,68,0.15)]">
           <span className="text-4xl">⏱</span>
         </div>
-
         <div className="space-y-2">
           <p className="text-red-300 font-black text-2xl uppercase tracking-[0.15em] leading-none drop-shadow-lg">
             Tiempo agotado
@@ -144,12 +153,10 @@ function TimeoutOverlay({ onReset }: { onReset: () => void }) {
             La IA gana por tiempo
           </p>
         </div>
-
         <button
           onClick={onReset}
           className="px-8 py-3.5 rounded-2xl font-black text-[11px] tracking-[0.25em] uppercase
-            bg-white text-black border border-transparent
-            hover:bg-gold
+            bg-white text-black border border-transparent hover:bg-gold
             transition-colors duration-200 cursor-pointer
             shadow-[0_0_30px_rgba(255,255,255,0.12)]"
         >
@@ -164,7 +171,9 @@ export default function PlayIAPage() {
   useEffect(() => {
     document.title = "WELIKECHESS | Jugar Vs IA";
   }, []);
-  
+
+  const { isLight } = useTheme();
+
   const [history, setHistory]         = useState<string[]>([]);
   const [status, setStatus]           = useState("TU TURNO");
   const [capturedW, setCapturedW]     = useState<string[]>([]);
@@ -200,12 +209,10 @@ export default function PlayIAPage() {
 
   useEffect(() => {
     if (modeRef.current !== 'countdown' || !gameStarted) return;
-
     const timer = setInterval(() => {
       const s = statusRef.current;
       if (s.includes("MATE") || s.includes("TABLAS") || s.includes("TIEMPO")) return;
       if (s !== "TU TURNO") return;
-
       setTimeW(prev => {
         const next = Math.max(0, prev - 1);
         if (next === 0) {
@@ -217,7 +224,6 @@ export default function PlayIAPage() {
         return next;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, [gameStarted]);
 
@@ -248,41 +254,43 @@ export default function PlayIAPage() {
 
   const isGameOver = status.includes("MATE") || status.includes("TABLAS") || status.includes("TIEMPO") || isTimedOut;
 
+  const panel = isLight
+    ? 'bg-white border border-gray-200'
+    : 'bg-black/50 border border-white/[0.07]';
+
+  const gridBg = isLight
+    ? 'bg-gray-100 border-gray-200'
+    : 'bg-black/60 border-white/15';
+
+  const labelText = isLight ? 'text-gray-500' : 'text-zinc-600';
+
   return (
-    <main className="min-h-screen bg-[#020202] text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden">
-      <div className="fixed inset-0 z-0 pointer-events-none">
+    <main className={`min-h-screen ${isLight ? 'bg-gray-50' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+      <div className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-500 ${isLight ? 'opacity-0' : 'opacity-100'}`}>
         <div className="absolute inset-0 bg-[#06010a]" />
-        <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[85%] h-[75%]
-          bg-red-500/35 blur-[180px] rounded-full animate-pulse" />
-        <div className="absolute top-[5%] right-[-10%] w-[45%] h-[55%]
-          bg-rose-600/25 blur-[160px] rounded-full animate-pulse [animation-delay:1.2s]" />
-        <div className="absolute bottom-[-25%] left-1/2 -translate-x-1/2 w-[90%] h-[70%]
-          bg-red-800/30 blur-[200px] rounded-full animate-pulse [animation-delay:2.5s]" />
-        <div className="absolute inset-0 opacity-[0.18]
-          [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)]
-          [background-size:32px_32px]" />
-        <div className="absolute inset-0 opacity-[0.22] mix-blend-overlay
-          bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+        <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[85%] h-[75%] bg-red-500/35 blur-[180px] rounded-full animate-pulse" />
+        <div className="absolute top-[5%] right-[-10%] w-[45%] h-[55%] bg-rose-600/25 blur-[160px] rounded-full animate-pulse [animation-delay:1.2s]" />
+        <div className="absolute bottom-[-25%] left-1/2 -translate-x-1/2 w-[90%] h-[70%] bg-red-800/30 blur-[200px] rounded-full animate-pulse [animation-delay:2.5s]" />
+        <div className="absolute inset-0 opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:32px_32px]" />
+        <div className="absolute inset-0 opacity-[0.22] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       </div>
 
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
         <div className="col-span-12 xl:col-span-3 flex flex-col gap-3">
-          <div
-            style={{
-              maxHeight: gameStarted ? '200px' : '0px',
-              opacity: gameStarted ? 1 : 0,
-              marginBottom: gameStarted ? '0px' : '-12px',
-              overflow: 'hidden',
-              transition: 'max-height 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms ease, margin-bottom 500ms cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          >
-            <IABox captured={capturedW} />
+          <div style={{
+            maxHeight: gameStarted ? '200px' : '0px',
+            opacity: gameStarted ? 1 : 0,
+            marginBottom: gameStarted ? '0px' : '-12px',
+            overflow: 'hidden',
+            transition: 'max-height 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms ease, margin-bottom 500ms cubic-bezier(0.4, 0, 0.2, 1)',
+          }}>
+            <IABox captured={capturedW} isLight={isLight} />
           </div>
 
-          <div className="bg-black/50 border border-white/[0.07] rounded-[2rem] p-5 shadow-2xl backdrop-blur-xl space-y-5">
+          <div className={`${panel} rounded-[2rem] p-5 shadow-2xl backdrop-blur-xl space-y-5`}>
             <div>
-              <p className="text-[10px] font-black tracking-[0.35em] text-zinc-600 uppercase mb-3">Nivel IA</p>
-              <div className="grid grid-cols-2 gap-1.5 p-1 bg-black/60 rounded-2xl border border-white/15">
+              <p className={`text-[10px] font-black tracking-[0.35em] ${labelText} uppercase mb-3`}>Nivel IA</p>
+              <div className={`grid grid-cols-2 gap-1.5 p-1 ${gridBg} rounded-2xl border`}>
                 {([
                   { lvl: 1,  label: 'Novato',       sub: '< 1400', color: 'emerald' },
                   { lvl: 5,  label: 'Aficionado B',  sub: '1400',   color: 'blue'    },
@@ -295,14 +303,17 @@ export default function PlayIAPage() {
                 ] as const).map(({ lvl, label, sub, color }) => {
                   const isActive = difficulty === lvl;
                   const colorMap: any = {
-                    emerald: isActive ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : 'text-zinc-500',
-                    blue:    isActive ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'          : 'text-zinc-500',
-                    indigo:  isActive ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300'    : 'text-zinc-500',
-                    purple:  isActive ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'    : 'text-zinc-500',
-                    gold:    isActive ? 'bg-gold/20 border-gold/40 text-gold'                      : 'text-zinc-500',
-                    rose:    isActive ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'          : 'text-zinc-500',
-                    red:     isActive ? 'bg-red-600/30 border-red-500/50 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : 'text-zinc-500',
+                    emerald: isActive ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' : '',
+                    blue:    isActive ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'          : '',
+                    indigo:  isActive ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300'    : '',
+                    purple:  isActive ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'    : '',
+                    gold:    isActive ? 'bg-gold/20 border-gold/40 text-gold'                      : '',
+                    rose:    isActive ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'          : '',
+                    red:     isActive ? 'bg-red-600/30 border-red-500/50 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.1)]' : '',
                   };
+                  const inactiveCls = isLight
+                    ? 'border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-500'
+                    : 'border-white/10 hover:bg-white/5 hover:border-white/25 text-zinc-500';
 
                   return (
                     <button
@@ -313,13 +324,13 @@ export default function PlayIAPage() {
                         px-3 py-2 rounded-xl flex flex-col items-start gap-0.5
                         transition-all duration-200 border
                         ${gameStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-                        ${isActive ? colorMap[color] : 'border-white/10 hover:bg-white/5 hover:border-white/25'}
+                        ${isActive ? colorMap[color] : inactiveCls}
                       `}
                     >
-                      <p className={`text-sm font-black leading-tight ${isActive ? 'text-inherit' : 'text-zinc-500'}`}>
+                      <p className={`text-sm font-black leading-tight ${isActive ? 'text-inherit' : isLight ? 'text-gray-500' : 'text-zinc-500'}`}>
                         {label}
                       </p>
-                      <p className={`text-[11px] font-mono leading-none ${isActive ? 'opacity-70' : 'text-zinc-600'}`}>
+                      <p className={`text-[11px] font-mono leading-none ${isActive ? 'opacity-70' : isLight ? 'text-gray-400' : 'text-zinc-600'}`}>
                         {sub}
                       </p>
                     </button>
@@ -328,11 +339,11 @@ export default function PlayIAPage() {
               </div>
             </div>
 
-            <div className="h-px bg-white/[0.04]" />
+            <div className={`h-px ${isLight ? 'bg-gray-100' : 'bg-white/[0.04]'}`} />
 
             <div>
-              <p className="text-[10px] font-black tracking-[0.35em] text-zinc-600 uppercase mb-3">Tu tiempo</p>
-              <div className="flex gap-1.5 p-1 bg-black/60 rounded-2xl border border-white/15">
+              <p className={`text-[10px] font-black tracking-[0.35em] ${labelText} uppercase mb-3`}>Tu tiempo</p>
+              <div className={`flex gap-1.5 p-1 ${gridBg} rounded-2xl border`}>
                 <button
                   disabled={gameStarted}
                   onClick={() => { setMode('free'); modeRef.current = 'free'; resetGame(); }}
@@ -341,13 +352,13 @@ export default function PlayIAPage() {
                     transition-colors duration-200 flex flex-col items-center gap-1
                     ${gameStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
                     ${mode === 'free'
-                      ? 'bg-zinc-700/50 border border-white/20'
-                      : 'border border-white/10 hover:bg-white/5 hover:border-white/20'
+                      ? isLight ? 'bg-gray-200 border border-gray-300' : 'bg-zinc-700/50 border border-white/20'
+                      : isLight ? 'border border-gray-200 hover:bg-gray-50' : 'border border-white/10 hover:bg-white/5 hover:border-white/20'
                     }
                   `}
                 >
-                  <span className={`text-lg font-black leading-none ${mode === 'free' ? 'text-white' : 'text-zinc-600'}`}>∞</span>
-                  <span className={`text-[9px] font-black tracking-wider ${mode === 'free' ? 'text-white/70' : 'text-zinc-600'}`}>Sin límite</span>
+                  <span className={`text-lg font-black leading-none ${mode === 'free' ? isLight ? 'text-gray-900' : 'text-white' : isLight ? 'text-gray-400' : 'text-zinc-600'}`}>∞</span>
+                  <span className={`text-[9px] font-black tracking-wider ${mode === 'free' ? isLight ? 'text-gray-700' : 'text-white/70' : isLight ? 'text-gray-400' : 'text-zinc-600'}`}>Sin límite</span>
                 </button>
                 <button
                   disabled={gameStarted}
@@ -358,23 +369,21 @@ export default function PlayIAPage() {
                     ${gameStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
                     ${mode === 'countdown'
                       ? 'bg-red-500/20 border-red-500/60'
-                      : 'border border-white/10 hover:bg-white/5 hover:border-white/20'
+                      : isLight ? 'border border-gray-200 hover:bg-gray-50' : 'border border-white/10 hover:bg-white/5 hover:border-white/20'
                     }
                   `}
                 >
-                  <span className={`text-lg font-black leading-none ${mode === 'countdown' ? 'text-red-300' : 'text-zinc-600'}`}>⏱</span>
-                  <span className={`text-[9px] font-black tracking-wider ${mode === 'countdown' ? 'text-red-300/80' : 'text-zinc-600'}`}>Contrarreloj</span>
+                  <span className={`text-lg font-black leading-none ${mode === 'countdown' ? 'text-red-300' : isLight ? 'text-gray-400' : 'text-zinc-600'}`}>⏱</span>
+                  <span className={`text-[9px] font-black tracking-wider ${mode === 'countdown' ? 'text-red-300/80' : isLight ? 'text-gray-400' : 'text-zinc-600'}`}>Contrarreloj</span>
                 </button>
               </div>
             </div>
 
-            <div
-              style={{
-                height: (mode === 'countdown' && !gameStarted) ? cdHeight : 0,
-                overflow: 'hidden',
-                transition: 'height 280ms cubic-bezier(0.4, 0, 0.2, 1)',
-              }}
-            >
+            <div style={{
+              height: (mode === 'countdown' && !gameStarted) ? cdHeight : 0,
+              overflow: 'hidden',
+              transition: 'height 280ms cubic-bezier(0.4, 0, 0.2, 1)',
+            }}>
               <div ref={cdPanelRef}>
                 <div className="grid grid-cols-3 gap-1.5">
                   {COUNTDOWN_OPTIONS.map((opt) => (
@@ -392,7 +401,9 @@ export default function PlayIAPage() {
                         ${gameStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
                         ${selectedCD.n === opt.n
                           ? 'bg-red-500/20 border-red-500/60 text-red-300'
-                          : 'bg-black/30 border-white/20 text-zinc-500 hover:border-white/35 hover:text-zinc-400'
+                          : isLight
+                            ? 'bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                            : 'bg-black/30 border-white/20 text-zinc-500 hover:border-white/35 hover:text-zinc-400'
                         }
                       `}
                     >
@@ -410,6 +421,7 @@ export default function PlayIAPage() {
             seconds={timeW}
             showClock={mode === 'countdown'}
             isTimedOut={isTimedOut}
+            isLight={isLight}
           />
         </div>
 

@@ -65,7 +65,7 @@ function EloModeCard({ mode, elo }: { mode: string; elo: number }) {
   const pct = Math.min(100, Math.max(0, ((elo - 800) / (3000 - 800)) * 100));
 
   return (
-    <div className="group relative bg-black/50 border border-white/5 rounded-[2rem] p-6 hover:border-white/10 transition-all duration-500 overflow-hidden">
+    <div className="group relative bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[2rem] p-6 hover:border-white/10 [.light_&]:hover:border-zinc-300 transition-all duration-500 overflow-hidden">
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -78,12 +78,12 @@ function EloModeCard({ mode, elo }: { mode: string; elo: number }) {
         </div>
         <p className={`text-3xl font-black tabular-nums tracking-tighter ${color}`}>{elo}</p>
         <p className="text-[8px] text-zinc-600 uppercase tracking-widest mt-0.5">{title.label}</p>
-        <div className="mt-4 h-0.5 bg-white/5 rounded-full overflow-hidden">
+        <div className="mt-4 h-0.5 bg-white/5 [.light_&]:bg-zinc-200 rounded-full overflow-hidden">
           <div className={`h-full rounded-full transition-all duration-1000 bg-current ${color}`} style={{ width: `${pct}%` }} />
         </div>
         <div className="flex justify-between mt-1">
-          <span className="text-[7px] text-zinc-700">800</span>
-          <span className="text-[7px] text-zinc-700">3000</span>
+          <span className="text-[7px] text-zinc-700 [.light_&]:text-zinc-400">800</span>
+          <span className="text-[7px] text-zinc-700 [.light_&]:text-zinc-400">3000</span>
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@ function EloModeCard({ mode, elo }: { mode: string; elo: number }) {
 
 function StatPill({ label, value, color, icon }: any) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 bg-black/40 border border-white/5 rounded-2xl hover:border-white/10 transition-all">
+    <div className="flex items-center justify-between px-5 py-4 bg-black/40 [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 rounded-2xl hover:border-white/10 [.light_&]:hover:border-zinc-300 transition-all">
       <div className="flex items-center gap-3">
         <span className={color}>{icon}</span>
         <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">{label}</span>
@@ -142,7 +142,7 @@ export default function ProfileForm() {
   }, []);
 
   if (loading) return (
-    <div className="flex h-screen items-center justify-center bg-black text-yellow-400 animate-pulse uppercase tracking-[0.5em] font-black text-xs">
+    <div className="flex h-screen items-center justify-center bg-black [.light_&]:bg-white text-yellow-400 animate-pulse uppercase tracking-[0.5em] font-black text-xs">
       Cargando perfil...
     </div>
   );
@@ -186,9 +186,9 @@ export default function ProfileForm() {
         <div className="chess-panel-gold !p-7 relative flex flex-col items-center">
 
           {/* Estado online */}
-          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full border border-white/5">
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/40 [.light_&]:bg-zinc-200/80 px-3 py-1 rounded-full border border-white/5 [.light_&]:border-zinc-300">
             <div className={`w-1.5 h-1.5 rounded-full ${statusStyle.color} animate-pulse`} />
-            <span className="text-[7px] text-white/60 font-black uppercase tracking-widest">{statusStyle.text}</span>
+            <span className="text-[7px] text-white/60 [.light_&]:text-zinc-700 font-black uppercase tracking-widest">{statusStyle.text}</span>
           </div>
 
           {/* Avatar */}
@@ -200,7 +200,7 @@ export default function ProfileForm() {
           </div>
 
           {/* Nombre */}
-          <h3 className="text-white font-black text-base tracking-[0.15em] uppercase truncate mb-3 text-center">{user.name}</h3>
+          <h3 className="text-white [.light_&]:text-zinc-900 font-black text-base tracking-[0.15em] uppercase truncate mb-3 text-center">{user.name}</h3>
 
           {/* ── BLOQUE DE RANGO DESTACADO ── */}
           <div className={`w-full flex flex-col items-center gap-1 px-4 py-3 rounded-2xl border mb-4 ${mainTitle.borderColor} ${mainTitle.bgColor}`}>
@@ -220,26 +220,26 @@ export default function ProfileForm() {
 
           {/* Partidas / Efectividad */}
           <div className="grid grid-cols-2 gap-2 w-full text-center">
-            <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
+            <div className="bg-white/5 [.light_&]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 [.light_&]:border-zinc-300">
               <p className="text-yellow-400 text-[7px] font-black uppercase tracking-wider mb-1">Partidas</p>
-              <p className="text-white font-black text-lg">{total}</p>
+              <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{total}</p>
             </div>
-            <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
+            <div className="bg-white/5 [.light_&]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 [.light_&]:border-zinc-300">
               <p className="text-yellow-400 text-[7px] font-black uppercase tracking-wider mb-1">Efectividad</p>
-              <p className="text-white font-black text-lg">{winRate}%</p>
+              <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{winRate}%</p>
             </div>
           </div>
         </div>
 
         {/* Rendimiento global */}
-        <div className="bg-black/60 border border-white/5 rounded-[2rem] p-5">
+        <div className="bg-black/60 [.light_&]:bg-white border border-white/5 [.light_&]:border-zinc-200 rounded-[2rem] p-5">
           <p className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-4">Rendimiento Global</p>
           <div className="space-y-3">
             <StatPill label="Victorias" value={wins}   color="text-emerald-400" icon={<Trophy size={14}/>} />
             <StatPill label="Tablas"    value={draws}  color="text-amber-400"   icon={<Handshake size={14}/>} />
             <StatPill label="Derrotas"  value={losses} color="text-red-400"     icon={<Skull size={14}/>} />
           </div>
-          <div className="mt-4 h-2 bg-white/5 rounded-full overflow-hidden flex">
+          <div className="mt-4 h-2 bg-white/5 [.light_&]:bg-zinc-200 rounded-full overflow-hidden flex">
             <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${winRate}%` }} />
             <div className="bg-amber-500 h-full transition-all duration-1000"   style={{ width: `${drawRate}%` }} />
             <div className="bg-red-500/60 h-full flex-1" />
@@ -267,17 +267,17 @@ export default function ProfileForm() {
                 const t = s.w + s.l + s.d;
                 const wr = t > 0 ? Math.round((s.w / t) * 100) : 0;
                 return (
-                  <div key={mode} className="bg-black/50 border border-white/5 rounded-[1.5rem] p-4">
+                  <div key={mode} className="bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <span className={modeColor[mode]}>{modeIcon[mode]}</span>
                       <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">{mode}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-1 text-center mb-2">
-                      <div><p className="text-emerald-400 font-black text-base">{s.w}</p><p className="text-[6px] text-zinc-700">V</p></div>
-                      <div><p className="text-amber-400 font-black text-base">{s.d}</p><p className="text-[6px] text-zinc-700">T</p></div>
-                      <div><p className="text-red-400 font-black text-base">{s.l}</p><p className="text-[6px] text-zinc-700">D</p></div>
+                      <div><p className="text-emerald-400 font-black text-base">{s.w}</p><p className="text-[6px] text-zinc-700 [.light_&]:text-zinc-500">V</p></div>
+                      <div><p className="text-amber-400 font-black text-base">{s.d}</p><p className="text-[6px] text-zinc-700 [.light_&]:text-zinc-500">T</p></div>
+                      <div><p className="text-red-400 font-black text-base">{s.l}</p><p className="text-[6px] text-zinc-700 [.light_&]:text-zinc-500">D</p></div>
                     </div>
-                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-1 bg-white/5 [.light_&]:bg-zinc-200 rounded-full overflow-hidden">
                       <div className="h-full bg-emerald-500" style={{ width: `${wr}%` }} />
                     </div>
                   </div>
@@ -287,17 +287,17 @@ export default function ProfileForm() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-black/50 border border-white/5 rounded-[1.5rem] p-5">
+            <div className="bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-5">
               <div className="flex items-center gap-2 mb-1"><Swords size={14} className="text-yellow-400"/><span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Total Partidas</span></div>
-              <p className="text-3xl font-black text-white">{total}</p>
+              <p className="text-3xl font-black text-white [.light_&]:text-zinc-900">{total}</p>
             </div>
-            <div className="bg-black/50 border border-white/5 rounded-[1.5rem] p-5">
+            <div className="bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-5">
               <div className="flex items-center gap-2 mb-1"><Activity size={14} className="text-emerald-400"/><span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Win Rate</span></div>
-              <p className="text-3xl font-black text-white">{winRate}%</p>
+              <p className="text-3xl font-black text-white [.light_&]:text-zinc-900">{winRate}%</p>
             </div>
-            <div className="bg-black/50 border border-white/5 rounded-[1.5rem] p-5">
+            <div className="bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-5">
               <div className="flex items-center gap-2 mb-1"><Globe size={14} className="text-blue-400"/><span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Ranking</span></div>
-              <p className="text-3xl font-black text-white">#{user.rank || "—"}</p>
+              <p className="text-3xl font-black text-white [.light_&]:text-zinc-900">#{user.rank || "—"}</p>
             </div>
           </div>
         </div>

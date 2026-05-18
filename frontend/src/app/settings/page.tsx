@@ -13,7 +13,7 @@ export default function SettingsPage() {
   if (!isOpen) return null;
 
   return (
-    <main className="min-h-screen bg-[#050505] flex items-center justify-center p-4">
+    <main className="min-h-screen bg-[#050505] [.light_&]:bg-white flex items-center justify-center p-4">
       {/* Fondo decorativo dinámico que podrías ajustar luego para modo claro */}
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top,#1a1a1a_0%,#000000_100%)] opacity-70 pointer-events-none"></div>
       

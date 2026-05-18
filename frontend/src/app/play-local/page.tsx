@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PlayLocal from '@/components/game/PlayLocal';
 import GameHistory from '@/components/ui/GameHistory';
+import { useTheme } from '@/hooks/useTheme';
 
 const TIME_MODES = [
   { label: "Bullet", options: [{ n: "1+0", m: 60, i: 0 }, { n: "1+1", m: 60, i: 1 }, { n: "2+1", m: 120, i: 1 }] },
@@ -10,7 +11,7 @@ const TIME_MODES = [
   { label: "Rápidas", options: [{ n: "10+0", m: 600, i: 0 }, { n: "15+10", m: 900, i: 10 }] },
 ];
 
-function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut }: any) {
+function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut, isLight }: any) {
   const formatTime = (s: number) => {
     if (isNoTimeMode) return "--:--";
     const mins = Math.floor(s / 60);
@@ -23,8 +24,12 @@ function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut
       isTimedOut
         ? 'bg-red-950/40 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
         : isActive
-          ? 'bg-gold/20 border-gold shadow-[0_0_40px_rgba(212,175,55,0.25)] scale-[1.02] z-10'
-          : 'bg-zinc-900/40 border-white/10 opacity-80 backdrop-blur-xl'
+          ? isLight
+            ? 'bg-blue-50 border-blue-400 shadow-[0_0_30px_rgba(59,130,246,0.15)] scale-[1.02] z-10'
+            : 'bg-gold/20 border-gold shadow-[0_0_40px_rgba(212,175,55,0.25)] scale-[1.02] z-10'
+          : isLight
+            ? 'bg-white border-gray-200'
+            : 'bg-zinc-900/40 border-white/10 opacity-80 backdrop-blur-xl'
     }`}>
       {isTimedOut && <div className="absolute inset-0 bg-red-500/[0.05] pointer-events-none" />}
 
@@ -32,11 +37,11 @@ function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut
         <div className="flex items-center gap-3">
           <div className={`w-2.5 h-2.5 rounded-full ${
             isTimedOut ? 'bg-red-400 shadow-[0_0_10px_rgba(239,68,68,0.6)]'
-              : isActive ? 'bg-gold animate-pulse shadow-[0_0_10px_#d4af37]'
-              : 'bg-zinc-700'
+              : isActive ? isLight ? 'bg-blue-400 animate-pulse' : 'bg-gold animate-pulse shadow-[0_0_10px_#d4af37]'
+              : isLight ? 'bg-gray-300' : 'bg-zinc-700'
           }`} />
           <h4 className={`font-black text-[11px] uppercase tracking-[0.1em] leading-none ${
-            isTimedOut ? 'text-red-400' : 'text-white'
+            isTimedOut ? 'text-red-400' : isLight ? 'text-gray-900' : 'text-white'
           }`}>
             {isTimedOut ? '¡Tiempo!' : name}
           </h4>
@@ -45,8 +50,8 @@ function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut
           isTimedOut
             ? 'bg-red-500/20 border-red-500/50 text-red-300'
             : isActive && !isNoTimeMode
-              ? 'bg-red-500/40 border-red-500/50 text-red-200'
-              : 'bg-black/60 border-white/10 text-white/60'
+              ? isLight ? 'bg-red-50 border-red-300 text-red-500' : 'bg-red-500/40 border-red-500/50 text-red-200'
+              : isLight ? 'bg-gray-100 border-gray-200 text-gray-500' : 'bg-black/60 border-white/10 text-white/60'
         }`}>
           {formatTime(seconds)}
         </div>
@@ -75,14 +80,12 @@ function TimeoutOverlay({ loser, onReset }: { loser: 'w' | 'b'; onReset: () => v
     <div className="absolute inset-0 z-50 flex items-center justify-center rounded-xl overflow-hidden">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
       <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-transparent" />
-
       <div className="relative flex flex-col items-center gap-6 px-8 text-center">
         <div className="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500/50
           flex items-center justify-center
           shadow-[0_0_60px_rgba(239,68,68,0.4),0_0_120px_rgba(239,68,68,0.15)]">
           <span className="text-4xl">⏱</span>
         </div>
-
         <div className="space-y-2">
           <p className="text-red-300 font-black text-2xl uppercase tracking-[0.15em] leading-none drop-shadow-lg">
             Tiempo agotado
@@ -94,12 +97,10 @@ function TimeoutOverlay({ loser, onReset }: { loser: 'w' | 'b'; onReset: () => v
             🏆 {winner} gana
           </p>
         </div>
-
         <button
           onClick={onReset}
           className="px-8 py-3.5 rounded-2xl font-black text-[11px] tracking-[0.25em] uppercase
-            bg-white text-black border border-transparent
-            hover:bg-gold
+            bg-white text-black border border-transparent hover:bg-gold
             transition-colors duration-200 cursor-pointer
             shadow-[0_0_30px_rgba(255,255,255,0.12)]"
         >
@@ -114,7 +115,9 @@ export default function LocalPremiumPage() {
   useEffect(() => {
     document.title = "WELIKECHESS | Jugar Local";
   }, []);
-  
+
+  const { isLight } = useTheme();
+
   const [boardOrientation, setBoardOrientation] = useState<'w' | 'b'>('w');
   const [history, setHistory] = useState<string[]>([]);
   const [status, setStatus] = useState("TURNO BLANCAS");
@@ -130,7 +133,6 @@ export default function LocalPremiumPage() {
 
   useEffect(() => {
     if (isNoTimeMode || !gameStarted || status.includes("MATE") || status.includes("TABLAS") || timedOutPlayer) return;
-
     const timer = setInterval(() => {
       if (status.includes("BLANCAS")) {
         setTimeW(prev => {
@@ -146,7 +148,6 @@ export default function LocalPremiumPage() {
         });
       }
     }, 1000);
-
     return () => clearInterval(timer);
   }, [status, gameStarted, isNoTimeMode, timedOutPlayer]);
 
@@ -181,12 +182,15 @@ export default function LocalPremiumPage() {
     setStatus("TURNO BLANCAS");
   };
 
-  const totalMoves = Math.ceil(history.length / 2);
   const gameOverStatus = status.includes("MATE") || status.includes("TABLAS") || timedOutPlayer ? status : "";
 
+  const panel = isLight ? 'bg-white border-gray-200' : 'bg-zinc-950/60 border-white/10';
+  const labelText = isLight ? 'text-gray-700' : 'text-white';
+  const subText = isLight ? 'text-gray-500' : 'text-zinc-400';
+
   return (
-    <main className="min-h-screen bg-[#020202] text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden">
-      <div className="fixed inset-0 z-0">
+    <main className={`min-h-screen ${isLight ? 'bg-gray-50' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+      <div className={`fixed inset-0 z-0 transition-opacity duration-500 ${isLight ? 'opacity-0' : 'opacity-100'}`}>
         <div className="absolute inset-0 bg-[#00050a]" />
         <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-blue-600/25 blur-[200px] rounded-full animate-pulse" />
         <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-blue-900/30 blur-[200px] rounded-full animate-pulse [animation-delay:2s]" />
@@ -201,21 +205,24 @@ export default function LocalPremiumPage() {
             isActive={gameStarted && status.includes("NEGRAS") && !timedOutPlayer}
             seconds={timeB} isNoTimeMode={isNoTimeMode}
             isTimedOut={timedOutPlayer === 'b'}
+            isLight={isLight}
           />
 
-          <div className="bg-zinc-950/60 border border-white/10 rounded-[2rem] p-6 shadow-2xl backdrop-blur-xl">
+          <div className={`${panel} border rounded-[2rem] p-6 shadow-2xl backdrop-blur-xl`}>
             <div className="mb-6">
-              <p className="text-[10px] font-black tracking-[0.25em] text-white uppercase mb-3 px-1">Elegir Bando</p>
-              <div className="grid grid-cols-2 gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/5">
+              <p className={`text-[10px] font-black tracking-[0.25em] ${labelText} uppercase mb-3 px-1`}>Elegir Bando</p>
+              <div className={`grid grid-cols-2 gap-2 p-1.5 rounded-2xl border ${
+                isLight ? 'bg-gray-100 border-gray-200' : 'bg-black/40 border-white/5'
+              }`}>
                 <button
                   disabled={gameStarted}
                   onClick={() => setBoardOrientation('w')}
                   className={`
                     py-2 rounded-xl text-[9px] font-black transition-colors duration-200 border-2
                     ${gameStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-                    ${boardOrientation === 'w' 
-                      ? 'bg-zinc-100 text-black border-transparent shadow-lg' 
-                      : 'text-zinc-500 border-transparent hover:bg-white/5'
+                    ${boardOrientation === 'w'
+                      ? 'bg-zinc-100 text-black border-transparent shadow-lg'
+                      : isLight ? 'text-gray-500 border-transparent hover:bg-gray-200' : 'text-zinc-500 border-transparent hover:bg-white/5'
                     }
                   `}
                 >
@@ -227,9 +234,9 @@ export default function LocalPremiumPage() {
                   className={`
                     py-2 rounded-xl text-[9px] font-black transition-colors duration-200 border-2
                     ${gameStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-                    ${boardOrientation === 'b' 
-                      ? 'bg-zinc-800 text-white shadow-lg border-white/10' 
-                      : 'text-zinc-500 border-transparent hover:bg-white/5'
+                    ${boardOrientation === 'b'
+                      ? 'bg-zinc-800 text-white shadow-lg border-white/10'
+                      : isLight ? 'text-gray-500 border-transparent hover:bg-gray-200' : 'text-zinc-500 border-transparent hover:bg-white/5'
                     }
                   `}
                 >
@@ -239,21 +246,21 @@ export default function LocalPremiumPage() {
             </div>
 
             <div className="mb-6">
-              <p className="text-[10px] font-black tracking-[0.25em] text-white uppercase mb-3 px-1">Configuración</p>
+              <p className={`text-[10px] font-black tracking-[0.25em] ${labelText} uppercase mb-3 px-1`}>Configuración</p>
               <button
                 disabled={gameStarted}
                 onClick={() => setIsNoTimeMode(!isNoTimeMode)}
                 className={`
                   w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-colors duration-200
                   ${gameStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-                  ${isNoTimeMode 
-                    ? 'bg-gold/10 border-gold text-gold shadow-[0_0_20px_rgba(212,175,55,0.1)]' 
-                    : 'bg-black/40 border-white/5 text-zinc-500 hover:border-white/20'
+                  ${isNoTimeMode
+                    ? 'bg-gold/10 border-gold text-gold shadow-[0_0_20px_rgba(212,175,55,0.1)]'
+                    : isLight ? 'bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300' : 'bg-black/40 border-white/5 text-zinc-500 hover:border-white/20'
                   }
                 `}
               >
                 <span className="text-[10px] font-black uppercase tracking-widest">Modo Sin Tiempo</span>
-                <div className={`w-10 h-5 rounded-full relative transition-colors ${isNoTimeMode ? 'bg-gold' : 'bg-zinc-800'}`}>
+                <div className={`w-10 h-5 rounded-full relative transition-colors ${isNoTimeMode ? 'bg-gold' : isLight ? 'bg-gray-300' : 'bg-zinc-800'}`}>
                   <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isNoTimeMode ? 'left-6' : 'left-1'}`} />
                 </div>
               </button>
@@ -261,20 +268,24 @@ export default function LocalPremiumPage() {
 
             <div className={`grid grid-cols-1 gap-3 transition-opacity duration-300 ${isNoTimeMode ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
               {TIME_MODES.map((category) => (
-                <div key={category.label} className="flex items-center justify-between gap-3 bg-black/50 p-3 rounded-2xl border border-white/[0.06]">
-                  <span className="text-[9px] text-zinc-400 uppercase font-black tracking-tight w-12">{category.label}</span>
+                <div key={category.label} className={`flex items-center justify-between gap-3 p-3 rounded-2xl border ${
+                  isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/50 border-white/[0.06]'
+                }`}>
+                  <span className={`text-[9px] uppercase font-black tracking-tight w-12 ${subText}`}>{category.label}</span>
                   <div className="flex gap-1.5">
                     {category.options.map((opt) => (
                       <button
                         key={opt.n}
-                        disabled={gameStarted} // ✅ AÑADIDO
+                        disabled={gameStarted}
                         onClick={() => selectMode(opt)}
                         className={`
                           px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors duration-200 border
                           ${gameStarted ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}
-                          ${currentMode.n === opt.n && !isNoTimeMode 
-                            ? 'bg-gold text-black border-gold' 
-                            : 'bg-zinc-800 border-white/10 hover:border-white/30'
+                          ${currentMode.n === opt.n && !isNoTimeMode
+                            ? 'bg-gold text-black border-gold'
+                            : isLight
+                              ? 'bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                              : 'bg-zinc-800 border-white/10 hover:border-white/30 text-zinc-400'
                           }
                         `}
                       >
@@ -292,6 +303,7 @@ export default function LocalPremiumPage() {
             isActive={gameStarted && status.includes("BLANCAS") && !timedOutPlayer}
             seconds={timeW} isNoTimeMode={isNoTimeMode}
             isTimedOut={timedOutPlayer === 'w'}
+            isLight={isLight}
           />
         </div>
 

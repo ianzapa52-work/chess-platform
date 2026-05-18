@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Swords, Check, X, UserPlus, MessageSquare, Users, Loader2, RefreshCw, UserMinus, Search, Zap, Shield, TrendingUp } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
 
 interface Friend {
   id: string;
@@ -67,15 +68,15 @@ const avatarSrc = (src: string | null) => src ?? '/avatars/b_king_avatar.png';
 
 function ConfirmDialog({ username, onConfirm, onCancel }: { username: string; onConfirm: () => void; onCancel: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#0f0f0f] border border-white/10 rounded-[32px] p-8 max-w-sm w-full mx-4 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 [.light_&]:bg-black/40 backdrop-blur-sm">
+      <div className="bg-[#0f0f0f] [.light_&]:bg-white border border-white/10 [.light_&]:border-zinc-200 rounded-[32px] p-8 max-w-sm w-full mx-4 shadow-2xl">
         <div className="flex flex-col items-center gap-4 mb-8">
           <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center">
             <UserMinus size={28} className="text-red-400" />
           </div>
           <div className="text-center">
-            <h3 className="text-white font-serif font-bold text-xl tracking-widest uppercase mb-2">Eliminar amigo</h3>
-            <p className="text-zinc-400 text-sm leading-relaxed">
+            <h3 className="text-white [.light_&]:text-zinc-900 font-serif font-bold text-xl tracking-widest uppercase mb-2">Eliminar amigo</h3>
+            <p className="text-zinc-400 [.light_&]:text-zinc-600 text-sm leading-relaxed">
               ¿Seguro que quieres eliminar a <span className="text-gold font-bold">{username}</span> de tu lista?
             </p>
           </div>
@@ -84,7 +85,7 @@ function ConfirmDialog({ username, onConfirm, onCancel }: { username: string; on
           <button onClick={onConfirm} className="py-4 bg-red-500/10 text-red-400 border border-red-500/30 rounded-2xl font-bold text-xs tracking-widest hover:bg-red-500 hover:text-white transition-all active:scale-95 cursor-pointer">
             ELIMINAR
           </button>
-          <button onClick={onCancel} className="py-4 bg-white/5 text-zinc-400 rounded-2xl border border-white/10 hover:bg-white/10 hover:text-white transition-all text-xs tracking-widest cursor-pointer active:scale-95">
+          <button onClick={onCancel} className="py-4 bg-white/5 [.light_&]:bg-zinc-100 text-zinc-400 rounded-2xl border border-white/10 [.light_&]:border-zinc-200 hover:bg-white/10 [.light_&]:hover:bg-zinc-200 hover:text-white [.light_&]:hover:text-zinc-900 transition-all text-xs tracking-widest cursor-pointer active:scale-95">
             CANCELAR
           </button>
         </div>
@@ -96,6 +97,7 @@ function ConfirmDialog({ username, onConfirm, onCancel }: { username: string; on
 export default function FriendsForm() {
   const [search, setSearch] = useState('');
   const [me, setMe] = useState<ApiMe | null>(null);
+  const { isLight } = useTheme();
   const [friendDetails, setFriendDetails] = useState<Friend[]>([]);
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -269,8 +271,10 @@ export default function FriendsForm() {
         <div
           className="relative rounded-[36px] overflow-hidden shrink-0"
           style={{
-            background: 'linear-gradient(160deg, #161208 0%, #0d0d0d 55%, #0a0a0a 100%)',
-            border: '1px solid rgba(212,175,55,0.15)',
+            background: isLight
+              ? 'linear-gradient(160deg, #fdf8f0 0%, #faf8f5 55%, #fafafa 100%)'
+              : 'linear-gradient(160deg, #161208 0%, #0d0d0d 55%, #0a0a0a 100%)',
+            border: `1px solid rgba(212,175,55,${isLight ? '0.25' : '0.15'})`,
           }}
         >
           <div className="absolute top-0 left-0 w-20 h-px" style={{ background: 'linear-gradient(90deg, #d4af37, transparent)' }} />
@@ -297,7 +301,7 @@ export default function FriendsForm() {
               </div>
               <div className="absolute -bottom-1.5 -right-1.5 z-10">
                 <div
-                  className="w-6 h-6 rounded-full border-[2.5px] border-[#0d0d0d] flex items-center justify-center"
+                  className={`w-6 h-6 rounded-full border-[2.5px] flex items-center justify-center ${isLight ? 'border-[#fafaf8]' : 'border-[#0d0d0d]'}`}
                   style={{
                     background: presence === 'online' ? '#22c55e' : presence === 'away' ? '#f59e0b' : '#71717a',
                     boxShadow: presence === 'online'
@@ -311,7 +315,7 @@ export default function FriendsForm() {
                 </div>
               </div>
             </div>
-            <h3 className="text-white font-serif font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-0.5">
+            <h3 className="text-white [.light_&]:text-zinc-900 font-serif font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-0.5">
               {me?.username ?? '· · ·'}
             </h3>
             <div className="flex items-center gap-1.5 mb-5">
@@ -369,13 +373,13 @@ export default function FriendsForm() {
       {/* CENTER PANEL */}
       <div className="flex-grow flex flex-col gap-8 min-w-0 h-full">
         <div className="h-full flex flex-col chess-card overflow-hidden">
-          <div className="px-10 py-7 border-b border-white/5 flex flex-wrap justify-between items-center shrink-0 gap-4">
+          <div className="px-10 py-7 border-b border-white/5 [.light_&]:border-zinc-200 flex flex-wrap justify-between items-center shrink-0 gap-4">
             <div className="flex items-center gap-4 cursor-default">
               <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center">
                 <Users className="text-gold" size={20} />
               </div>
               <div>
-                <h2 className="text-2xl font-black font-serif text-white tracking-[0.35em]">AMIGOS</h2>
+                <h2 className="text-2xl font-black font-serif text-white [.light_&]:text-zinc-900 tracking-[0.35em]">AMIGOS</h2>
                 <p className="text-[10px] text-zinc-600 tracking-widest uppercase">
                   {friendDetails.length} contacto{friendDetails.length !== 1 ? 's' : ''}
                 </p>
@@ -407,7 +411,7 @@ export default function FriendsForm() {
               </div>
             ) : filteredFriends.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-zinc-600">
-                <div className="w-20 h-20 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-white/[0.02] [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 flex items-center justify-center">
                   <Users size={36} strokeWidth={1} />
                 </div>
                 <p className="text-xs tracking-widest uppercase text-center">{emptyMessage}</p>
@@ -458,9 +462,9 @@ export default function FriendsForm() {
 
 function MiniStat({ label, value, icon, highlight }: { label: string; value: string | number; icon: React.ReactNode; highlight?: boolean }) {
   return (
-    <div className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 px-1 ${highlight ? 'bg-gold/8 border border-gold/15' : 'bg-white/[0.025] border border-white/5'}`}>
+    <div className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 px-1 ${highlight ? 'bg-gold/8 border border-gold/15' : 'bg-white/[0.025] [.light_&]:bg-zinc-200/60 border border-white/5 [.light_&]:border-zinc-300'}`}>
       <span className={`${highlight ? 'text-gold' : 'text-zinc-600'}`}>{icon}</span>
-      <span className={`text-base font-black font-serif leading-none ${highlight ? 'text-gold' : 'text-zinc-300'}`}>{value}</span>
+      <span className={`text-base font-black font-serif leading-none ${highlight ? 'text-gold' : 'text-zinc-300 [.light_&]:text-zinc-700'}`}>{value}</span>
       <span className="text-[8px] text-zinc-600 tracking-[0.3em] uppercase font-bold">{label}</span>
     </div>
   );
@@ -474,7 +478,7 @@ function EloBar({ label, value, max, color }: { label: string; value: number; ma
         <span className="text-[9px] text-zinc-600 tracking-[0.35em] uppercase font-bold">{label}</span>
         <span className="text-sm font-black font-serif" style={{ color }}>{value || '—'}</span>
       </div>
-      <div className="h-0.5 w-full rounded-full bg-white/5 overflow-hidden">
+      <div className="h-0.5 w-full rounded-full bg-white/5 [.light_&]:bg-zinc-200 overflow-hidden">
         <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>
@@ -519,11 +523,11 @@ function InvitePanel({ onSend, actionLoading }: { onSend: (u: string) => void; a
 function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingRequest; onAccept: () => void; onReject: () => void; actionLoading: string | null }) {
   const isLoading = actionLoading === req.sender_username;
   return (
-    <div className="bg-white/[0.03] border border-white/5 rounded-[28px] p-5 hover:border-gold/20 transition-all animate-fadeIn">
+    <div className="bg-white/[0.03] [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[28px] p-5 hover:border-gold/20 transition-all animate-fadeIn">
       <div className="flex items-center gap-3 mb-4 cursor-default">
-        <img src={avatarSrc(req.sender_avatar)} className="w-12 h-12 rounded-2xl object-cover border border-white/10" alt="" />
+        <img src={avatarSrc(req.sender_avatar)} className="w-12 h-12 rounded-2xl object-cover border border-white/10 [.light_&]:border-zinc-200" alt="" />
         <div className="min-w-0 flex-grow">
-          <p className="text-white font-serif text-sm font-bold truncate tracking-wide">{req.sender_username}</p>
+          <p className="text-white [.light_&]:text-zinc-900 font-serif text-sm font-bold truncate tracking-wide">{req.sender_username}</p>
           <p className="text-zinc-600 text-[10px] tracking-widest uppercase">{new Date(req.created_at).toLocaleDateString('es-ES')}</p>
         </div>
       </div>
@@ -533,7 +537,7 @@ function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingR
           {isLoading ? <Loader2 size={14} className="animate-spin" /> : <><Check size={14} strokeWidth={3} /> Aceptar</>}
         </button>
         <button onClick={onReject} disabled={isLoading}
-          className="py-3 bg-white/[0.03] text-zinc-500 rounded-xl border border-white/8 hover:text-red-400 hover:border-red-500/20 transition-all flex items-center justify-center gap-2 text-xs tracking-wider cursor-pointer disabled:opacity-50">
+          className="py-3 bg-white/[0.03] [.light_&]:bg-zinc-100 text-zinc-500 rounded-xl border border-white/8 [.light_&]:border-zinc-200 hover:text-red-400 hover:border-red-500/20 transition-all flex items-center justify-center gap-2 text-xs tracking-wider cursor-pointer disabled:opacity-50">
           <X size={14} /> Rechazar
         </button>
       </div>
@@ -552,7 +556,7 @@ function FriendRow({ friend, rank, onChat, onDelete, actionLoading }: { friend: 
         <img src={friend.avatar ?? '/avatars/b_king_avatar.png'} className="avatar-img border-gold shadow-gold/20 w-14 h-14" alt="" />
       </div>
       <div className="flex-grow min-w-0">
-        <h3 className="text-white font-serif font-bold text-2xl tracking-widest uppercase truncate group-hover:text-gold transition-colors">{friend.username}</h3>
+        <h3 className="text-white [.light_&]:text-zinc-900 font-serif font-bold text-2xl tracking-widest uppercase truncate group-hover:text-gold transition-colors">{friend.username}</h3>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gold font-bold tracking-widest flex items-center gap-1"><Zap size={12} /> {friend.elo_blitz} Blitz</span>
           <span className="text-xs text-zinc-600 italic">{friend.elo_rapid} Rapid · {friend.elo_bullet} Bullet</span>
