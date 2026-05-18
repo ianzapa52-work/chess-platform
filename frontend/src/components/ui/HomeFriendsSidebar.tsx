@@ -92,7 +92,7 @@ export default function HomeFriendsSidebar() {
 
   return (
     <div className="flex flex-col h-full bg-black/20 [.light_&]:bg-black/[0.03]">
-      <div className="p-6 border-b border-gold/10 flex justify-between items-center">
+      <div className="p-6 border-b border-gold/10 [.light_&]:border-gray-100 flex justify-between items-center">
         <h3 className="chess-label">Amigos</h3>
         <span className="text-[10px] text-gold font-black bg-gold/10 px-2 py-1 rounded-md">
           {loading ? '···' : `${friends.length} AMIGOS`}
@@ -120,7 +120,7 @@ export default function HomeFriendsSidebar() {
               <div className="relative shrink-0">
                 <img
                   src={avatarSrc(f.avatar)}
-                  className="w-13 h-13 rounded-xl border border-white/10 group-hover:border-gold/30 object-cover"
+                  className="w-13 h-13 rounded-xl border border-white/10 [.light_&]:border-gray-200 group-hover:border-gold/30 object-cover"
                   alt=""
                 />
               </div>
@@ -133,7 +133,7 @@ export default function HomeFriendsSidebar() {
                     {f.elo_blitz}
                   </span>
                 </div>
-                <span className="text-[11px] text-zinc-500 italic truncate tracking-tight">
+                <span className="text-[11px] text-zinc-500 [.light_&]:text-zinc-400 italic truncate tracking-tight">
                   {f.elo_rapid} Rapid · {f.elo_bullet} Bullet
                 </span>
               </div>

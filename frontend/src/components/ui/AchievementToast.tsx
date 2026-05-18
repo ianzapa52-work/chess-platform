@@ -72,7 +72,7 @@ export default function AchievementToast() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.18 }}
-              className="text-white/70 text-sm font-black tracking-[0.35em] uppercase mt-3"
+              className="text-white/70 [.light_&]:text-zinc-700 text-sm font-black tracking-[0.35em] uppercase mt-3"
             >
               {notification}
             </motion.p>

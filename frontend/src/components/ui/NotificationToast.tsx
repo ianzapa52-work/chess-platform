@@ -1,6 +1,7 @@
 "use client";
 import { useNotificationContext, AppNotification } from "@/components/context/NotificationContext";
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "@/hooks/useTheme";
 
 function getInitials(name: string) {
   return name
@@ -31,10 +32,10 @@ function MessageToastItem({
 }) {
   const { sender, message } = getSubtitle(notification);
   const initials = getInitials(sender);
+  const { isLight } = useTheme();
 
   const d = notification.data as Record<string, unknown> | null;
   const senderAvatar = d?.avatar ? String(d.avatar) : null;
-  const senderId = d?.from_id ? String(d.from_id) : d?.user_id ? String(d.user_id) : null;
 
   const [visible, setVisible] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -81,16 +82,18 @@ function MessageToastItem({
         className="group relative flex items-center gap-3 rounded-2xl overflow-hidden cursor-pointer select-none"
         style={{
           width: 320,
-          background:
-            "linear-gradient(135deg, rgba(14,12,7,0.98) 55%, rgba(24,20,10,0.98) 100%)",
-          border: "1px solid rgba(212,175,55,0.18)",
-          boxShadow:
-            "0 8px 40px rgba(0,0,0,0.7), 0 1px 0 rgba(212,175,55,0.10) inset",
+          background: isLight
+            ? "linear-gradient(135deg, rgba(255,253,245,0.98) 55%, rgba(255,250,230,0.98) 100%)"
+            : "linear-gradient(135deg, rgba(14,12,7,0.98) 55%, rgba(24,20,10,0.98) 100%)",
+          border: `1px solid rgba(212,175,55,${isLight ? "0.35" : "0.18"})`,
+          boxShadow: isLight
+            ? "0 4px 20px rgba(0,0,0,0.10), 0 1px 0 rgba(212,175,55,0.15) inset"
+            : "0 8px 40px rgba(0,0,0,0.7), 0 1px 0 rgba(212,175,55,0.10) inset",
           backdropFilter: "blur(24px)",
           transition: "border-color 0.2s",
         }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.4)")}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.18)")}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.6)")}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = `rgba(212,175,55,${isLight ? "0.35" : "0.18"})`)}
       >
         {/* Barra lateral dorada */}
         <div
@@ -152,7 +155,7 @@ function MessageToastItem({
             style={{
               fontSize: 8,
               letterSpacing: "0.3em",
-              color: "rgba(212,175,55,0.4)",
+              color: isLight ? "rgba(120,85,10,0.7)" : "rgba(212,175,55,0.4)",
               marginBottom: 4,
             }}
           >
@@ -160,7 +163,7 @@ function MessageToastItem({
           </p>
           <p
             className="font-bold truncate font-['Cinzel'] leading-tight"
-            style={{ fontSize: 16, color: "#D4AF37" }}
+            style={{ fontSize: 16, color: isLight ? "#8B6414" : "#D4AF37" }}
           >
             {sender}
           </p>
@@ -169,7 +172,7 @@ function MessageToastItem({
               className="truncate font-sans"
               style={{
                 fontSize: 13,
-                color: "rgba(212,175,55,0.55)",
+                color: isLight ? "rgba(100,70,10,0.65)" : "rgba(212,175,55,0.55)",
                 marginTop: 2,
                 lineHeight: 1.4,
               }}
@@ -186,9 +189,9 @@ function MessageToastItem({
           style={{
             width: 22,
             height: 22,
-            color: "rgba(212,175,55,0.4)",
-            border: "1px solid rgba(212,175,55,0.12)",
-            background: "rgba(255,255,255,0.03)",
+            color: isLight ? "rgba(120,85,10,0.5)" : "rgba(212,175,55,0.4)",
+            border: `1px solid rgba(212,175,55,${isLight ? "0.25" : "0.12"})`,
+            background: isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.03)",
           }}
           aria-label="Cerrar"
         >
@@ -210,7 +213,7 @@ function MessageToastItem({
             left: 3,
             right: 0,
             height: 2,
-            background: "rgba(212,175,55,0.06)",
+            background: isLight ? "rgba(212,175,55,0.12)" : "rgba(212,175,55,0.06)",
             borderRadius: "0 0 16px 0",
             overflow: "hidden",
             opacity: leaving ? 0 : 1,

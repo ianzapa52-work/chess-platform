@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const navBtnClass = `${cinzel.className} px-5 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-zinc-400 [.light_&]:text-black rounded-xl transition-all duration-300 hover:text-gold hover:bg-white/5 [.light_&]:hover:bg-black/10 flex items-center justify-center cursor-pointer select-none`;
 
   return (
-    <html lang="es" className="scroll-smooth">
+    <html lang="es" className="scroll-smooth" suppressHydrationWarning>
       <body
         className={`${inter.className} antialiased selection:bg-gold/30 transition-colors duration-500 [.light_&]:text-black`}
       >

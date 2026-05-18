@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Trophy, Activity, Award, Search, Loader2, Zap, Timer, Coffee, Crown, TrendingUp, Flame } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -79,6 +79,7 @@ export default function RankingForm() {
   const [mode, setMode] = useState<Mode>('blitz');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { isLight } = useTheme();
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -87,6 +88,9 @@ export default function RankingForm() {
   }, []);
 
   const fetchLeaderboard = async (selectedMode: Mode) => {
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+
     try {
       setLoading(true);
 
@@ -101,11 +105,10 @@ export default function RankingForm() {
 
       const response = await fetch(
         `http://localhost:8000/api/users/leaderboard/?mode=${selectedMode}&limit=50`,
-        { headers }
+        { headers, signal: abortRef.current.signal }
       );
 
-      // Sin autenticación o sin permisos: mostrar vacío sin error
-      if (response.status === 401 || response.status === 403) {
+      if (response.status === 401 || response.status === 403 || response.status === 429) {
         setPlayers([]);
         return;
       }
@@ -115,6 +118,7 @@ export default function RankingForm() {
       const data: PlayerFromAPI[] = await response.json();
       setPlayers(data.map(u => mapAPIPlayer(u, selectedMode)));
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') return;
       console.error('Error cargando ranking:', error);
       setPlayers([]);
     } finally {

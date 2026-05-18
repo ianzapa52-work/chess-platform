@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Swords, Check, X, UserPlus, MessageSquare, Users, Loader2, RefreshCw, UserMinus, Search, Zap, Shield, TrendingUp } from 'lucide-react';
+import { Swords, Check, X, UserPlus, MessageSquare, Users, Loader2, UserMinus, Zap, Shield, TrendingUp } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 interface Friend {
@@ -353,21 +353,6 @@ export default function FriendsForm() {
           <EloBar label="Bullet" value={me?.elo_bullet ?? 0} max={3000} color="#4a3a1e" />
         </div>
 
-        {/* ACTIVITY LOG */}
-        <div className="chess-panel flex-grow overflow-hidden">
-          <div className="flex items-center justify-between mb-5">
-            <h4 className="chess-label italic cursor-default">Actividad</h4>
-            <button onClick={() => fetchAll(false)} className="text-zinc-600 hover:text-gold transition-colors cursor-pointer p-1 rounded-lg hover:bg-white/5" title="Refrescar">
-              <RefreshCw size={13} />
-            </button>
-          </div>
-          <div className="overflow-y-auto h-[85%] space-y-3 pr-2 custom-scrollbar">
-            <LogItem user="SISTEMA" action="Protocolo Seguro Activo" time="Ahora" type="system" />
-            {requests.map(r => (
-              <LogItem key={r.sender_username} user={r.sender_username} action="te envió solicitud" time="Pendiente" type="request" />
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* CENTER PANEL */}
@@ -579,18 +564,3 @@ function FriendRow({ friend, rank, onChat, onDelete, actionLoading }: { friend: 
   );
 }
 
-function LogItem({ user, action, time, type = 'default' }: { user: string; action: string; time: string; type?: 'system' | 'request' | 'default' }) {
-  const dotColor = type === 'system' ? 'bg-green-500' : type === 'request' ? 'bg-gold' : 'bg-zinc-600';
-  return (
-    <div className="log-item cursor-default group animate-fadeIn">
-      <div className="flex items-center gap-2">
-        <div className={`w-1.5 h-1.5 rounded-full ${dotColor} shrink-0`} />
-        <p className="truncate">
-          <span className="text-zinc-300 group-hover:text-white transition-colors">{user}</span>{' '}
-          <span className="text-zinc-600 font-normal lowercase">{action}</span>
-        </p>
-      </div>
-      <span className="shrink-0">{time}</span>
-    </div>
-  );
-}

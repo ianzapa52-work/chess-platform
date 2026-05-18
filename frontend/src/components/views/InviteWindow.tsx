@@ -13,7 +13,7 @@ export default function InviteWindow() {
   };
 
   return (
-    <div className="chess-panel max-w-md mx-auto !bg-black/60">
+    <div className="chess-panel max-w-md mx-auto !bg-black/60 [.light_&]:!bg-white">
       <div className="chess-title-group mb-10">
         <p>Reclutamiento de Élite</p>
         <h2 className="!text-3xl">Invitar Amigos</h2>
@@ -37,7 +37,7 @@ export default function InviteWindow() {
           </div>
         </div>
 
-        <div className="pt-6 border-t border-white/5">
+        <div className="pt-6 border-t border-white/5 [.light_&]:border-gray-100">
           <p className="chess-label !justify-center mb-6 opacity-40">Desplegar en Redes</p>
           <div className="grid grid-cols-4 gap-4">
             <SocialBtn icon={<MessageCircle size={18} />} color="hover:text-emerald-400" />
@@ -53,7 +53,7 @@ export default function InviteWindow() {
 
 function SocialBtn({ icon, color }: any) {
   return (
-    <button className={`w-full aspect-square flex items-center justify-center rounded-2xl bg-white/[0.03] border border-white/5 transition-all ${color} hover:border-current hover:bg-current/5`}>
+    <button className={`w-full aspect-square flex items-center justify-center rounded-2xl bg-white/[0.03] [.light_&]:bg-gray-50 border border-white/5 [.light_&]:border-gray-200 transition-all ${color} hover:border-current hover:bg-current/5`}>
       {icon}
     </button>
   );
