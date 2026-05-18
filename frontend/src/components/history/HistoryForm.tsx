@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Cinzel } from "next/font/google";
+import { useTheme } from '@/hooks/useTheme';
 
 const cinzel = Cinzel({ subsets: ["latin"] });
 
@@ -20,11 +21,12 @@ interface HistoryFormProps {
   onClose?: () => void;
 }
 
-export default function HistoryForm({ onClose }: HistoryFormProps) {
+export default function HistoryForm({ onClose: _onClose }: HistoryFormProps) {
   const [games, setGames] = useState<GameFromAPI[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'win' | 'loss' | 'draw'>('all');
   const [myUsername, setMyUsername] = useState<string | null>(null);
+  const { isLight } = useTheme();
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -77,10 +79,14 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
     return res === filter;
   });
 
-  const resultStyles = {
+  const resultStyles = isLight ? {
+    win:  { label: "Victoria", color: "text-emerald-600", border: "border-emerald-300", bg: "bg-emerald-50 shadow-sm"  },
+    loss: { label: "Derrota",  color: "text-rose-600",    border: "border-rose-300",    bg: "bg-rose-50 shadow-sm"    },
+    draw: { label: "Tablas",   color: "text-zinc-600",    border: "border-zinc-300",    bg: "bg-zinc-100 shadow-sm"   },
+  } : {
     win:  { label: "Victoria", color: "text-emerald-400", border: "border-emerald-500/20", bg: "bg-emerald-500/5" },
     loss: { label: "Derrota",  color: "text-rose-500",    border: "border-rose-500/20",    bg: "bg-rose-500/5"    },
-    draw: { label: "Tablas",   color: "text-zinc-400",    border: "border-zinc-500/20",    bg: "bg-zinc-500/5"    }
+    draw: { label: "Tablas",   color: "text-zinc-400",    border: "border-zinc-500/20",    bg: "bg-zinc-500/5"    },
   };
 
   if (loading) {
@@ -134,7 +140,7 @@ export default function HistoryForm({ onClose }: HistoryFormProps) {
           return (
             <div
               key={game.id}
-              className={`w-full group flex items-center justify-between p-4 md:p-6 border ${style.border} ${style.bg} [.light_&]:bg-white [.light_&]:shadow-sm rounded-2xl transition-all duration-300 hover:scale-[1.01] hover:border-gold/40`}
+              className={`w-full group flex items-center justify-between p-4 md:p-6 border ${style.border} ${style.bg} rounded-2xl transition-all duration-300 hover:scale-[1.01] hover:border-gold/40`}
             >
               <div className="flex items-center gap-6">
                 <div className="hidden md:flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-black/40 [.light_&]:bg-white [.light_&]:shadow border border-white/5 [.light_&]:border-gray-200 font-black">

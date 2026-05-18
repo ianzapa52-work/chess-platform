@@ -30,25 +30,25 @@ export default function ModalFrame({ isOpen, onClose, children, size = "max-w-[1
           />
           
           {/* CONTAINER utilizando las variables de tema y bordes del CSS global */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 30 }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className={`relative w-full ${size} bg-[#050505] border border-gold/30 rounded-[2.5rem] shadow-[0_0_120px_rgba(0,0,0,0.8)] overflow-hidden z-10 flex flex-col`}
+            className={`relative w-full ${size} bg-[#050505] [.light_&]:bg-white border border-gold/30 [.light_&]:border-gold/20 rounded-[2.5rem] shadow-[0_0_120px_rgba(0,0,0,0.8)] [.light_&]:shadow-[0_8px_60px_rgba(0,0,0,0.12)] overflow-hidden z-10 flex flex-col`}
           >
-            <header className="relative w-full h-12 md:h-14 bg-zinc-900/40 border-b border-white/5 flex items-center px-6 shrink-0 z-20">
+            <header className="relative w-full h-12 md:h-14 bg-zinc-900/40 [.light_&]:bg-white border-b border-white/5 [.light_&]:border-gray-100 flex items-center px-6 shrink-0 z-20">
               <div className="flex items-center gap-2 opacity-30">
-                <div className="w-1.5 h-1.5 rounded-full bg-white rotate-45"></div>
-                <div className="w-1.5 h-1.5 rounded-full bg-white rotate-45"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white [.light_&]:bg-gray-400 rotate-45"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white [.light_&]:bg-gray-400 rotate-45"></div>
               </div>
 
               <div className="ml-auto flex items-center justify-center">
-                <button 
+                <button
                   onClick={onClose}
-                  className="group relative flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-white/5 transition-all duration-300 cursor-pointer"
+                  className="group relative flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full hover:bg-white/5 [.light_&]:hover:bg-gray-100 transition-all duration-300 cursor-pointer"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7 text-zinc-500 group-hover:text-gold group-hover:rotate-90 transition-all duration-500 ease-out" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-7 md:w-7 text-zinc-500 [.light_&]:text-gray-400 group-hover:text-gold group-hover:rotate-90 transition-all duration-500 ease-out" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
