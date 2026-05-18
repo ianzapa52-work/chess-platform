@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState, useEffect, useCallback } from 'react';
+import { ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import PuzzleBoard from '@/components/game/PuzzleBoard';
 import AchievementToast from '@/components/ui/AchievementToast';
 
@@ -290,6 +290,20 @@ function RightPanel({ solvedCount, puzzle }: { solvedCount: number; puzzle: ApiP
   );
 }
 
+const API_BASE_PUZZLES = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+
+async function submitPuzzleAttempt(lichessId: string, successful: boolean): Promise<void> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  if (!token) return;
+  try {
+    await fetch(`${API_BASE_PUZZLES}/games/puzzles/solve/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ lichess_id: lichessId, successful }),
+    });
+  } catch { /* silently fail */ }
+}
+
 export default function PuzzlesPremiumPage() {
   useEffect(() => {
     document.title = "WELIKECHESS | Puzzles";
@@ -301,7 +315,20 @@ export default function PuzzlesPremiumPage() {
   const [solvedCount, setSolvedCount] = useState(0);
   const [feedback, setFeedback] = useState({ text: "TU TURNO", color: "text-white" });
 
+  const currentPuzzleRef  = useRef<ApiPuzzle | null>(null);
+  const puzzleSolvedRef   = useRef(false);
+  const puzzleAttemptedRef = useRef(false);
+
+  useEffect(() => { currentPuzzleRef.current = puzzle; }, [puzzle]);
+
   const loadPuzzle = useCallback(async () => {
+    // Si el puzzle actual fue intentado pero no resuelto, registrar como fallido
+    if (currentPuzzleRef.current && !puzzleSolvedRef.current && puzzleAttemptedRef.current) {
+      submitPuzzleAttempt(currentPuzzleRef.current.id, false);
+    }
+    puzzleSolvedRef.current   = false;
+    puzzleAttemptedRef.current = false;
+
     setLoading(true);
     setError(null);
     setFeedback({ text: "TU TURNO", color: "text-white" });
@@ -318,11 +345,22 @@ export default function PuzzlesPremiumPage() {
   useEffect(() => { loadPuzzle(); }, [loadPuzzle]);
 
   const handleFeedback = useCallback((text: string, color: string) => {
+    if (text === "INTÉNTALO DE NUEVO") {
+      puzzleAttemptedRef.current = true;
+    }
     const tailwindColor =
       color === "#2ecc71" ? "text-emerald-400"
       : text === "TU TURNO" ? "text-white"
       : "text-red-500";
     setFeedback({ text, color: tailwindColor });
+  }, []);
+
+  const handleSuccess = useCallback(() => {
+    setSolvedCount(c => c + 1);
+    puzzleSolvedRef.current = true;
+    if (currentPuzzleRef.current) {
+      submitPuzzleAttempt(currentPuzzleRef.current.id, true);
+    }
   }, []);
 
   const objective = puzzle?.themes?.filter(Boolean)[0] ?? "Encuentra la jugada";
@@ -390,7 +428,7 @@ export default function PuzzlesPremiumPage() {
             <PuzzleBoard
               key={puzzle.id}
               puzzle={puzzle}
-              onSuccess={() => setSolvedCount(c => c + 1)}
+              onSuccess={handleSuccess}
               onFeedback={handleFeedback}
             />
           )}

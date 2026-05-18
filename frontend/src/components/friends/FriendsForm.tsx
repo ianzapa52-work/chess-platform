@@ -40,6 +40,13 @@ interface ApiPublicUser {
   elo_bullet: number;
 }
 
+type TimeOption = { n: string; m: number; i: number; mode: string };
+const TIME_MODES: { label: string; options: TimeOption[] }[] = [
+  { label: "Bullet", options: [{ n: "1+0", m: 60, i: 0, mode: "bullet" }, { n: "1+1", m: 60, i: 1, mode: "bullet" }, { n: "2+1", m: 120, i: 1, mode: "bullet" }] },
+  { label: "Blitz",  options: [{ n: "3+0", m: 180, i: 0, mode: "blitz" }, { n: "3+2", m: 180, i: 2, mode: "blitz" }, { n: "5+3", m: 300, i: 3, mode: "blitz" }] },
+  { label: "Rápidas", options: [{ n: "10+0", m: 600, i: 0, mode: "rapid" }, { n: "15+10", m: 900, i: 10, mode: "rapid" }] },
+];
+
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
@@ -89,6 +96,58 @@ function ConfirmDialog({ username, onConfirm, onCancel }: { username: string; on
   );
 }
 
+function ChallengeModal({ friend, selectedMode, onModeChange, onSend, onCancel, sending }: {
+  friend: Friend; selectedMode: TimeOption; onModeChange: (o: TimeOption) => void;
+  onSend: () => void; onCancel: () => void; sending: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 [.light_&]:bg-black/40 backdrop-blur-sm">
+      <div className="bg-[#0f0f0f] [.light_&]:bg-white border border-white/10 [.light_&]:border-zinc-200 rounded-[32px] p-8 max-w-sm w-full mx-4 shadow-2xl">
+        <div className="flex flex-col items-center gap-3 mb-6">
+          <div className="w-16 h-16 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
+            <Swords size={28} className="text-gold" />
+          </div>
+          <div className="text-center">
+            <h3 className="text-white [.light_&]:text-zinc-900 font-serif font-bold text-xl tracking-widest uppercase mb-1">Retar</h3>
+            <p className="text-zinc-400 [.light_&]:text-zinc-600 text-sm leading-relaxed">
+              Enviando reto a <span className="text-gold font-bold">{friend.username}</span>
+            </p>
+          </div>
+        </div>
+        <div className="space-y-4 mb-6">
+          {TIME_MODES.map((cat) => (
+            <div key={cat.label}>
+              <p className="text-[9px] font-black text-zinc-600 [.light_&]:text-gray-500 uppercase tracking-[0.3em] mb-2">{cat.label}</p>
+              <div className="grid grid-cols-3 gap-2">
+                {cat.options.map((opt) => (
+                  <button key={opt.n} onClick={() => onModeChange(opt)}
+                    className={`py-2 rounded-xl text-[10px] font-black transition-all border cursor-pointer ${
+                      selectedMode.n === opt.n
+                        ? 'bg-gold text-black border-gold'
+                        : 'bg-white/5 [.light_&]:bg-gray-100 border-white/10 [.light_&]:border-gray-200 text-zinc-400 [.light_&]:text-gray-600 hover:border-white/30 [.light_&]:hover:border-gray-300'
+                    }`}>
+                    {opt.n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={onSend} disabled={sending}
+            className="py-4 bg-gold text-black rounded-2xl font-black text-xs tracking-widest hover:bg-white transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            {sending ? <Loader2 size={16} className="animate-spin" /> : <><Swords size={15} /> Enviar reto</>}
+          </button>
+          <button onClick={onCancel}
+            className="py-4 bg-white/5 [.light_&]:bg-zinc-100 text-zinc-400 [.light_&]:text-zinc-600 rounded-2xl border border-white/10 [.light_&]:border-zinc-200 hover:bg-white/10 [.light_&]:hover:bg-zinc-200 hover:text-white [.light_&]:hover:text-zinc-900 transition-all text-xs tracking-widest cursor-pointer active:scale-95">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function FriendsForm() {
   const [search, setSearch] = useState('');
   const [me, setMe] = useState<ApiMe | null>(null);
@@ -102,6 +161,9 @@ export default function FriendsForm() {
   const [confirmDelete, setConfirmDelete] = useState<Friend | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [presence, setPresence] = useState<'online' | 'away' | 'offline'>('online');
+  const [challengeTarget, setChallengeTarget] = useState<Friend | null>(null);
+  const [challengeMode, setChallengeMode] = useState<TimeOption>(TIME_MODES[1].options[0]);
+  const [challengeSending, setChallengeSending] = useState(false);
 
   const readPresence = useCallback(() => {
     const settings = JSON.parse(localStorage.getItem('user_settings') || '{}');
@@ -230,6 +292,20 @@ export default function FriendsForm() {
     finally { setActionLoading(null); }
   };
 
+  const sendChallenge = async () => {
+    if (!challengeTarget) return;
+    setChallengeSending(true);
+    try {
+      await apiFetch('/api/games/challenges/create/', {
+        method: 'POST',
+        body: JSON.stringify({ receiver_username: challengeTarget.username, mode: challengeMode.mode, initial_time: challengeMode.m, increment: challengeMode.i }),
+      });
+      showToast(`Reto enviado a ${challengeTarget.username}`);
+      setChallengeTarget(null);
+    } catch (e: unknown) { showToast(e instanceof Error ? e.message : 'Error al enviar el reto', false); }
+    finally { setChallengeSending(false); }
+  };
+
   const handleOpenChat = (friend: Friend) => {
     window.dispatchEvent(new CustomEvent('open-chat', { detail: { username: friend.username } }));
   };
@@ -257,6 +333,17 @@ export default function FriendsForm() {
 
       {confirmDelete && (
         <ConfirmDialog username={confirmDelete.username} onConfirm={() => removeFriend(confirmDelete)} onCancel={() => setConfirmDelete(null)} />
+      )}
+
+      {challengeTarget && (
+        <ChallengeModal
+          friend={challengeTarget}
+          selectedMode={challengeMode}
+          onModeChange={setChallengeMode}
+          onSend={sendChallenge}
+          onCancel={() => setChallengeTarget(null)}
+          sending={challengeSending}
+        />
       )}
 
       {/* LEFT PANEL */}
@@ -402,7 +489,7 @@ export default function FriendsForm() {
             ) : (
               <div className="space-y-2">
                 {filteredFriends.map((friend, i) => (
-                  <FriendRow key={friend.id} friend={friend} rank={i + 1} onChat={() => handleOpenChat(friend)} onDelete={() => setConfirmDelete(friend)} actionLoading={actionLoading} />
+                  <FriendRow key={friend.id} friend={friend} rank={i + 1} onChat={() => handleOpenChat(friend)} onDelete={() => setConfirmDelete(friend)} onChallenge={() => setChallengeTarget(friend)} actionLoading={actionLoading} />
                 ))}
               </div>
             )}
@@ -525,7 +612,7 @@ function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingR
   );
 }
 
-function FriendRow({ friend, rank, onChat, onDelete, actionLoading }: { friend: Friend; rank: number; onChat: () => void; onDelete: () => void; actionLoading: string | null }) {
+function FriendRow({ friend, rank, onChat, onDelete, onChallenge, actionLoading }: { friend: Friend; rank: number; onChat: () => void; onDelete: () => void; onChallenge: () => void; actionLoading: string | null }) {
   const isDeleting = actionLoading === friend.username;
   return (
     <div className="friend-row group cursor-default relative animate-fadeIn">
@@ -543,7 +630,7 @@ function FriendRow({ friend, rank, onChat, onDelete, actionLoading }: { friend: 
         </div>
       </div>
       <div className="flex gap-2 shrink-0">
-        <button title="Retar" className="p-3.5 bg-gold/10 text-gold border border-gold/30 rounded-xl hover:bg-gold hover:text-black transition-all active:scale-90 cursor-pointer">
+        <button title="Retar" onClick={e => { e.stopPropagation(); onChallenge(); }} className="p-3.5 bg-gold/10 text-gold border border-gold/30 rounded-xl hover:bg-gold hover:text-black transition-all active:scale-90 cursor-pointer">
           <Swords size={18} strokeWidth={2.5} />
         </button>
         <button title="Mensaje" onClick={e => { e.stopPropagation(); onChat(); }}

@@ -218,6 +218,16 @@ export default function OnlinePremiumPage() {
   useEffect(() => { statusRef.current = status; }, [status]);
   useEffect(() => { currentModeRef.current = currentMode; }, [currentMode]);
 
+  // Auto-join cuando se llega via reto (?game_id=...)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const gid = params.get('game_id');
+    if (gid) {
+      setGameId(gid);
+      setGameJoined(true);
+    }
+  }, []);
+
   const handleClaimTimeout = useCallback(() => {
     if (timeoutClaimedRef.current) return;
     if (!gameSocketRef.current || gameSocketRef.current.readyState !== WebSocket.OPEN) return;
@@ -359,6 +369,13 @@ export default function OnlinePremiumPage() {
     myColorRef.current = color;
     if (data.capturedW) setCapturedW(data.capturedW);
     if (data.capturedB) setCapturedB(data.capturedB);
+    if (data.mode && data.initial_time !== undefined) {
+      const allOpts = TIME_MODES.flatMap(c => c.options);
+      const found = allOpts.find(o => o.mode === data.mode && o.m === data.initial_time);
+      const synced = found ?? { n: `${Math.floor(data.initial_time / 60)}+${data.increment ?? 0}`, m: data.initial_time, i: data.increment ?? 0, mode: data.mode };
+      setCurrentMode(synced);
+      currentModeRef.current = synced;
+    }
     const mode = currentModeRef.current.mode;
     if (color === 'w') {
       if (data.white_player) setMyData(data.white_player);

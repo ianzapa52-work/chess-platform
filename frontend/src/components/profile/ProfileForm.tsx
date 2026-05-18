@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState, useEffect } from 'react';
-import { Camera, Activity, Globe, Zap, Timer, Target, Trophy, Skull, Handshake, TrendingUp, TrendingDown, Minus, Swords, Flame, BarChart3, CalendarDays } from 'lucide-react';
+import { Camera, Activity, Zap, Timer, Target, Trophy, Skull, Handshake, TrendingUp, TrendingDown, Minus, Swords, Flame, BarChart3, CalendarDays, Puzzle, CheckCircle2, XCircle, UserRound, Users } from 'lucide-react';
 
 // ── Títulos por ELO ─────────────────────────────────────────────────────────
 export interface ChessTitle {
@@ -38,14 +38,6 @@ const resultLabel = (game: any, user: any) => {
   return { text: "Derrota", color: "text-red-400", icon: <TrendingDown size={12}/> };
 };
 
-const eloChange = (game: any, user: any) => {
-  const iWhite = game.white_player?.id === user.id || game.white_player === user.id || game.white_username === user.username;
-  const change = iWhite ? game.white_elo_change : game.black_elo_change;
-  if (!change) return null;
-  const sign = change > 0 ? "+" : "";
-  const color = change > 0 ? "text-emerald-400" : change < 0 ? "text-red-400" : "text-zinc-500";
-  return <span className={`font-black text-[10px] ${color}`}>{sign}{change}</span>;
-};
 
 const modeIcon: Record<string, ReactNode> = {
   bullet: <Target size={16}/>,
@@ -180,7 +172,6 @@ function FormStrip({ games, user }: { games: any[]; user: any }) {
 function RecentGameRow({ game, user }: { game: any; user: any }) {
   const result = resultLabel(game, user);
   const opponent = getOpponentName(game, user);
-  const change = eloChange(game, user);
   const date = getGameDate(game);
 
   return (
@@ -198,17 +189,17 @@ function RecentGameRow({ game, user }: { game: any; user: any }) {
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-3 shrink-0">
-        <span className={`text-[10px] font-black uppercase tracking-wider ${result.color}`}>{result.text}</span>
-        {change}
-      </div>
+      <span className={`text-[10px] font-black uppercase tracking-wider shrink-0 ${result.color}`}>{result.text}</span>
     </div>
   );
 }
 
+const API = "http://localhost:8000/api";
+
 export default function ProfileForm() {
   const [user, setUser] = useState<any>(null);
   const [recentGames, setRecentGames] = useState<any[]>([]);
+  const [puzzleHistory, setPuzzleHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [presence, setPresence] = useState('online');
 
@@ -218,9 +209,10 @@ export default function ProfileForm() {
     const settings = JSON.parse(localStorage.getItem("user_settings") || "{}");
     setPresence(settings.status || 'online');
     try {
-      const [userRes, gamesRes] = await Promise.all([
-        fetch('http://localhost:8000/api/users/me/', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:8000/api/games/my-games/', { headers: { 'Authorization': `Bearer ${token}` } })
+      const [userRes, gamesRes, puzzlesRes] = await Promise.all([
+        fetch(`${API}/users/me/`,               { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API}/games/my-games/`,         { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${API}/games/puzzles/history/`,  { headers: { 'Authorization': `Bearer ${token}` } }),
       ]);
       if (userRes.ok) {
         const dbData = await userRes.json();
@@ -232,13 +224,17 @@ export default function ProfileForm() {
         const games = Array.isArray(gamesData) ? gamesData : (gamesData.results || []);
         setRecentGames(games);
       } else {
-        const fallbackRes = await fetch('http://localhost:8000/api/games/?limit=100', {
+        const fallbackRes = await fetch(`${API}/games/?limit=100`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (fallbackRes.ok) {
           const fallbackData = await fallbackRes.json();
           setRecentGames(Array.isArray(fallbackData) ? fallbackData : (fallbackData.results || []));
         }
+      }
+      if (puzzlesRes.ok) {
+        const puzzlesData = await puzzlesRes.json();
+        setPuzzleHistory(Array.isArray(puzzlesData) ? puzzlesData : (puzzlesData.results || []));
       }
     } catch (error) {
       console.error("Error cargando perfil:", error);
@@ -261,12 +257,6 @@ export default function ProfileForm() {
   );
   if (!user) return null;
 
-  const userId = user.id;
-  const wins = user.wins || 0;
-  const losses = user.losses || 0;
-  const draws = user.draws || 0;
-  const total = wins + losses + draws;
-
   const statusStyle = (() => {
     if (presence === 'online') return { color: 'bg-emerald-500 shadow-[0_0_10px_#10b981]', text: 'En Línea' };
     if (presence === 'away') return { color: 'bg-amber-500 shadow-[0_0_10px_#f59e0b]', text: 'Meditando' };
@@ -282,14 +272,11 @@ export default function ProfileForm() {
   const completedGames = [...recentGames]
     .filter(isFinishedGame)
     .sort((a, b) => new Date(getGameDate(b)).getTime() - new Date(getGameDate(a)).getTime());
-  const gamesWins = completedGames.filter(g => getResultType(g, user) === "win").length;
-  const gamesDraws = completedGames.filter(g => getResultType(g, user) === "draw").length;
-  const gamesLosses = completedGames.filter(g => getResultType(g, user) === "loss").length;
-  const displayWins = completedGames.length > 0 ? gamesWins : wins;
-  const displayDraws = completedGames.length > 0 ? gamesDraws : draws;
-  const displayLosses = completedGames.length > 0 ? gamesLosses : losses;
-  const displayTotal = completedGames.length > 0 ? completedGames.length : total;
-  const displayWinRate = displayTotal > 0 ? Math.round((displayWins / displayTotal) * 100) : 0;
+  const displayWins   = completedGames.filter(g => getResultType(g, user) === "win").length;
+  const displayDraws  = completedGames.filter(g => getResultType(g, user) === "draw").length;
+  const displayLosses = completedGames.filter(g => getResultType(g, user) === "loss").length;
+  const displayTotal  = completedGames.length;
+  const displayWinRate  = displayTotal > 0 ? Math.round((displayWins  / displayTotal) * 100) : 0;
   const displayDrawRate = displayTotal > 0 ? Math.round((displayDraws / displayTotal) * 100) : 0;
   completedGames.forEach(g => {
     if (!g.result || !g.mode) return;
@@ -300,15 +287,7 @@ export default function ProfileForm() {
     else if (result === "draw") modeStats[m].d++;
     else if (result === "loss") modeStats[m].l++;
   });
-  const recentWins = gamesWins;
-  const recentDraws = gamesDraws;
-  const recentLosses = gamesLosses;
-  const recentWinRate = completedGames.length > 0 ? Math.round((recentWins / completedGames.length) * 100) : 0;
-  const recentEloDelta = completedGames.reduce((sum, g) => {
-    const iWhite = g.white_player?.id === userId || g.white_player === userId || g.white_username === user.username;
-    const change = iWhite ? g.white_elo_change : g.black_elo_change;
-    return sum + (Number(change) || 0);
-  }, 0);
+  const recentWinRate = displayTotal > 0 ? Math.round((displayWins / displayTotal) * 100) : 0;
   const currentStreak = (() => {
     if (completedGames.length === 0) return { type: "none", count: 0 };
     const first = getResultType(completedGames[0], user);
@@ -331,13 +310,21 @@ export default function ProfileForm() {
   const favoriteMode = modeEntries.reduce((best, item) => item.total > best.total ? item : best, modeEntries[0]);
   const lastGameDate = completedGames[0] ? formatDate(getGameDate(completedGames[0])) : "—";
   const streakLabel = currentStreak.type === "win" ? "victorias" : currentStreak.type === "loss" ? "derrotas" : currentStreak.type === "draw" ? "tablas" : "sin racha";
-  const eloDeltaLabel = `${recentEloDelta > 0 ? '+' : ''}${recentEloDelta}`;
+
+  const totalPuzzles   = puzzleHistory.length;
+  const solvedPuzzles  = puzzleHistory.filter((a: any) => a.successful).length;
+  const failedPuzzles  = totalPuzzles - solvedPuzzles;
+  const puzzleRate     = totalPuzzles > 0 ? Math.round((solvedPuzzles / totalPuzzles) * 100) : 0;
+
+  const memberSince = user.date_joined
+    ? new Date(user.date_joined).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })
+    : "—";
 
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-130px)] gap-6 w-full max-w-[1800px] mx-auto p-4 relative overflow-hidden">
 
       {/* ── PANEL IZQUIERDO ── */}
-      <div className="flex flex-col w-full lg:w-72 xl:w-80 gap-4 shrink-0 h-full">
+      <div className="flex flex-col w-full lg:w-72 xl:w-80 gap-4 shrink-0 h-full overflow-y-auto custom-scrollbar pr-1">
         <div className="chess-panel-gold !p-7 relative flex flex-col items-center">
 
           {/* Estado online */}
@@ -384,6 +371,34 @@ export default function ProfileForm() {
               <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{displayWinRate}%</p>
             </div>
           </div>
+
+          {/* Puzzles rápidos */}
+          <div className="grid grid-cols-2 gap-2 w-full text-center mt-1">
+            <div className="bg-white/5 [.light_&]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 [.light_&]:border-zinc-300">
+              <p className="text-emerald-400 text-[7px] font-black uppercase tracking-wider mb-1">Puzzles</p>
+              <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{totalPuzzles}</p>
+            </div>
+            <div className="bg-white/5 [.light_&]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 [.light_&]:border-zinc-300">
+              <p className="text-emerald-400 text-[7px] font-black uppercase tracking-wider mb-1">Acierto</p>
+              <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{puzzleRate}%</p>
+            </div>
+          </div>
+
+          {/* Meta info: miembro + amigos */}
+          <div className="w-full mt-2 space-y-1.5">
+            <div className="flex items-center gap-2">
+              <UserRound size={11} className="text-zinc-600 shrink-0" />
+              <span className="text-[8px] text-zinc-600 [.light_&]:text-zinc-500 font-black uppercase tracking-widest">
+                Miembro desde {memberSince}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users size={11} className="text-zinc-600 shrink-0" />
+              <span className="text-[8px] text-zinc-600 [.light_&]:text-zinc-500 font-black uppercase tracking-widest">
+                {(user.friends || []).length} amigo{(user.friends || []).length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Rendimiento global */}
@@ -425,10 +440,9 @@ export default function ProfileForm() {
                 Basado en {completedGames.length} partidas cargadas
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-              <MetricCard label="Forma" value={`${recentWinRate}%`} detail={`${recentWins}V · ${recentDraws}T · ${recentLosses}D`} icon={<Activity size={15}/>} color="text-emerald-400" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <MetricCard label="Forma" value={`${recentWinRate}%`} detail={`${displayWins}V · ${displayDraws}T · ${displayLosses}D`} icon={<Activity size={15}/>} color="text-emerald-400" />
               <MetricCard label="Racha actual" value={currentStreak.count || "—"} detail={streakLabel} icon={<Flame size={15}/>} color={currentStreak.type === 'win' ? 'text-emerald-400' : currentStreak.type === 'loss' ? 'text-red-400' : 'text-amber-400'} />
-              <MetricCard label="ELO reciente" value={eloDeltaLabel} detail="suma de partidas cargadas" icon={<TrendingUp size={15}/>} color={recentEloDelta >= 0 ? 'text-emerald-400' : 'text-red-400'} />
               <MetricCard label="Última partida" value={lastGameDate} detail={favoriteMode.total > 0 ? `modo más jugado: ${favoriteMode.mode}` : "sin datos"} icon={<CalendarDays size={15}/>} color="text-blue-400" />
             </div>
             <div className="mt-3 bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -479,11 +493,53 @@ export default function ProfileForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <MetricCard label="Total Partidas" value={displayTotal} detail={completedGames.length > 0 ? "historial cargado" : "estadística global"} icon={<Swords size={15}/>} color="text-yellow-400" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <MetricCard label="Total Partidas" value={displayTotal} detail="historial cargado" icon={<Swords size={15}/>} color="text-yellow-400" />
             <MetricCard label="Win Rate Global" value={`${displayWinRate}%`} detail={`${displayWins}V · ${displayDraws}T · ${displayLosses}D`} icon={<BarChart3 size={15}/>} color="text-emerald-400" />
-            <MetricCard label="Ranking" value={`#${user.rank || "—"}`} detail="según leaderboard" icon={<Globe size={15}/>} color="text-blue-400" />
           </div>
+
+          {/* ── SECCIÓN PUZZLES ── */}
+          <div>
+            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-3 px-1">Historial de Puzzles</p>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <MetricCard label="Total"    value={totalPuzzles}  detail="intentados"       icon={<Puzzle size={15}/>}       color="text-emerald-400" />
+              <MetricCard label="Resueltos" value={solvedPuzzles} detail="primera jugada"  icon={<CheckCircle2 size={15}/>} color="text-emerald-400" />
+              <MetricCard label="Fallados"  value={failedPuzzles} detail="sin resolver"    icon={<XCircle size={15}/>}     color="text-red-400" />
+              <MetricCard label="Acierto"   value={totalPuzzles > 0 ? `${puzzleRate}%` : "—"} detail="tasa de éxito" icon={<BarChart3 size={15}/>} color={puzzleRate >= 50 ? "text-emerald-400" : "text-amber-400"} />
+            </div>
+            {totalPuzzles > 0 && (
+              <div className="mt-3 bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-4">
+                <div className="flex justify-between mb-2">
+                  <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Precisión global</span>
+                  <span className="text-[8px] font-black text-emerald-400">{solvedPuzzles}✓ / {failedPuzzles}✗</span>
+                </div>
+                <div className="h-2 bg-white/5 [.light_&]:bg-zinc-200 rounded-full overflow-hidden flex">
+                  <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${puzzleRate}%` }} />
+                  <div className="bg-red-500/60 h-full flex-1" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── SECCIÓN AMIGOS ── */}
+          {(user.friends || []).length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-3 px-1">
+                <p className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600">Amigos</p>
+                <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">{(user.friends || []).length} en total</span>
+              </div>
+              <div className="bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-4">
+                <div className="flex flex-wrap gap-2">
+                  {(user.friends as string[]).map((username) => (
+                    <div key={username} className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 rounded-xl">
+                      <Users size={10} className="text-zinc-500 shrink-0" />
+                      <span className="text-[9px] font-black uppercase tracking-wide text-zinc-300 [.light_&]:text-zinc-700">{username}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div>
             <p className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-3 px-1">Últimas partidas</p>
