@@ -252,6 +252,7 @@ function ChallengeToastItem({ notification, onClose, index }: { notification: Ap
   const [visible, setVisible] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [accepting, setAccepting] = useState(false);
+  const [acceptError, setAcceptError] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -271,6 +272,7 @@ function ChallengeToastItem({ notification, onClose, index }: { notification: Ap
 
   async function handleAccept() {
     setAccepting(true);
+    setAcceptError(false);
     try {
       const token = localStorage.getItem("access_token");
       const res = await fetch(`${API_BASE}/api/games/challenges/${data.challenge_id}/accept/`, {
@@ -285,6 +287,18 @@ function ChallengeToastItem({ notification, onClose, index }: { notification: Ap
       }
     } catch {}
     setAccepting(false);
+    setAcceptError(true);
+  }
+
+  async function handleReject() {
+    try {
+      const token = localStorage.getItem("access_token");
+      await fetch(`${API_BASE}/api/games/challenges/${data.challenge_id}/reject/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+    } catch {}
+    handleClose();
   }
 
   const timeLabel = `${Math.floor(data.initial_time / 60)}+${data.increment}`;
@@ -317,12 +331,17 @@ function ChallengeToastItem({ notification, onClose, index }: { notification: Ap
             onMouseLeave={e => (e.currentTarget.style.background = "rgba(239,68,68,0.15)")}>
             {accepting ? <Loader2 size={13} className="animate-spin" /> : <><Check size={13} strokeWidth={3} /> Aceptar</>}
           </button>
-          <button onClick={handleClose}
+          <button onClick={handleReject}
             className="py-2 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5"
             style={{ background: isLight ? "rgba(0,0,0,0.04)" : "rgba(255,255,255,0.04)", border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.08)", color: isLight ? "#71717a" : "#52525b" }}>
             <X size={13} /> Rechazar
           </button>
         </div>
+        {acceptError && (
+          <p className="text-center pb-3 text-[10px] font-bold" style={{ color: "#ef4444" }}>
+            Error al aceptar. Inténtalo de nuevo.
+          </p>
+        )}
       </div>
     </div>
   );
@@ -337,6 +356,7 @@ export default function NotificationToast() {
     if (accepted) {
       const data = accepted.data as { game_id: string };
       clearNotification(accepted.id);
+      window.dispatchEvent(new CustomEvent("challenge-game-join", { detail: { game_id: data.game_id } }));
       router.push(`/play-online?game_id=${data.game_id}`);
     }
   }, [notifications, clearNotification, router]);

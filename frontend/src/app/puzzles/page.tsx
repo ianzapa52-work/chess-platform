@@ -186,7 +186,7 @@ function LeftPanel({
   );
 }
 
-function RightPanel({ solvedCount, puzzle }: { solvedCount: number; puzzle: ApiPuzzle | null }) {
+function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number; failedCount: number; puzzle: ApiPuzzle | null }) {
   const themes = puzzle?.themes?.filter(Boolean) ?? [];
   const ratingLevel = !puzzle ? null
     : puzzle.rating < 1200 ? { label: "Principiante", color: "text-sky-400" }
@@ -204,7 +204,7 @@ function RightPanel({ solvedCount, puzzle }: { solvedCount: number; puzzle: ApiP
           <div className="flex justify-around items-center py-2">
             <Stat value={solvedCount} label="Resueltos" accent />
             <div className="w-px h-10 bg-white/5 [.light_&]:bg-gray-200" />
-            <Stat value={solvedCount > 0 ? `${Math.round((solvedCount / (solvedCount + 0)) * 100)}%` : "—"} label="Aciertos" />
+            <Stat value={solvedCount + failedCount > 0 ? `${Math.round((solvedCount / (solvedCount + failedCount)) * 100)}%` : "—"} label="Aciertos" />
           </div>
           {solvedCount > 0 && (
             <div className="mt-4 pt-4 border-t border-white/[0.04] [.light_&]:border-gray-100">
@@ -313,6 +313,7 @@ export default function PuzzlesPremiumPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
   const [solvedCount, setSolvedCount] = useState(0);
+  const [failedCount, setFailedCount] = useState(0);
   const [feedback, setFeedback] = useState({ text: "TU TURNO", color: "text-white" });
 
   const currentPuzzleRef  = useRef<ApiPuzzle | null>(null);
@@ -325,6 +326,7 @@ export default function PuzzlesPremiumPage() {
     // Si el puzzle actual fue intentado pero no resuelto, registrar como fallido
     if (currentPuzzleRef.current && !puzzleSolvedRef.current && puzzleAttemptedRef.current) {
       submitPuzzleAttempt(currentPuzzleRef.current.id, false);
+      setFailedCount(c => c + 1);
     }
     puzzleSolvedRef.current   = false;
     puzzleAttemptedRef.current = false;
@@ -435,7 +437,7 @@ export default function PuzzlesPremiumPage() {
         </div>
 
         <div className="col-span-12 xl:col-span-3">
-          <RightPanel solvedCount={solvedCount} puzzle={!loading ? puzzle : null} />
+          <RightPanel solvedCount={solvedCount} failedCount={failedCount} puzzle={!loading ? puzzle : null} />
         </div>
       </div>
 

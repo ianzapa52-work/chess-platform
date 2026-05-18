@@ -218,7 +218,7 @@ export default function OnlinePremiumPage() {
   useEffect(() => { statusRef.current = status; }, [status]);
   useEffect(() => { currentModeRef.current = currentMode; }, [currentMode]);
 
-  // Auto-join cuando se llega via reto (?game_id=...)
+  // Auto-join cuando se llega via reto (?game_id=...) o cuando ya estamos en la página
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const gid = params.get('game_id');
@@ -226,6 +226,16 @@ export default function OnlinePremiumPage() {
       setGameId(gid);
       setGameJoined(true);
     }
+
+    const handleChallengeJoin = (e: Event) => {
+      const gid = (e as CustomEvent<{ game_id: string | number }>).detail.game_id;
+      if (gid) {
+        setGameId(String(gid));
+        setGameJoined(true);
+      }
+    };
+    window.addEventListener('challenge-game-join', handleChallengeJoin);
+    return () => window.removeEventListener('challenge-game-join', handleChallengeJoin);
   }, []);
 
   const handleClaimTimeout = useCallback(() => {
