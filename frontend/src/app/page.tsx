@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import HomeFriendsSidebar from "@/components/ui/HomeFriendsSidebar";
 import HomeRecentActivity from "@/components/ui/HomeRecentActivity";

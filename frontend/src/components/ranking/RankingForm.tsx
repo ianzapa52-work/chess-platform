@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { ReactNode, useState, useMemo, useEffect, useRef } from 'react';
 import { Trophy, Activity, Award, Search, Loader2, Zap, Timer, Coffee, Crown, TrendingUp, Flame } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -385,7 +385,7 @@ function PodiumRow({ player, position, color, medal }: { player: Player; positio
   );
 }
 
-function LeaderStat({ label, value, icon, highlight }: { label: string; value: string | number; icon: React.ReactNode; highlight?: boolean }) {
+function LeaderStat({ label, value, icon, highlight }: { label: string; value: string | number; icon: ReactNode; highlight?: boolean }) {
   return (
     <div className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 px-1 ${highlight ? 'bg-gold/8 border border-gold/15' : 'bg-white/[0.025] [.light_&]:bg-zinc-200/60 border border-white/5 [.light_&]:border-zinc-300'}`}>
       <span className={`${highlight ? 'text-gold' : 'text-zinc-600'}`}>{icon}</span>
@@ -395,7 +395,7 @@ function LeaderStat({ label, value, icon, highlight }: { label: string; value: s
   );
 }
 
-function ModeTab({ active, onClick, label, icon }: { active: boolean; onClick: () => void; label: string; icon: React.ReactNode }) {
+function ModeTab({ active, onClick, label, icon }: { active: boolean; onClick: () => void; label: string; icon: ReactNode }) {
   return (
     <button onClick={onClick}
       className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black uppercase tracking-[0.2em] transition-all cursor-pointer ${active ? 'bg-gold text-black shadow-lg' : 'text-zinc-500 hover:text-white [.light_&]:hover:text-zinc-900 hover:bg-white/5 [.light_&]:hover:bg-zinc-200'}`}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Camera, Activity, Globe, Zap, Timer, Target, Trophy, Skull, Handshake, TrendingUp, TrendingDown, Minus, Swords } from 'lucide-react';
 
 // ── Títulos por ELO ─────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ const eloChange = (game: any, userId: string) => {
   return <span className={`font-black text-[10px] ${color}`}>{sign}{change}</span>;
 };
 
-const modeIcon: Record<string, React.ReactNode> = {
+const modeIcon: Record<string, ReactNode> = {
   bullet: <Target size={16}/>,
   blitz:  <Zap size={16}/>,
   rapid:  <Timer size={16}/>,

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { CSSProperties, useState, useEffect, useCallback, useRef } from 'react';
 import { Chess, type Square } from 'chess.js';
 import { useDragController } from '@/hooks/useDragController';
 
@@ -269,7 +269,7 @@ export default function PuzzleBoard({ puzzle, onSuccess, onFeedback }: PuzzleBoa
                         ? ({
                             '--rx': `${returnOffset.x}px`,
                             '--ry': `${returnOffset.y}px`,
-                          } as React.CSSProperties)
+                          } as CSSProperties)
                         : appearing ? {
                             opacity: 0,
                             animationName: 'pieceAppear',

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import { MutableRefObject, FormEvent, type KeyboardEvent as ReactKeyboardEvent, useRef, useEffect, useState, useCallback, useMemo } from 'react';
 
 interface GameHistoryOnlineProps {
   history: string[];
@@ -8,7 +8,7 @@ interface GameHistoryOnlineProps {
   isGameOver: boolean;
   gameStarted: boolean;
   orientation?: 'w' | 'b';
-  socketRef: React.MutableRefObject<WebSocket | null>;
+  socketRef: MutableRefObject<WebSocket | null>;
   hasOfferedDraw: boolean;
   onDrawOfferedFromChat?: () => void;
   incomingChat?: { username: string; message: string } | null;
@@ -161,7 +161,7 @@ export default function GameHistoryOnline({
     return false;
   }, [isProcessingCommand, gameState.isGameOver, hasUsedResign, hasOfferedDraw, handleResign, handleOfferDraw]);
 
-  const sendMessage = useCallback((e: React.FormEvent) => {
+  const sendMessage = useCallback((e: FormEvent) => {
     e.preventDefault();
     const message = newMessage.trim();
     if (!message) return;
@@ -176,7 +176,7 @@ export default function GameHistoryOnline({
     setNewMessage("");
   }, [newMessage, processCommand, socketRef]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: ReactKeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage(e as any);

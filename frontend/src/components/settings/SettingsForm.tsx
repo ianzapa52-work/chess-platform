@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Check, Loader2, Shield, Volume2, Bell, UserCircle, Moon, Sun } from 'lucide-react';
 
 interface SettingsFormProps { onClose?: () => void; }

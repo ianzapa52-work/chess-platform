@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PlayLocal from '@/components/game/PlayLocal';
 import GameHistory from '@/components/ui/GameHistory';
 import { useTheme } from '@/hooks/useTheme';

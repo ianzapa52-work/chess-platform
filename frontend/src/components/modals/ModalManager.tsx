@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import ModalFrame from './ModalFrame';
 import SettingsForm from '../settings/SettingsForm';
@@ -56,7 +56,7 @@ export default function ModalManager() {
       </ModalFrame>
 
       <ModalFrame isOpen={activeModal === 'history'} onClose={closeModal} size="max-w-4xl">
-        <HistoryForm onClose={closeModal} />
+        <HistoryForm />
       </ModalFrame>
 
       <ModalFrame isOpen={activeModal === 'avatar'} onClose={closeModal} size="max-w-7xl">

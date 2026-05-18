@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link as LinkIcon, Check, MoreHorizontal, MessageCircle, Send, X } from 'lucide-react';
 
 export default function InviteWindow() {

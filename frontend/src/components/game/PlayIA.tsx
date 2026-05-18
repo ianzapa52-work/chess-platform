@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Chess, Square } from 'chess.js';
 import { useAIGameSocket } from '@/hooks/useAIGameSocket';
 import { useDragController } from '@/hooks/useDragController';

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import { FormEvent, useState } from 'react';
 
 export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [name, setName] = useState('');
@@ -16,7 +16,7 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 

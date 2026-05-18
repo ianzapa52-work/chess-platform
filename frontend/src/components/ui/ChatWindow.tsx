@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { FormEvent, useState, useEffect, useRef, useCallback } from 'react';
 import { Send, X, Shield, Loader2, MessageSquare } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -194,7 +194,7 @@ export default function ChatWindow() {
     closeWs();
   };
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = (e: FormEvent) => {
     e.preventDefault();
     const text = inputValue.trim();
     if (!text || !wsRef.current || !wsReady || sending) return;

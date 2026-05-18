@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { ReactNode, useState, useMemo, useEffect, useCallback } from 'react';
 import { Swords, Check, X, UserPlus, MessageSquare, Users, Loader2, UserMinus, Zap, Shield, TrendingUp } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -28,9 +28,7 @@ interface ApiMe {
   elo_rapid: number;
   elo_bullet: number;
   is_active: boolean;
-  date_joined: string;
   friends: string[];
-  recent_games: unknown[];
 }
 
 interface ApiPublicUser {
@@ -40,9 +38,6 @@ interface ApiPublicUser {
   elo_blitz: number;
   elo_rapid: number;
   elo_bullet: number;
-  date_joined: string;
-  friends: string[];
-  recent_games: unknown[];
 }
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
@@ -445,7 +440,7 @@ export default function FriendsForm() {
   );
 }
 
-function MiniStat({ label, value, icon, highlight }: { label: string; value: string | number; icon: React.ReactNode; highlight?: boolean }) {
+function MiniStat({ label, value, icon, highlight }: { label: string; value: string | number; icon: ReactNode; highlight?: boolean }) {
   return (
     <div className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 px-1 ${highlight ? 'bg-gold/8 border border-gold/15' : 'bg-white/[0.025] [.light_&]:bg-zinc-200/60 border border-white/5 [.light_&]:border-zinc-300'}`}>
       <span className={`${highlight ? 'text-gold' : 'text-zinc-600'}`}>{icon}</span>

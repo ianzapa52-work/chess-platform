@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import PlayIA from '@/components/game/PlayIA';
 import GameHistory from '@/components/ui/GameHistory';
 import { useTheme } from '@/hooks/useTheme';

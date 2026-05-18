@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const AVATARS = [
   "b_king_avatar.png", "b_queen_avatar.png", "b_bishop_avatar.png", 

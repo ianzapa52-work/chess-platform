@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import PlayOnline from '@/components/game/PlayOnline';
 import GameHistoryOnline from '@/components/ui/GameHistoryOnline';
 import GameEndWindow from '@/components/ui/GameEndWindow';

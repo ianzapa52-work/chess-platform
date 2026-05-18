@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Cinzel } from "next/font/google";
 import { useTheme } from '@/hooks/useTheme';
 
@@ -17,11 +17,7 @@ interface GameFromAPI {
   winner_username: string | null;
 }
 
-interface HistoryFormProps {
-  onClose?: () => void;
-}
-
-export default function HistoryForm({ onClose: _onClose }: HistoryFormProps) {
+export default function HistoryForm() {
   const [games, setGames] = useState<GameFromAPI[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'win' | 'loss' | 'draw'>('all');

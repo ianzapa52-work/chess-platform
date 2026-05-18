@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { ReactNode, useState, useEffect, useCallback } from 'react';
 import PuzzleBoard from '@/components/game/PuzzleBoard';
 import AchievementToast from '@/components/ui/AchievementToast';
 
@@ -75,7 +75,7 @@ function ThemeBadge({ theme }: { theme: string }) {
 }
 
 function Panel({ children, className = "", accent = false }: {
-  children: React.ReactNode; className?: string; accent?: boolean;
+  children: ReactNode; className?: string; accent?: boolean;
 }) {
   return (
     <div className={`relative rounded-2xl border bg-zinc-950/60 [.light_&]:bg-white backdrop-blur-xl overflow-hidden ${

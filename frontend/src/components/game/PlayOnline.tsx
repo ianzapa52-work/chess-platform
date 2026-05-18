@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { MutableRefObject, useState, useEffect, useRef, useCallback } from 'react';
 import { Square, Chess } from 'chess.js';
 import { useDragController } from '@/hooks/useDragController';
 
@@ -15,7 +15,7 @@ interface PlayOnlineProps {
   onDrawOffered: (senderUsername: string) => void;
   onChatMessage: (username: string, message: string) => void;
   serverUrl: string;
-  socketRef: React.MutableRefObject<WebSocket | null>;
+  socketRef: MutableRefObject<WebSocket | null>;
 }
 
 const PIECE_MAP: Record<string, string> = {

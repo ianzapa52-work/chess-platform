@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-const PingCounter: React.FC = () => {
+export default function PingCounter() {
   const [ping, setPing] = useState<number | 'err' | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -37,6 +37,4 @@ const PingCounter: React.FC = () => {
       </span>
     </div>
   );
-};
-
-export default PingCounter;
+}

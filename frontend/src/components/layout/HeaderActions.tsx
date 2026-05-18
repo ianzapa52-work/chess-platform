@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 import { Cinzel } from "next/font/google";
 import { LogOut, User as UserIcon } from "lucide-react";
