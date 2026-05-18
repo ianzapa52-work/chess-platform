@@ -1,43 +1,46 @@
-# Astro Starter Kit: Minimal
+# WeLikeChess — Frontend
 
-```sh
-npm create astro@latest -- --template minimal
+Frontend de la plataforma de ajedrez online WeLikeChess, desarrollado como Trabajo de Fin de Grado.
+
+## Stack
+
+- **Next.js 16** (App Router)
+- **React 18**
+- **TypeScript**
+- **Tailwind CSS v4** (via PostCSS)
+- **framer-motion** — animaciones
+- **chess.js** + **react-chessboard** — lógica y tablero de ajedrez
+- **lucide-react** — iconos
+
+## Comandos
+
+| Comando         | Acción                              |
+| :-------------- | :---------------------------------- |
+| `npm install`   | Instala las dependencias            |
+| `npm run dev`   | Inicia el servidor en `localhost:3000` |
+| `npm run build` | Genera la build de producción       |
+| `npm run start` | Inicia el servidor de producción    |
+| `npm run lint`  | Ejecuta el linter                   |
+
+## Estructura
+
 ```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+src/
+├── app/          # Rutas (Next.js App Router)
+├── components/   # Componentes React
+│   ├── auth/
+│   ├── context/
+│   ├── game/
+│   ├── history/
+│   ├── layout/
+│   ├── modals/
+│   ├── profile/
+│   ├── ranking/
+│   ├── settings/
+│   ├── ui/
+│   ├── utils/
+│   └── views/
+├── hooks/        # Custom hooks
+├── styles/       # CSS global y del tablero
+└── types/        # Tipos TypeScript compartidos
 ```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
