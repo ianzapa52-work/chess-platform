@@ -265,7 +265,7 @@ export default function PlayIAPage() {
   const labelText = isLight ? 'text-gray-500' : 'text-zinc-600';
 
   return (
-    <main className={`min-h-screen ${isLight ? 'bg-[#fff7f8]' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+    <main className={`min-h-screen ${isLight ? 'bg-[#fff7f8]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-6 pb-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
       <div className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-500 opacity-100">
         <div className={`absolute inset-0 ${isLight ? 'bg-[#fff7f8]' : 'bg-[#06010a]'}`} />
         <div className={`absolute top-[-25%] left-1/2 -translate-x-1/2 w-[85%] h-[75%] blur-[180px] rounded-full animate-pulse ${isLight ? 'bg-red-200/55' : 'bg-red-500/35'}`} />

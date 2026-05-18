@@ -412,7 +412,7 @@ export default function OnlinePremiumPage() {
   const labelText = isLight ? 'text-gray-500' : 'text-gold';
 
   return (
-    <main className={`min-h-screen ${isLight ? 'bg-[#fffaf0]' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+    <main className={`min-h-screen ${isLight ? 'bg-[#fffaf0]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-6 pb-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
       <style>{searchAnimations}</style>
 
       <div className="fixed inset-0 z-0 transition-opacity duration-500 opacity-100">

@@ -328,7 +328,7 @@ export default function PuzzlesPremiumPage() {
   const objective = puzzle?.themes?.filter(Boolean)[0] ?? "Encuentra la jugada";
 
   return (
-    <main className="min-h-screen bg-[#020202] [.light_&]:bg-[#f3fff8] text-zinc-400 p-4 xl:p-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
+    <main className="min-h-screen bg-[#020202] [.light_&]:bg-[#f3fff8] text-zinc-400 pt-2 px-4 pb-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[#050508] [.light_&]:bg-[#f3fff8]" />
         <div className="absolute inset-0 opacity-[0.15] [.light_&]:opacity-[0.14] mix-blend-overlay [.light_&]:mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
