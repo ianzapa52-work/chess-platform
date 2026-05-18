@@ -192,15 +192,6 @@ html.light .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(212, 175, 55, 0.6);
 }
 
-/* --- MODO CLARO (Variables + Tailwind) --- */
-:root.light {
-  --bg-main: #f8f9fa;
-  --bg-panel: #ffffff;
-  --bg-card: #ffffff;
-  --text-main: #1a1a1e;
-  --border-subtle: rgba(0, 0, 0, 0.1);
-}
-
 /* AUTOFILL MODO CLARO */
 html.light input:-webkit-autofill,
 html.light input:-webkit-autofill:hover, 
