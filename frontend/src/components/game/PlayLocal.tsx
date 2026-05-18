@@ -132,11 +132,10 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orie
     : [];
 
   return (
-    <div className="p-1 bg-zinc-950 rounded-[2rem] shadow-[0_60px_120px_rgba(0,0,0,0.95)] border border-white/10 backdrop-blur-sm select-none">
-      <div
-        ref={boardRef}
-        className="grid grid-cols-8 grid-rows-8 w-[min(95vw,780px)] h-[min(95vw,780px)] bg-zinc-900 overflow-hidden rounded-xl border-[4px] border-black shadow-inner"
-      >
+    <div
+      ref={boardRef}
+      className="grid grid-cols-8 grid-rows-8 w-[min(95vw,780px)] h-[min(95vw,780px)] bg-zinc-900 overflow-hidden rounded-xl border-[4px] border-black shadow-inner"
+    >
         {displayBoard.map((row, i) =>
           row.map((piece, j) => {
             const rowIdx = orientation === 'w' ? i : 7 - i;
@@ -226,7 +225,6 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orie
             );
           })
         )}
-      </div>
       <style>{`
         @keyframes pieceAppear {
           0%   { opacity: 0; transform: scale(0.88) translateY(6px); }
@@ -234,6 +232,7 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orie
           100% { opacity: 1; transform: scale(1)    translateY(0);   }
         }
       `}</style>
-    </div>
+      </div>
+
   );
 }
