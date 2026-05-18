@@ -265,14 +265,14 @@ export default function PlayIAPage() {
   const labelText = isLight ? 'text-gray-500' : 'text-zinc-600';
 
   return (
-    <main className={`min-h-screen ${isLight ? 'bg-gray-50' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
-      <div className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-500 ${isLight ? 'opacity-0' : 'opacity-100'}`}>
-        <div className="absolute inset-0 bg-[#06010a]" />
-        <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[85%] h-[75%] bg-red-500/35 blur-[180px] rounded-full animate-pulse" />
-        <div className="absolute top-[5%] right-[-10%] w-[45%] h-[55%] bg-rose-600/25 blur-[160px] rounded-full animate-pulse [animation-delay:1.2s]" />
-        <div className="absolute bottom-[-25%] left-1/2 -translate-x-1/2 w-[90%] h-[70%] bg-red-800/30 blur-[200px] rounded-full animate-pulse [animation-delay:2.5s]" />
-        <div className="absolute inset-0 opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:32px_32px]" />
-        <div className="absolute inset-0 opacity-[0.22] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+    <main className={`min-h-screen ${isLight ? 'bg-[#fff7f8]' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+      <div className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-500 opacity-100">
+        <div className={`absolute inset-0 ${isLight ? 'bg-[#fff7f8]' : 'bg-[#06010a]'}`} />
+        <div className={`absolute top-[-25%] left-1/2 -translate-x-1/2 w-[85%] h-[75%] blur-[180px] rounded-full animate-pulse ${isLight ? 'bg-red-200/55' : 'bg-red-500/35'}`} />
+        <div className={`absolute top-[5%] right-[-10%] w-[45%] h-[55%] blur-[160px] rounded-full animate-pulse [animation-delay:1.2s] ${isLight ? 'bg-rose-300/35' : 'bg-rose-600/25'}`} />
+        <div className={`absolute bottom-[-25%] left-1/2 -translate-x-1/2 w-[90%] h-[70%] blur-[200px] rounded-full animate-pulse [animation-delay:2.5s] ${isLight ? 'bg-red-100/70' : 'bg-red-800/30'}`} />
+        <div className={`absolute inset-0 [background-size:32px_32px] ${isLight ? 'opacity-[0.2] [background-image:radial-gradient(rgba(190,18,60,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
+        <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] ${isLight ? 'opacity-[0.14] mix-blend-multiply' : 'opacity-[0.22] mix-blend-overlay'}`} />
       </div>
 
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">

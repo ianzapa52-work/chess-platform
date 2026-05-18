@@ -412,15 +412,15 @@ export default function OnlinePremiumPage() {
   const labelText = isLight ? 'text-gray-500' : 'text-gold';
 
   return (
-    <main className={`min-h-screen ${isLight ? 'bg-gray-50' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+    <main className={`min-h-screen ${isLight ? 'bg-[#fffaf0]' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
       <style>{searchAnimations}</style>
 
-      <div className={`fixed inset-0 z-0 transition-opacity duration-500 ${isLight ? 'opacity-0' : 'opacity-100'}`}>
-        <div className="absolute inset-0 bg-[#070502]" />
-        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-gold/20 blur-[200px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-gold/10 blur-[200px] rounded-full animate-pulse [animation-delay:2s]" />
-        <div className="absolute inset-0 opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:32px_32px]" />
-        <div className="absolute inset-0 opacity-[0.2] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div className="fixed inset-0 z-0 transition-opacity duration-500 opacity-100">
+        <div className={`absolute inset-0 ${isLight ? 'bg-[#fffaf0]' : 'bg-[#070502]'}`} />
+        <div className={`absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse ${isLight ? 'bg-gold/25' : 'bg-gold/20'}`} />
+        <div className={`absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse [animation-delay:2s] ${isLight ? 'bg-amber-100/80' : 'bg-gold/10'}`} />
+        <div className={`absolute inset-0 [background-size:32px_32px] ${isLight ? 'opacity-[0.22] [background-image:radial-gradient(rgba(180,83,9,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
+        <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] ${isLight ? 'opacity-[0.14] mix-blend-multiply' : 'opacity-[0.2] mix-blend-overlay'}`} />
       </div>
 
       {drawOfferSender && (

@@ -189,13 +189,13 @@ export default function LocalPremiumPage() {
   const subText = isLight ? 'text-gray-500' : 'text-zinc-400';
 
   return (
-    <main className={`min-h-screen ${isLight ? 'bg-gray-50' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
-      <div className={`fixed inset-0 z-0 transition-opacity duration-500 ${isLight ? 'opacity-0' : 'opacity-100'}`}>
-        <div className="absolute inset-0 bg-[#00050a]" />
-        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-blue-600/25 blur-[200px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-blue-900/30 blur-[200px] rounded-full animate-pulse [animation-delay:2s]" />
-        <div className="absolute inset-0 opacity-[0.2] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:32px_32px]" />
-        <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+    <main className={`min-h-screen ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#020202]'} text-zinc-400 p-6 xl:p-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+      <div className="fixed inset-0 z-0 transition-opacity duration-500 opacity-100">
+        <div className={`absolute inset-0 ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#00050a]'}`} />
+        <div className={`absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse ${isLight ? 'bg-sky-200/55' : 'bg-blue-600/25'}`} />
+        <div className={`absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse [animation-delay:2s] ${isLight ? 'bg-blue-100/70' : 'bg-blue-900/30'}`} />
+        <div className={`absolute inset-0 [background-size:32px_32px] ${isLight ? 'opacity-[0.22] [background-image:radial-gradient(rgba(37,99,235,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.2] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
+        <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] ${isLight ? 'opacity-[0.14] mix-blend-multiply' : 'opacity-[0.25] mix-blend-overlay'}`} />
       </div>
 
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-start">

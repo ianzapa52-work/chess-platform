@@ -328,13 +328,13 @@ export default function PuzzlesPremiumPage() {
   const objective = puzzle?.themes?.filter(Boolean)[0] ?? "Encuentra la jugada";
 
   return (
-    <main className="min-h-screen bg-[#020202] [.light_&]:bg-gray-50 text-zinc-400 p-4 xl:p-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
-      <div className="fixed inset-0 z-0 pointer-events-none [.light_&]:opacity-0">
-        <div className="absolute inset-0 bg-[#050508]" />
-        <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-emerald-600/45 blur-[200px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-emerald-500/30 blur-[200px] rounded-full animate-pulse [animation-delay:2s]" />
-        <div className="absolute inset-0 opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)] [background-size:32px_32px]" />
+    <main className="min-h-screen bg-[#020202] [.light_&]:bg-[#f3fff8] text-zinc-400 p-4 xl:p-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[#050508] [.light_&]:bg-[#f3fff8]" />
+        <div className="absolute inset-0 opacity-[0.15] [.light_&]:opacity-[0.14] mix-blend-overlay [.light_&]:mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-emerald-600/45 [.light_&]:bg-emerald-200/60 blur-[200px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-emerald-500/30 [.light_&]:bg-green-100/80 blur-[200px] rounded-full animate-pulse [animation-delay:2s]" />
+        <div className="absolute inset-0 opacity-[0.18] [.light_&]:opacity-[0.22] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)] [.light_&]:[background-image:radial-gradient(rgba(5,150,105,0.42)_1.5px,transparent_1.5px)] [background-size:32px_32px]" />
       </div>
 
       <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
