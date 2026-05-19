@@ -281,6 +281,7 @@ function ChallengeToastItem({ notification, onClose, index }: { notification: Ap
       });
       if (res.ok) {
         const body = await res.json();
+        window.dispatchEvent(new CustomEvent("challenge-game-join", { detail: { game_id: body.game_id } }));
         handleClose();
         router.push(`/play-online?game_id=${body.game_id}`);
         return;
