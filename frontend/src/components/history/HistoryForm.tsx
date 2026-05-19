@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from 'react';
 import { Cinzel } from "next/font/google";
@@ -99,13 +99,13 @@ export default function HistoryForm() {
 
       {/* HEADER */}
       <div className="flex flex-col items-center shrink-0 pt-10 px-6">
-        <h2 className="text-6xl md:text-5xl font-black text-white [.light_&]:text-gray-900 tracking-[0.25em] uppercase mb-3 text-center">
+        <h2 className="text-6xl md:text-5xl font-black text-white in-[.light]:text-gray-900 tracking-[0.25em] uppercase mb-3 text-center">
           Historial
         </h2>
         <div className="text-gold/70 text-[11px] tracking-[0.5em] uppercase font-black mb-8">
           Registros de Batalla Real
         </div>
-        <div className="w-full h-px bg-white/10 [.light_&]:bg-black/10"></div>
+        <div className="w-full h-px bg-white/10 in-[.light]:bg-black/10"></div>
 
         {/* FILTROS */}
         <div className="flex flex-wrap justify-center gap-2 py-6">
@@ -116,14 +116,14 @@ export default function HistoryForm() {
               className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border cursor-pointer ${
                 filter === f
                   ? 'bg-gold text-black border-gold shadow-[0_0_15px_rgba(212,175,55,0.3)]'
-                  : 'text-zinc-500 [.light_&]:text-gray-400 border-white/5 [.light_&]:border-gray-200 hover:border-white/20 [.light_&]:hover:border-gray-400 hover:text-white [.light_&]:hover:text-gray-700'
+                  : 'text-zinc-500 in-[.light]:text-gray-400 border-white/5 in-[.light]:border-gray-200 hover:border-white/20 in-[.light]:hover:border-gray-400 hover:text-white in-[.light]:hover:text-gray-700'
               }`}
             >
               {f === 'all' ? 'Todo' : f === 'win' ? 'Victorias' : f === 'loss' ? 'Derrotas' : 'Tablas'}
             </button>
           ))}
         </div>
-        <div className="w-full h-px bg-white/10 [.light_&]:bg-black/10"></div>
+        <div className="w-full h-px bg-white/10 in-[.light]:bg-black/10"></div>
       </div>
 
       {/* LISTA */}
@@ -139,27 +139,27 @@ export default function HistoryForm() {
               className={`w-full group flex items-center justify-between p-4 md:p-6 border ${style.border} ${style.bg} rounded-2xl transition-all duration-300 hover:scale-[1.01] hover:border-gold/40`}
             >
               <div className="flex items-center gap-6">
-                <div className="hidden md:flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-black/40 [.light_&]:bg-white [.light_&]:shadow border border-white/5 [.light_&]:border-gray-200 font-black">
+                <div className="hidden md:flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-black/40 in-[.light]:bg-white in-[.light]:shadow border border-white/5 in-[.light]:border-gray-200 font-black">
                   <span className="text-gold text-[10px] uppercase">{game.mode}</span>
-                  <span className="text-zinc-500 [.light_&]:text-gray-400 text-[8px] uppercase">FIN</span>
+                  <span className="text-zinc-500 in-[.light]:text-gray-400 text-[8px] uppercase">FIN</span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`text-xl md:text-2xl font-black uppercase tracking-wider ${style.color}`}>
                       {style.label}
                     </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 [.light_&]:bg-gray-100 text-zinc-400 [.light_&]:text-gray-500">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 in-[.light]:bg-gray-100 text-zinc-400 in-[.light]:text-gray-500">
                       {game.result}
                     </span>
                   </div>
-                  <p className="text-zinc-400 [.light_&]:text-gray-500 text-xs font-bold uppercase tracking-widest">
-                    vs <span className="text-white [.light_&]:text-gray-900">{opponent}</span>
+                  <p className="text-zinc-400 in-[.light]:text-gray-500 text-xs font-bold uppercase tracking-widest">
+                    vs <span className="text-white in-[.light]:text-gray-900">{opponent}</span>
                   </p>
                 </div>
               </div>
 
               <div className="hidden sm:block text-right">
-                <p className="text-white [.light_&]:text-gray-800 font-bold tracking-widest text-xs uppercase mb-1">
+                <p className="text-white in-[.light]:text-gray-800 font-bold tracking-widest text-xs uppercase mb-1">
                   {new Date(game.created_at).toLocaleDateString("es-ES", { day: '2-digit', month: 'short' })}
                 </p>
                 <p className="text-[10px] text-zinc-500 font-bold uppercase">ID: {game.id.slice(0, 8)}</p>
@@ -167,7 +167,7 @@ export default function HistoryForm() {
             </div>
           );
         }) : (
-          <div className="text-center py-20 text-zinc-600 [.light_&]:text-gray-400 uppercase tracking-widest text-xs">
+          <div className="text-center py-20 text-zinc-600 in-[.light]:text-gray-400 uppercase tracking-widest text-xs">
             No hay registros en la base de datos
           </div>
         )}
@@ -175,7 +175,7 @@ export default function HistoryForm() {
 
       {/* FOOTER */}
       <div className="shrink-0 pt-2 pb-8 flex flex-col items-center px-6">
-        <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-50 mb-6"></div>
+        <div className="w-full max-w-md h-px bg-linear-to-r from-transparent via-gold to-transparent opacity-50 mb-6"></div>
         <p className="text-[10px] text-zinc-500 font-bold tracking-[0.3em] uppercase">
           Welikechess • Cloud Sync
         </p>

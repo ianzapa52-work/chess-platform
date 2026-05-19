@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -85,22 +85,22 @@ export default function HomePage() {
     : null;
 
   return (
-    <div className="flex flex-col bg-[#070707] [.light_&]:bg-[#f4f4f5] text-zinc-300 [.light_&]:text-zinc-800 font-sans h-[calc(100vh-80px)] md:h-[calc(100vh-96px)] overflow-hidden transition-colors duration-500">
-      <div className="flex-grow grid grid-cols-12 overflow-hidden">
+    <div className="flex flex-col bg-[#070707] in-[.light]:bg-[#f4f4f5] text-zinc-300 in-[.light]:text-zinc-800 font-sans h-[calc(100vh-80px)] md:h-[calc(100vh-96px)] overflow-hidden transition-colors duration-500">
+      <div className="grow grid grid-cols-12 overflow-hidden">
 
         {/* ── SIDEBAR IZQUIERDA ── */}
-        <aside className="col-span-2 hidden xl:flex border-r border-[#d4af37]/10 bg-[#0a0a0a] [.light_&]:bg-white flex-col overflow-hidden">
+        <aside className="col-span-2 hidden xl:flex border-r border-gold/10 bg-[#0a0a0a] in-[.light]:bg-white flex-col overflow-hidden">
           <HomeFriendsSidebar />
         </aside>
 
         {/* ── MAIN ── */}
-        <main className="col-span-12 xl:col-span-8 flex flex-col overflow-y-auto custom-scrollbar bg-[radial-gradient(circle_at_top,#1a1a1a_0%,#050505_100%)] [.light_&]:bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f4f5_100%)]">
-          <section className="p-8 md:p-12 max-w-[1400px] mx-auto w-full pt-8 pb-16">
+        <main className="col-span-12 xl:col-span-8 flex flex-col overflow-y-auto custom-scrollbar bg-[radial-gradient(circle_at_top,#1a1a1a_0%,#050505_100%)] in-[.light]:bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f4f5_100%)]">
+          <section className="p-8 md:p-12 max-w-350 mx-auto w-full pt-8 pb-16">
 
-            <div className="mb-12 border-l-4 border-[#d4af37] pl-8 py-2 bg-gradient-to-r from-[#d4af37]/5 to-transparent rounded-r-xl">
-              <p className="text-[11px] font-black uppercase text-[#d4af37]/70 tracking-[0.5em] mb-1">Nuestro Ajedrez</p>
-              <h2 className="text-6xl font-light text-white [.light_&]:text-black italic tracking-tight leading-none font-['Cinzel']">
-                ¿Cuál será<span className="text-[#d4af37] font-normal"> tu próximo movimiento?</span>
+            <div className="mb-12 border-l-4 border-gold pl-8 py-2 bg-linear-to-r from-gold/5 to-transparent rounded-r-xl">
+              <p className="text-[11px] font-black uppercase text-gold/70 tracking-[0.5em] mb-1">Nuestro Ajedrez</p>
+              <h2 className="text-6xl font-light text-white in-[.light]:text-black italic tracking-tight leading-none font-['Cinzel']">
+                ¿Cuál será<span className="text-gold font-normal"> tu próximo movimiento?</span>
               </h2>
             </div>
 
@@ -115,14 +115,14 @@ export default function HomePage() {
                 <HomeRecentActivity />
               </SectionBox>
               <SectionBox title="Desafío Táctico">
-                <div className="flex gap-6 items-center flex-grow bg-[#d4af37]/5 [.light_&]:bg-[#d4af37]/10 rounded-2xl p-6 border border-[#d4af37]/10">
-                  <div className="w-24 h-24 rounded-lg bg-black/40 [.light_&]:bg-white/50 border border-[#d4af37]/20 flex items-center justify-center text-5xl">🧩</div>
-                  <div className="flex-grow">
-                    <p className="text-[11px] text-[#d4af37]/70 font-black uppercase tracking-widest">Dificultad Media</p>
-                    <h4 className="text-xl font-bold text-white [.light_&]:text-black uppercase tracking-tight mt-1 font-['Cinzel']">Ganan Blancas</h4>
-                    <p className="text-xs text-zinc-400 [.light_&]:text-zinc-600 mt-1">Encuentra la secuencia de mate forzado.</p>
+                <div className="flex gap-6 items-center grow bg-gold/5 in-[.light]:bg-gold/10 rounded-2xl p-6 border border-gold/10">
+                  <div className="w-24 h-24 rounded-lg bg-black/40 in-[.light]:bg-white/50 border border-gold/20 flex items-center justify-center text-5xl">🧩</div>
+                  <div className="grow">
+                    <p className="text-[11px] text-gold/70 font-black uppercase tracking-widest">Dificultad Media</p>
+                    <h4 className="text-xl font-bold text-white in-[.light]:text-black uppercase tracking-tight mt-1 font-['Cinzel']">Ganan Blancas</h4>
+                    <p className="text-xs text-zinc-400 in-[.light]:text-zinc-600 mt-1">Encuentra la secuencia de mate forzado.</p>
                   </div>
-                  <Link href="/puzzles" className="px-6 py-3 bg-[#d4af37] text-black rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white [.light_&]:hover:bg-black [.light_&]:hover:text-white transition-colors shadow-lg active:scale-95">
+                  <Link href="/puzzles" className="px-6 py-3 bg-gold text-black rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white in-[.light]:hover:bg-black in-[.light]:hover:text-white transition-colors shadow-lg active:scale-95">
                     Resolver
                   </Link>
                 </div>
@@ -132,8 +132,8 @@ export default function HomePage() {
         </main>
 
         {/* ── SIDEBAR DERECHA ── */}
-        <aside className="hidden xl:flex col-span-2 bg-[#0a0a0a] [.light_&]:bg-white border-l border-[#d4af37]/10 flex-col overflow-hidden relative">
-          <div className="absolute left-0 top-0 w-[1px] h-full bg-gradient-to-b from-transparent via-[#d4af37]/20 to-transparent" />
+        <aside className="hidden xl:flex col-span-2 bg-[#0a0a0a] in-[.light]:bg-white border-l border-gold/10 flex-col overflow-hidden relative">
+          <div className="absolute left-0 top-0 w-px h-full bg-linear-to-b from-transparent via-gold/20 to-transparent" />
 
           <div className="px-3 py-6 flex flex-col h-full overflow-y-auto custom-scrollbar gap-5 pb-4">
 
@@ -143,31 +143,31 @@ export default function HomePage() {
             </div>
 
             {/* Separador */}
-            <div className="h-px bg-gradient-to-r from-transparent via-[#d4af37]/15 to-transparent" />
+            <div className="h-px bg-linear-to-r from-transparent via-gold/15 to-transparent" />
 
             {/* Cita */}
-            <div className="bg-gradient-to-br from-[#d4af37]/8 to-transparent rounded-2xl p-4 border border-[#d4af37]/10 relative overflow-hidden">
-              <div className="absolute -top-3 -left-1 text-6xl text-[#d4af37]/8 font-serif leading-none select-none">"</div>
-              <p className="text-[10px] font-black uppercase text-[#d4af37]/60 tracking-[0.3em] mb-2">Cita del maestro</p>
-              <p className="text-[12px] italic text-zinc-300 [.light_&]:text-zinc-700 leading-relaxed font-serif relative z-10">"{quote.text}"</p>
-              <p className="text-[9px] font-bold text-zinc-600 [.light_&]:text-zinc-400 uppercase tracking-widest mt-3">— {quote.author}</p>
+            <div className="bg-linear-to-br from-gold/8 to-transparent rounded-2xl p-4 border border-gold/10 relative overflow-hidden">
+              <div className="absolute -top-3 -left-1 text-6xl text-gold/8 font-serif leading-none select-none">"</div>
+              <p className="text-[10px] font-black uppercase text-gold/60 tracking-[0.3em] mb-2">Cita del maestro</p>
+              <p className="text-[12px] italic text-zinc-300 in-[.light]:text-zinc-700 leading-relaxed font-serif relative z-10">"{quote.text}"</p>
+              <p className="text-[9px] font-bold text-zinc-600 in-[.light]:text-zinc-400 uppercase tracking-widest mt-3">— {quote.author}</p>
             </div>
 
             {/* Separador */}
-            <div className="h-px bg-gradient-to-r from-transparent via-[#d4af37]/15 to-transparent" />
+            <div className="h-px bg-linear-to-r from-transparent via-gold/15 to-transparent" />
 
             {/* ── BLOQUE DE STATS REALES ── */}
             <div className="flex flex-col gap-3">
               {/* Header con username */}
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-1 h-4 bg-[#d4af37] rounded-full" />
-                  <p className="text-[10px] font-black uppercase text-zinc-400 [.light_&]:text-zinc-500 tracking-[0.25em]">
+                  <div className="w-1 h-4 bg-gold rounded-full" />
+                  <p className="text-[10px] font-black uppercase text-zinc-400 in-[.light]:text-zinc-500 tracking-[0.25em]">
                     {userStats ? userStats.username : 'Tu Perfil'}
                   </p>
                 </div>
                 {!statsLoading && userStats?.rank && (
-                  <span className="text-[9px] font-black text-[#d4af37] bg-[#d4af37]/10 border border-[#d4af37]/20 px-2 py-0.5 rounded-full tracking-widest">
+                  <span className="text-[9px] font-black text-gold bg-gold/10 border border-gold/20 px-2 py-0.5 rounded-full tracking-widest">
                     #{userStats.rank}
                   </span>
                 )}
@@ -177,7 +177,7 @@ export default function HomePage() {
               {statsLoading ? (
                 <div className="grid grid-cols-2 gap-2">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className="h-16 rounded-xl bg-white/[0.03] border border-white/5 animate-pulse" />
+                    <div key={i} className="h-16 rounded-xl bg-white/3 border border-white/5 animate-pulse" />
                   ))}
                 </div>
               ) : userStats ? (
@@ -222,18 +222,18 @@ export default function HomePage() {
                   {/* Link al perfil */}
                   <Link
                     href="/profile"
-                    className="mt-1 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#d4af37]/20 bg-[#d4af37]/5 hover:bg-[#d4af37]/10 hover:border-[#d4af37]/40 transition-all group"
+                    className="mt-1 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gold/20 bg-gold/5 hover:bg-gold/10 hover:border-gold/40 transition-all group"
                   >
-                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#d4af37]/70 group-hover:text-[#d4af37] transition-colors">
+                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-gold/70 group-hover:text-gold transition-colors">
                       Ver perfil completo
                     </span>
-                    <span className="text-[#d4af37]/40 group-hover:text-[#d4af37] transition-all group-hover:translate-x-0.5 text-xs">→</span>
+                    <span className="text-gold/40 group-hover:text-gold transition-all group-hover:translate-x-0.5 text-xs">→</span>
                   </Link>
                 </>
               ) : (
                 <div className="text-center py-4">
                   <p className="text-[9px] text-zinc-600 uppercase tracking-widest">Sin sesión activa</p>
-                  <Link href="/auth" className="text-[9px] text-[#d4af37]/60 hover:text-[#d4af37] transition-colors mt-1 block">
+                  <Link href="/auth" className="text-[9px] text-gold/60 hover:text-gold transition-colors mt-1 block">
                     Iniciar sesión →
                   </Link>
                 </div>
@@ -247,7 +247,7 @@ export default function HomePage() {
             </div>
 
             {/* Footer */}
-            <div className="mt-auto pt-4 border-t border-white/5 [.light_&]:border-black/5">
+            <div className="mt-auto pt-4 border-t border-white/5 in-[.light]:border-black/5">
               <div className="px-1 flex items-center justify-between">
                 <PingCounter />
                 <LiveBadge />
@@ -312,7 +312,7 @@ function WDLBar({ wins, draws, losses, total }: { wins: number; draws: number; l
           style={{ width: `${dPct}%` }}
         />
         <div
-          className="h-full bg-red-500/70 transition-all duration-1000 flex-grow rounded-r-full"
+          className="h-full bg-red-500/70 transition-all duration-1000 grow rounded-r-full"
           style={{ width: `${lPct}%` }}
         />
       </div>
@@ -340,9 +340,9 @@ function MiniStat({ label, value, color }: { label: string; value: number; color
 function EloRow({ mode, elo, color, icon }: { mode: string; elo: number; color: string; icon: string }) {
   const pct = Math.min(100, Math.max(0, ((elo - 800) / (3200 - 800)) * 100));
   return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all group">
+    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/2 border border-white/5 hover:border-white/10 transition-all group">
       <span className="text-sm w-4 text-center">{icon}</span>
-      <div className="flex-grow min-w-0">
+      <div className="grow min-w-0">
         <div className="flex items-center justify-between mb-1">
           <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">{mode}</span>
           <span className="text-[10px] font-black font-['Cinzel']" style={{ color }}>{elo}</span>
@@ -361,11 +361,11 @@ function EloRow({ mode, elo, color, icon }: { mode: string; elo: number; color: 
 function ActivityBars() {
   const heights = [35, 65, 45, 80, 55, 70, 40];
   return (
-    <div className="h-16 w-full bg-black/30 [.light_&]:bg-white rounded-xl border border-white/5 [.light_&]:border-black/10 px-3 py-2 flex items-end gap-1">
+    <div className="h-16 w-full bg-black/30 in-[.light]:bg-white rounded-xl border border-white/5 in-[.light]:border-black/10 px-3 py-2 flex items-end gap-1">
       {heights.map((h, i) => (
         <div
           key={i}
-          className="flex-grow rounded-t-sm transition-all duration-700"
+          className="grow rounded-t-sm transition-all duration-700"
           style={{
             height: `${h}%`,
             background: `linear-gradient(to top, #d4af37${Math.round(0.5 * 255).toString(16)}, #d4af37${Math.round(0.2 * 255).toString(16)})`,
@@ -389,7 +389,7 @@ function GameCard({ href, title, subtitle, desc, stats, img, online = false }: a
   return (
     <Link
       href={href}
-      className="group relative h-64 rounded-3xl border border-[#d4af37]/20 bg-black/40 [.light_&]:bg-white p-8 overflow-hidden flex flex-col justify-between hover:border-[#d4af37] hover:shadow-[0_0_50px_rgba(212,175,55,0.2)] hover:-translate-y-2 transition-all duration-500 shadow-xl"
+      className="group relative h-64 rounded-3xl border border-gold/20 bg-black/40 in-[.light]:bg-white p-8 overflow-hidden flex flex-col justify-between hover:border-gold hover:shadow-[0_0_50px_rgba(212,175,55,0.2)] hover:-translate-y-2 transition-all duration-500 shadow-xl"
     >
       <div className="absolute -top-10 -right-10 opacity-10 group-hover:opacity-30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
         <img src={img} className="w-48" alt="" />
@@ -397,15 +397,15 @@ function GameCard({ href, title, subtitle, desc, stats, img, online = false }: a
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-2">
           {online && <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_#22c55e]" />}
-          <span className="text-[#d4af37] text-xs font-black uppercase tracking-[0.4em]">{subtitle}</span>
+          <span className="text-gold text-xs font-black uppercase tracking-[0.4em]">{subtitle}</span>
         </div>
-        <h3 className="text-3xl font-bold text-white [.light_&]:text-black uppercase tracking-tighter leading-tight group-hover:text-[#d4af37] transition-colors font-['Cinzel']">
+        <h3 className="text-3xl font-bold text-white in-[.light]:text-black uppercase tracking-tighter leading-tight group-hover:text-gold transition-colors font-['Cinzel']">
           {title}
         </h3>
       </div>
-      <div className="relative z-10 bg-black/50 [.light_&]:bg-zinc-100 backdrop-blur-sm p-4 rounded-xl border border-white/5 [.light_&]:border-black/5 mt-auto">
-        <p className="text-sm text-zinc-300 [.light_&]:text-zinc-700">{desc}</p>
-        <span className="text-[10px] text-zinc-500 [.light_&]:text-zinc-400 uppercase font-bold mt-2 block tracking-widest">{stats}</span>
+      <div className="relative z-10 bg-black/50 in-[.light]:bg-zinc-100 backdrop-blur-sm p-4 rounded-xl border border-white/5 in-[.light]:border-black/5 mt-auto">
+        <p className="text-sm text-zinc-300 in-[.light]:text-zinc-700">{desc}</p>
+        <span className="text-[10px] text-zinc-500 in-[.light]:text-zinc-400 uppercase font-bold mt-2 block tracking-widest">{stats}</span>
       </div>
     </Link>
   );
@@ -413,11 +413,11 @@ function GameCard({ href, title, subtitle, desc, stats, img, online = false }: a
 
 function SectionBox({ title, children }: any) {
   return (
-    <div className="bg-black/50 [.light_&]:bg-white border border-[#d4af37]/15 rounded-3xl p-8 relative overflow-hidden shadow-2xl transition-all duration-500 hover:border-[#d4af37]/40 group">
+    <div className="bg-black/50 in-[.light]:bg-white border border-gold/15 rounded-3xl p-8 relative overflow-hidden shadow-2xl transition-all duration-500 hover:border-gold/40 group">
       <div className="relative z-10">
-        <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/5 [.light_&]:border-black/5">
-          <h3 className="text-sm font-black uppercase text-[#d4af37] tracking-[0.3em] flex items-center gap-3">
-            <span className="w-2 h-2 bg-[#d4af37] rounded-full animate-pulse" /> {title}
+        <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/5 in-[.light]:border-black/5">
+          <h3 className="text-sm font-black uppercase text-gold tracking-[0.3em] flex items-center gap-3">
+            <span className="w-2 h-2 bg-gold rounded-full animate-pulse" /> {title}
           </h3>
         </div>
         {children}

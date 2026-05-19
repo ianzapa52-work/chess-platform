@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import PuzzleBoard from '@/components/game/PuzzleBoard';
@@ -46,9 +46,9 @@ async function fetchRandomPuzzle(): Promise<ApiPuzzle> {
 function Divider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 px-1">
-      <div className="flex-1 h-px bg-white/5 [.light_&]:bg-gray-200" />
-      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 [.light_&]:text-gray-500">{label}</span>
-      <div className="flex-1 h-px bg-white/5 [.light_&]:bg-gray-200" />
+      <div className="flex-1 h-px bg-white/5 in-[.light]:bg-gray-200" />
+      <span className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 in-[.light]:text-gray-500">{label}</span>
+      <div className="flex-1 h-px bg-white/5 in-[.light]:bg-gray-200" />
     </div>
   );
 }
@@ -56,10 +56,10 @@ function Divider({ label }: { label: string }) {
 function Stat({ value, label, accent }: { value: string | number; label: string; accent?: boolean }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className={`text-2xl font-black tabular-nums leading-none ${accent ? 'text-emerald-400' : 'text-white [.light_&]:text-gray-900'}`}>
+      <span className={`text-2xl font-black tabular-nums leading-none ${accent ? 'text-emerald-400' : 'text-white in-[.light]:text-gray-900'}`}>
         {value}
       </span>
-      <span className="text-[9px] uppercase tracking-[0.25em] text-zinc-500 [.light_&]:text-gray-500 font-black">{label}</span>
+      <span className="text-[9px] uppercase tracking-[0.25em] text-zinc-500 in-[.light]:text-gray-500 font-black">{label}</span>
     </div>
   );
 }
@@ -67,8 +67,8 @@ function Stat({ value, label, accent }: { value: string | number; label: string;
 function ThemeBadge({ theme }: { theme: string }) {
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider
-      bg-emerald-950/50 [.light_&]:bg-emerald-50 border border-emerald-500/15 [.light_&]:border-emerald-300/50 text-emerald-400/70 [.light_&]:text-emerald-700 hover:border-emerald-500/40 [.light_&]:hover:border-emerald-400
-      hover:text-emerald-300 [.light_&]:hover:text-emerald-600 transition-colors duration-200">
+      bg-emerald-950/50 in-[.light]:bg-emerald-50 border border-emerald-500/15 in-[.light]:border-emerald-300/50 text-emerald-400/70 in-[.light]:text-emerald-700 hover:border-emerald-500/40 in-[.light]:hover:border-emerald-400
+      hover:text-emerald-300 in-[.light]:hover:text-emerald-600 transition-colors duration-200">
       {theme}
     </span>
   );
@@ -78,11 +78,11 @@ function Panel({ children, className = "", accent = false }: {
   children: ReactNode; className?: string; accent?: boolean;
 }) {
   return (
-    <div className={`relative rounded-2xl border bg-zinc-950/60 [.light_&]:bg-white backdrop-blur-xl overflow-hidden ${
-      accent ? 'border-emerald-500/20 [.light_&]:border-emerald-300/50' : 'border-white/[0.06] [.light_&]:border-gray-200'
+    <div className={`relative rounded-2xl border bg-zinc-950/60 in-[.light]:bg-white backdrop-blur-xl overflow-hidden ${
+      accent ? 'border-emerald-500/20 in-[.light]:border-emerald-300/50' : 'border-white/6 in-[.light]:border-gray-200'
     } ${className}`}>
       {accent && (
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent" />
+        <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-emerald-500/60 to-transparent" />
       )}
       {children}
     </div>
@@ -102,11 +102,11 @@ function LeftPanel({
     <div className="flex flex-col gap-4">
       <Panel accent>
         <div className="p-5">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/70 [.light_&]:text-emerald-700 mb-3">
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/70 in-[.light]:text-emerald-700 mb-3">
             Objetivo
           </p>
-          <div className="rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-900/20 [.light_&]:from-emerald-50 [.light_&]:to-emerald-100/80
-            border border-emerald-500/20 [.light_&]:border-emerald-300/60 px-4 py-5 flex items-center justify-center min-h-[72px]">
+          <div className="rounded-xl bg-linear-to-br from-emerald-500/15 to-emerald-900/20 in-[.light]:from-emerald-50 in-[.light]:to-emerald-100/80
+            border border-emerald-500/20 in-[.light]:border-emerald-300/60 px-4 py-5 flex items-center justify-center min-h-[72px]">
             {loading ? (
               <div className="flex gap-1.5">
                 {[0, 150, 300].map(d => (
@@ -115,7 +115,7 @@ function LeftPanel({
                 ))}
               </div>
             ) : (
-              <p className="text-center font-black text-sm uppercase tracking-widest text-emerald-300 [.light_&]:text-emerald-700 leading-tight">
+              <p className="text-center font-black text-sm uppercase tracking-widest text-emerald-300 in-[.light]:text-emerald-700 leading-tight">
                 {objective}
               </p>
             )}
@@ -125,12 +125,12 @@ function LeftPanel({
 
       <Panel>
         <div className="p-5 flex flex-col items-center gap-3">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 [.light_&]:text-gray-500">Estado</p>
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 in-[.light]:text-gray-500">Estado</p>
           <div className="relative w-full flex items-center justify-center py-3">
             <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full transition-all duration-500 ${
               feedback.color === 'text-emerald-400' ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
               : feedback.color === 'text-red-500'   ? 'bg-red-400'
-              : 'bg-zinc-700 [.light_&]:bg-gray-300'
+              : 'bg-zinc-700 in-[.light]:bg-gray-300'
             }`} />
             {loading ? (
               <div className="flex gap-1.5">
@@ -143,7 +143,7 @@ function LeftPanel({
               <p className="text-red-400 font-black text-xs text-center">{error}</p>
             ) : (
               <h2 className={`text-2xl font-black italic tracking-tighter transition-all duration-300 ${
-                feedback.color === 'text-white' ? '[.light_&]:text-gray-900' : ''
+                feedback.color === 'text-white' ? 'in-[.light]:text-gray-900' : ''
               } ${feedback.color}`}>
                 {feedback.text}
               </h2>
@@ -156,8 +156,8 @@ function LeftPanel({
         onClick={onNext}
         disabled={loading}
         className="group relative w-full py-4 rounded-2xl overflow-hidden
-          border border-emerald-500/40 bg-emerald-950/30 [.light_&]:bg-emerald-50 [.light_&]:border-emerald-300
-          text-emerald-400 [.light_&]:text-emerald-700 font-black text-[10px] tracking-[0.3em] uppercase
+          border border-emerald-500/40 bg-emerald-950/30 in-[.light]:bg-emerald-50 in-[.light]:border-emerald-300
+          text-emerald-400 in-[.light]:text-emerald-700 font-black text-[10px] tracking-[0.3em] uppercase
           transition-all duration-200
           hover:bg-emerald-500 hover:text-black hover:border-emerald-400
           hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(16,185,129,0.25)]
@@ -198,23 +198,23 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
     <div className="flex flex-col gap-4">
       <Panel accent>
         <div className="p-5">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/70 [.light_&]:text-emerald-700 mb-4">
+          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/70 in-[.light]:text-emerald-700 mb-4">
             Sesión actual
           </p>
           <div className="flex justify-around items-center py-2">
             <Stat value={solvedCount} label="Resueltos" accent />
-            <div className="w-px h-10 bg-white/5 [.light_&]:bg-gray-200" />
+            <div className="w-px h-10 bg-white/5 in-[.light]:bg-gray-200" />
             <Stat value={solvedCount + failedCount > 0 ? `${Math.round((solvedCount / (solvedCount + failedCount)) * 100)}%` : "—"} label="Aciertos" />
           </div>
           {solvedCount > 0 && (
-            <div className="mt-4 pt-4 border-t border-white/[0.04] [.light_&]:border-gray-100">
+            <div className="mt-4 pt-4 border-t border-white/4 in-[.light]:border-gray-100">
               <div className="flex justify-between mb-2">
-                <span className="text-[9px] uppercase tracking-widest text-zinc-500 [.light_&]:text-gray-500 font-black">Racha</span>
-                <span className="text-[9px] font-black text-emerald-400 [.light_&]:text-emerald-600">{solvedCount} seguidos</span>
+                <span className="text-[9px] uppercase tracking-widest text-zinc-500 in-[.light]:text-gray-500 font-black">Racha</span>
+                <span className="text-[9px] font-black text-emerald-400 in-[.light]:text-emerald-600">{solvedCount} seguidos</span>
               </div>
-              <div className="h-1 rounded-full bg-zinc-900 [.light_&]:bg-gray-200 overflow-hidden">
+              <div className="h-1 rounded-full bg-zinc-900 in-[.light]:bg-gray-200 overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-700"
+                  className="h-full bg-linear-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-700"
                   style={{ width: `${Math.min(100, solvedCount * 10)}%` }}
                 />
               </div>
@@ -226,15 +226,15 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
       {puzzle && (
         <Panel>
           <div className="p-5 flex flex-col gap-4">
-            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 [.light_&]:text-gray-500">
+            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 in-[.light]:text-gray-500">
               Puzzle actual
             </p>
-            <div className="rounded-xl bg-black/30 [.light_&]:bg-gray-50 border border-white/[0.04] [.light_&]:border-gray-200 p-4 flex items-center justify-between">
+            <div className="rounded-xl bg-black/30 in-[.light]:bg-gray-50 border border-white/4 in-[.light]:border-gray-200 p-4 flex items-center justify-between">
               <div>
-                <p className="text-3xl font-black text-white [.light_&]:text-gray-900 tabular-nums leading-none">
+                <p className="text-3xl font-black text-white in-[.light]:text-gray-900 tabular-nums leading-none">
                   {puzzle.rating}
                 </p>
-                <p className="text-[9px] uppercase tracking-widest text-zinc-500 [.light_&]:text-gray-500 font-black mt-1">
+                <p className="text-[9px] uppercase tracking-widest text-zinc-500 in-[.light]:text-gray-500 font-black mt-1">
                   Elo del puzzle
                 </p>
               </div>
@@ -246,7 +246,7 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
                   <div className="flex gap-0.5 mt-2 justify-end">
                     {[1200, 1600, 2000, 2400].map((threshold, idx) => (
                       <div key={idx} className={`w-4 h-1 rounded-full transition-colors ${
-                        puzzle.rating >= threshold ? ratingLevel.color.replace('text-', 'bg-') : 'bg-zinc-800 [.light_&]:bg-gray-200'
+                        puzzle.rating >= threshold ? ratingLevel.color.replace('text-', 'bg-') : 'bg-zinc-800 in-[.light]:bg-gray-200'
                       }`} />
                     ))}
                   </div>
@@ -261,18 +261,18 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
                 {themes.slice(0, 6).map(t => <ThemeBadge key={t} theme={t} />)}
               </div>
             ) : (
-              <p className="text-zinc-600 [.light_&]:text-gray-400 text-[10px] italic">Sin temas asignados</p>
+              <p className="text-zinc-600 in-[.light]:text-gray-400 text-[10px] italic">Sin temas asignados</p>
             )}
 
             <Divider label="Info" />
 
             <div className="flex items-center justify-between">
-              <span className="text-[9px] uppercase tracking-widest text-zinc-600 [.light_&]:text-gray-500 font-black">ID Lichess</span>
+              <span className="text-[9px] uppercase tracking-widest text-zinc-600 in-[.light]:text-gray-500 font-black">ID Lichess</span>
               <a
                 href={`https://lichess.org/training/${puzzle.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] font-black text-zinc-400 [.light_&]:text-gray-600 hover:text-emerald-400 [.light_&]:hover:text-emerald-600 transition-colors
+                className="text-[10px] font-black text-zinc-400 in-[.light]:text-gray-600 hover:text-emerald-400 in-[.light]:hover:text-emerald-600 transition-colors
                   flex items-center gap-1 group"
               >
                 {puzzle.id}
@@ -368,16 +368,16 @@ export default function PuzzlesPremiumPage() {
   const objective = puzzle?.themes?.filter(Boolean)[0] ?? "Encuentra la jugada";
 
   return (
-    <main className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] bg-[#020202] [.light_&]:bg-[#f3fff8] text-zinc-400 pt-2 px-4 pb-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
+    <main className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] bg-[#020202] in-[.light]:bg-[#f3fff8] text-zinc-400 pt-2 px-4 pb-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[#050508] [.light_&]:bg-[#f3fff8]" />
-        <div className="absolute inset-0 opacity-[0.15] [.light_&]:opacity-[0.14] mix-blend-overlay [.light_&]:mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-emerald-600/45 [.light_&]:bg-emerald-200/60 blur-[200px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-emerald-500/30 [.light_&]:bg-green-100/80 blur-[200px] rounded-full animate-pulse [animation-delay:2s]" />
-        <div className="absolute inset-0 opacity-[0.18] [.light_&]:opacity-[0.22] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)] [.light_&]:[background-image:radial-gradient(rgba(5,150,105,0.42)_1.5px,transparent_1.5px)] [background-size:32px_32px]" />
+        <div className="absolute inset-0 bg-[#050508] in-[.light]:bg-[#f3fff8]" />
+        <div className="absolute inset-0 opacity-[0.15] in-[.light]:opacity-[0.14] mix-blend-overlay in-[.light]:mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-emerald-600/45 in-[.light]:bg-emerald-200/60 blur-[200px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] bg-emerald-500/30 in-[.light]:bg-green-100/80 blur-[200px] rounded-full animate-pulse [animation-delay:2s]" />
+        <div className="absolute inset-0 opacity-[0.18] in-[.light]:opacity-[0.22] bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)] in-[.light]:bg-[radial-gradient(rgba(5,150,105,0.42)_1.5px,transparent_1.5px)] bg-size-[32px_32px]" />
       </div>
 
-      <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
+      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
         <div className="col-span-12 xl:col-span-3">
           <LeftPanel
             loading={loading}
@@ -390,8 +390,8 @@ export default function PuzzlesPremiumPage() {
 
         <div className="col-span-12 xl:col-span-6 flex justify-center">
           {loading && (
-            <div className="w-[min(95vw,780px)] h-[min(95vw,780px)] rounded-2xl bg-zinc-900/40 [.light_&]:bg-gray-100
-              border border-white/[0.06] [.light_&]:border-gray-200 flex items-center justify-center">
+            <div className="w-[min(95vw,780px)] h-[min(95vw,780px)] rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
+              border border-white/6 in-[.light]:border-gray-200 flex items-center justify-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="flex gap-1.5">
                   {[0, 150, 300].map(d => (
@@ -399,7 +399,7 @@ export default function PuzzlesPremiumPage() {
                       style={{ animationDelay: `${d}ms` }} />
                   ))}
                 </div>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600 [.light_&]:text-gray-400 font-black">
+                <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600 in-[.light]:text-gray-400 font-black">
                   Cargando puzzle...
                 </p>
               </div>
@@ -407,8 +407,8 @@ export default function PuzzlesPremiumPage() {
           )}
 
           {error && !loading && (
-            <div className="w-[min(95vw,780px)] h-[min(95vw,780px)] rounded-2xl bg-zinc-900/40 [.light_&]:bg-gray-100
-              border border-red-500/10 [.light_&]:border-red-200 flex flex-col items-center justify-center gap-5">
+            <div className="w-[min(95vw,780px)] h-[min(95vw,780px)] rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
+              border border-red-500/10 in-[.light]:border-red-200 flex flex-col items-center justify-center gap-5">
               <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20
                 flex items-center justify-center">
                 <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -418,8 +418,8 @@ export default function PuzzlesPremiumPage() {
               <p className="text-red-400 font-black text-sm">{error}</p>
               <button
                 onClick={loadPuzzle}
-                className="py-2.5 px-6 rounded-xl border border-emerald-500/30 [.light_&]:border-emerald-400 text-emerald-400 [.light_&]:text-emerald-700
-                  font-black text-[10px] uppercase tracking-widest hover:bg-emerald-950/50 [.light_&]:hover:bg-emerald-50 transition-colors"
+                className="py-2.5 px-6 rounded-xl border border-emerald-500/30 in-[.light]:border-emerald-400 text-emerald-400 in-[.light]:text-emerald-700
+                  font-black text-[10px] uppercase tracking-widest hover:bg-emerald-950/50 in-[.light]:hover:bg-emerald-50 transition-colors"
               >
                 Reintentar
               </button>

@@ -1,4 +1,4 @@
-import RankingForm from "@/components/ranking/RankingForm";
+﻿import RankingForm from "@/components/ranking/RankingForm";
 
 export const metadata = {
   title: "WELIKECHESS | Ranking",
@@ -20,10 +20,10 @@ export default function RankingPage() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.5); }
         .custom-scrollbar-hidden::-webkit-scrollbar { display: none; }
       `}} />
-      <main className="h-screen w-full flex flex-col relative overflow-hidden bg-[#050505] [.light_&]:bg-white text-white [.light_&]:text-zinc-900">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#d4af37]/5 rounded-full blur-[160px] pointer-events-none"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#d4af37]/5 rounded-full blur-[160px] pointer-events-none"></div>
-        <div className="flex-grow min-h-0">
+      <main className="h-screen w-full flex flex-col relative overflow-hidden bg-[#050505] in-[.light]:bg-white text-white in-[.light]:text-zinc-900">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-gold/5 rounded-full blur-[160px] pointer-events-none"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-gold/5 rounded-full blur-[160px] pointer-events-none"></div>
+        <div className="grow min-h-0">
           <RankingForm />
         </div>
       </main>

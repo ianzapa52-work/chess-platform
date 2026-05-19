@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -72,7 +72,7 @@ export default function AchievementToast() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.18 }}
-              className="text-white/70 [.light_&]:text-zinc-700 text-sm font-black tracking-[0.35em] uppercase mt-3"
+              className="text-white/70 in-[.light]:text-zinc-700 text-sm font-black tracking-[0.35em] uppercase mt-3"
             >
               {notification}
             </motion.p>
@@ -82,7 +82,7 @@ export default function AchievementToast() {
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ delay: 0.08, duration: 0.25, ease: "easeOut" }}
-              className="mt-4 mx-auto h-px w-32 bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent"
+              className="mt-4 mx-auto h-px w-32 bg-linear-to-r from-transparent via-emerald-400/80 to-transparent"
             />
           </motion.div>
         </div>

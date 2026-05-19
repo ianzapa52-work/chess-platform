@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ReactNode, useState, useMemo, useEffect, useRef } from 'react';
 import { Trophy, Activity, Award, Search, Loader2, Zap, Timer, Coffee, Crown, TrendingUp, Flame } from 'lucide-react';
@@ -190,7 +190,7 @@ export default function RankingForm() {
               </div>
             </div>
 
-            <h3 className="text-white [.light_&]:text-zinc-900 font-['Cinzel'] font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-1">
+            <h3 className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-1">
               {leader?.name ?? '· · ·'}
             </h3>
             <div className="flex items-center gap-1.5 mb-1">
@@ -218,13 +218,13 @@ export default function RankingForm() {
           </div>
         </div>
 
-        <div className="chess-panel border border-white/5 rounded-3xl flex-1 min-h-0 flex flex-col overflow-hidden bg-gradient-to-br from-black/10 via-transparent to-purple-900/5">
+        <div className="chess-panel border border-white/5 rounded-3xl flex-1 min-h-0 flex flex-col overflow-hidden bg-linear-to-br from-black/10 via-transparent to-purple-900/5">
           <div className="p-6 border-b border-white/5 shrink-0 relative">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-2 bg-gold/60 rounded-full" />
               <span className="text-sm text-gold/80 font-bold tracking-[0.4em] uppercase">Modo activo</span>
             </div>
-            <div className="flex items-center justify-center gap-3 p-4 bg-black/20 [.light_&]:bg-zinc-200/60 rounded-2xl border border-gold/20">
+            <div className="flex items-center justify-center gap-3 p-4 bg-black/20 in-[.light]:bg-zinc-200/60 rounded-2xl border border-gold/20">
               <Activity size={20} className="text-gold/70 shrink-0" />
               <span className="text-xl font-black font-['Cinzel'] text-gold tracking-wider uppercase">
                 {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -234,7 +234,7 @@ export default function RankingForm() {
             <div className="flex flex-col items-center justify-center mt-6 mb-2 mx-6 space-y-1">
               <div className="text-center">
                 <span className="text-gold/60 text-xs font-light tracking-widest uppercase">Total</span>
-                <div className="text-3xl font-black bg-gradient-to-r from-gold via-gold/90 to-amber-400 bg-clip-text text-transparent drop-shadow-lg mt-0.5">
+                <div className="text-3xl font-black bg-linear-to-r from-gold via-gold/90 to-amber-400 bg-clip-text text-transparent drop-shadow-lg mt-0.5">
                   {players.length}
                 </div>
                 <span className="text-gold/50 text-xs font-light tracking-wide">jugadores</span>
@@ -245,11 +245,11 @@ export default function RankingForm() {
       </div>
 
       {/* ── CENTER PANEL ── */}
-      <div className="flex-grow flex flex-col bg-white/[0.02] [.light_&]:bg-white border border-white/8 [.light_&]:border-zinc-200 rounded-[48px] overflow-hidden backdrop-blur-xl shadow-2xl relative">
-        <div className="px-8 pt-8 pb-6 border-b border-white/5 [.light_&]:border-zinc-200 shrink-0">
+      <div className="grow flex flex-col bg-white/2 in-[.light]:bg-white border border-white/8 in-[.light]:border-zinc-200 rounded-[48px] overflow-hidden backdrop-blur-xl shadow-2xl relative">
+        <div className="px-8 pt-8 pb-6 border-b border-white/5 in-[.light]:border-zinc-200 shrink-0">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
             <div>
-              <h2 className="text-4xl font-black font-['Cinzel'] text-white [.light_&]:text-zinc-900 tracking-[0.25em] leading-tight">TABLERO</h2>
+              <h2 className="text-4xl font-black font-['Cinzel'] text-white in-[.light]:text-zinc-900 tracking-[0.25em] leading-tight">TABLERO</h2>
               <p className="text-sm text-zinc-600 tracking-[0.5em] uppercase font-bold mt-0.5">Clasificación global</p>
             </div>
             <div className="relative w-full md:w-96">
@@ -259,21 +259,21 @@ export default function RankingForm() {
                 placeholder="Buscar jugador..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="bg-black/40 [.light_&]:bg-zinc-100 border border-white/8 [.light_&]:border-zinc-200 rounded-2xl pl-12 pr-6 py-4 text-white [.light_&]:text-zinc-900 tracking-[0.25em] outline-none focus:border-gold/40 w-full transition-all text-base uppercase font-bold placeholder:text-zinc-600"
+                className="bg-black/40 in-[.light]:bg-zinc-100 border border-white/8 in-[.light]:border-zinc-200 rounded-2xl pl-12 pr-6 py-4 text-white in-[.light]:text-zinc-900 tracking-[0.25em] outline-none focus:border-gold/40 w-full transition-all text-base uppercase font-bold placeholder:text-zinc-600"
               />
             </div>
           </div>
 
-          <div className="flex gap-2 bg-black/30 [.light_&]:bg-zinc-100 p-1.5 rounded-2xl border border-white/5 [.light_&]:border-zinc-200 self-start mt-5 w-fit">
+          <div className="flex gap-2 bg-black/30 in-[.light]:bg-zinc-100 p-1.5 rounded-2xl border border-white/5 in-[.light]:border-zinc-200 self-start mt-5 w-fit">
             <ModeTab active={mode === 'bullet'} onClick={() => setMode('bullet')} label="Bullet" icon={<Zap size={15} />} />
             <ModeTab active={mode === 'blitz'}  onClick={() => setMode('blitz')}  label="Blitz"  icon={<Timer size={15} />} />
             <ModeTab active={mode === 'rapid'}  onClick={() => setMode('rapid')}  label="Rapid"  icon={<Coffee size={15} />} />
           </div>
         </div>
 
-        <div className="flex-grow overflow-y-auto custom-scrollbar px-4 md:px-8 py-4 relative">
+        <div className="grow overflow-y-auto custom-scrollbar px-4 md:px-8 py-4 relative">
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 [.light_&]:bg-white/60 backdrop-blur-sm z-20">
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 in-[.light]:bg-white/60 backdrop-blur-sm z-20">
               <div className="flex flex-col items-center gap-3">
                 <Loader2 className="text-gold animate-spin" size={40} />
                 <span className="text-sm text-zinc-500 tracking-widest uppercase">Sincronizando...</span>
@@ -305,7 +305,7 @@ export default function RankingForm() {
           <div className="px-6 pt-6 pb-6">
             <div className="flex items-center gap-3 mb-8 justify-center">
               <div className="flex-1 h-px bg-white/5" />
-              <span className="text-sm text-zinc-500 [.light_&]:text-zinc-600 tracking-[0.5em] font-black uppercase">Círculo Élite</span>
+              <span className="text-sm text-zinc-500 in-[.light]:text-zinc-600 tracking-[0.5em] font-black uppercase">Círculo Élite</span>
               <div className="flex-1 h-px bg-white/5" />
             </div>
             <div className="space-y-7">
@@ -321,25 +321,25 @@ export default function RankingForm() {
           </div>
         </div>
 
-        <div className="chess-panel flex-grow overflow-hidden flex flex-col min-h-0">
+        <div className="chess-panel grow overflow-hidden flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-5 shrink-0">
             <TrendingUp size={14} className="text-gold/60" />
             <span className="text-sm text-zinc-600 font-bold tracking-[0.4em] uppercase">Hitos ELO</span>
           </div>
-          <div className="space-y-3 overflow-y-auto custom-scrollbar flex-grow pr-1">
+          <div className="space-y-3 overflow-y-auto custom-scrollbar grow pr-1">
             {ELO_MILESTONES.map(({ elo, label, icon, color }) => {
               const playersAbove = elo === 0
                 ? players.filter(p => p.elo < 1400).length
                 : players.filter(p => p.elo >= elo).length;
               const displayElo = elo === 0 ? '< 1400' : elo.toString();
               return (
-                <div key={elo} className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.02] [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 hover:border-white/10 [.light_&]:hover:border-zinc-300 transition-all group cursor-default">
+                <div key={elo} className="flex items-center gap-3 p-3 rounded-2xl bg-white/2 in-[.light]:bg-zinc-100 border border-white/5 in-[.light]:border-zinc-200 hover:border-white/10 in-[.light]:hover:border-zinc-300 transition-all group cursor-default">
                   <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-lg" style={{ background: `${color}15`, border: `1px solid ${color}30`, color }}>
                     {icon}
                   </div>
-                  <div className="flex-grow min-w-0">
-                    <p className="text-sm text-zinc-400 [.light_&]:text-zinc-700 font-bold tracking-widest uppercase truncate group-hover:text-white [.light_&]:group-hover:text-zinc-900 transition-colors">{label}</p>
-                    <p className="text-xs text-zinc-700 [.light_&]:text-zinc-500">{playersAbove} jugadores</p>
+                  <div className="grow min-w-0">
+                    <p className="text-sm text-zinc-400 in-[.light]:text-zinc-700 font-bold tracking-widest uppercase truncate group-hover:text-white in-[.light]:group-hover:text-zinc-900 transition-colors">{label}</p>
+                    <p className="text-xs text-zinc-700 in-[.light]:text-zinc-500">{playersAbove} jugadores</p>
                   </div>
                   <div className="text-right shrink-0">
                     <span className="text-base font-black font-['Cinzel']" style={{ color }}>{displayElo}</span>
@@ -367,8 +367,8 @@ function PodiumRow({ player, position, color, medal }: { player: Player; positio
           <img src={`/avatars/${player.avatar}`} className="relative w-14 h-14 rounded-2xl object-cover bg-zinc-900" alt="" />
         </div>
       </div>
-      <div className="flex-grow min-w-0">
-        <p className="text-white [.light_&]:text-zinc-900 font-['Cinzel'] text-base tracking-widest font-bold uppercase truncate group-hover:text-gold transition-colors">
+      <div className="grow min-w-0">
+        <p className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] text-base tracking-widest font-bold uppercase truncate group-hover:text-gold transition-colors">
           {player.name}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
@@ -387,10 +387,10 @@ function PodiumRow({ player, position, color, medal }: { player: Player; positio
 
 function LeaderStat({ label, value, icon, highlight }: { label: string; value: string | number; icon: ReactNode; highlight?: boolean }) {
   return (
-    <div className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 px-1 ${highlight ? 'bg-gold/8 border border-gold/15' : 'bg-white/[0.025] [.light_&]:bg-zinc-200/60 border border-white/5 [.light_&]:border-zinc-300'}`}>
+    <div className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 px-1 ${highlight ? 'bg-gold/8 border border-gold/15' : 'bg-white/[0.025] in-[.light]:bg-zinc-200/60 border border-white/5 in-[.light]:border-zinc-300'}`}>
       <span className={`${highlight ? 'text-gold' : 'text-zinc-600'}`}>{icon}</span>
-      <span className={`text-base font-black font-['Cinzel'] leading-none ${highlight ? 'text-gold' : 'text-zinc-300 [.light_&]:text-zinc-700'}`}>{value}</span>
-      <span className="text-sm text-zinc-600 [.light_&]:text-zinc-500 tracking-[0.3em] uppercase font-bold">{label}</span>
+      <span className={`text-base font-black font-['Cinzel'] leading-none ${highlight ? 'text-gold' : 'text-zinc-300 in-[.light]:text-zinc-700'}`}>{value}</span>
+      <span className="text-sm text-zinc-600 in-[.light]:text-zinc-500 tracking-[0.3em] uppercase font-bold">{label}</span>
     </div>
   );
 }
@@ -398,7 +398,7 @@ function LeaderStat({ label, value, icon, highlight }: { label: string; value: s
 function ModeTab({ active, onClick, label, icon }: { active: boolean; onClick: () => void; label: string; icon: ReactNode }) {
   return (
     <button onClick={onClick}
-      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black uppercase tracking-[0.2em] transition-all cursor-pointer ${active ? 'bg-gold text-black shadow-lg' : 'text-zinc-500 hover:text-white [.light_&]:hover:text-zinc-900 hover:bg-white/5 [.light_&]:hover:bg-zinc-200'}`}
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black uppercase tracking-[0.2em] transition-all cursor-pointer ${active ? 'bg-gold text-black shadow-lg' : 'text-zinc-500 hover:text-white in-[.light]:hover:text-zinc-900 hover:bg-white/5 in-[.light]:hover:bg-zinc-200'}`}
       style={active ? { boxShadow: '0 0 16px rgba(212,175,55,0.25)' } : {}}>
       {icon} {label}
     </button>
@@ -411,7 +411,7 @@ function PlayerRow({ player, rank }: { player: Player; rank: number }) {
   const tier = getTier(player.elo);
 
   return (
-    <div className="group flex items-center gap-6 px-6 py-5 mb-2 hover:bg-white/[0.025] [.light_&]:hover:bg-zinc-100 rounded-[28px] transition-all duration-300 border border-transparent hover:border-white/5 [.light_&]:hover:border-zinc-200 relative cursor-pointer">
+    <div className="group flex items-center gap-6 px-6 py-5 mb-2 hover:bg-white/[0.025] in-[.light]:hover:bg-zinc-100 rounded-[28px] transition-all duration-300 border border-transparent hover:border-white/5 in-[.light]:hover:border-zinc-200 relative cursor-pointer">
       <div
         className="absolute left-0 top-4 bottom-4 w-[2px] rounded-r-full scale-y-0 group-hover:scale-y-100 transition-transform duration-500"
         style={{ background: medalColor ?? tier.color, boxShadow: `0 0 10px ${medalColor ?? tier.color}` }}
@@ -422,7 +422,7 @@ function PlayerRow({ player, rank }: { player: Player; rank: number }) {
             <span className="text-base font-['Cinzel'] font-black" style={{ color: medalColor }}>{rank}</span>
           </div>
         ) : (
-          <span className="text-2xl font-['Cinzel'] font-black text-zinc-800 [.light_&]:text-zinc-300 group-hover:text-zinc-500 transition-colors">
+          <span className="text-2xl font-['Cinzel'] font-black text-zinc-800 in-[.light]:text-zinc-300 group-hover:text-zinc-500 transition-colors">
             {rank < 10 ? `0${rank}` : rank}
           </span>
         )}
@@ -437,8 +437,8 @@ function PlayerRow({ player, rank }: { player: Player; rank: number }) {
         />
       </div>
 
-      <div className="flex-grow min-w-0">
-        <h3 className="text-white [.light_&]:text-zinc-900 font-['Cinzel'] font-bold text-xl md:text-2xl tracking-[0.08em] uppercase group-hover:text-gold truncate transition-colors">
+      <div className="grow min-w-0">
+        <h3 className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] font-bold text-xl md:text-2xl tracking-[0.08em] uppercase group-hover:text-gold truncate transition-colors">
           {player.name}
         </h3>
         <div className="flex items-center gap-3 mt-0.5">
@@ -453,10 +453,10 @@ function PlayerRow({ player, rank }: { player: Player; rank: number }) {
       </div>
 
       <div className="text-right shrink-0">
-        <div className="text-3xl md:text-5xl font-black font-['Cinzel'] text-white [.light_&]:text-zinc-900 leading-none tracking-tighter group-hover:text-gold transition-colors">
+        <div className="text-3xl md:text-5xl font-black font-['Cinzel'] text-white in-[.light]:text-zinc-900 leading-none tracking-tighter group-hover:text-gold transition-colors">
           {player.elo}
         </div>
-        <div className="text-sm text-zinc-700 [.light_&]:text-zinc-500 tracking-widest uppercase font-bold mt-0.5">ELO</div>
+        <div className="text-sm text-zinc-700 in-[.light]:text-zinc-500 tracking-widest uppercase font-bold mt-0.5">ELO</div>
       </div>
     </div>
   );

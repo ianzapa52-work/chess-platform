@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from 'react';
 
 const AVATARS = [
@@ -47,7 +47,7 @@ export default function AvatarWindow() {
     <div className="p-8 md:p-12 w-full max-w-7xl mx-auto min-h-[60vh]">
       <div className="chess-title-group mb-16 text-center">
         <p className="text-gold/50 text-[10px] tracking-[0.8em] font-black uppercase mb-3">Protocolo Estético</p>
-        <h2 className="text-white [.light_&]:text-gray-900 font-cinzel text-4xl font-black uppercase tracking-widest">Identidad Visual</h2>
+        <h2 className="text-white in-[.light]:text-gray-900 font-cinzel text-4xl font-black uppercase tracking-widest">Identidad Visual</h2>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8">
@@ -57,7 +57,7 @@ export default function AvatarWindow() {
             onClick={() => selectAvatar(img)} 
             className="group relative aspect-square transition-all duration-300 active:scale-95 cursor-pointer"
           >
-            <div className="w-full h-full rounded-[2rem] border border-white/10 [.light_&]:border-gray-200 bg-white/[0.03] [.light_&]:bg-gray-50 group-hover:bg-gold/10 group-hover:border-gold/50 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.2)] overflow-hidden flex items-center justify-center p-5">
+            <div className="w-full h-full rounded-4xl border border-white/10 in-[.light]:border-gray-200 bg-white/3 in-[.light]:bg-gray-50 group-hover:bg-gold/10 group-hover:border-gold/50 group-hover:shadow-[0_0_40px_rgba(212,175,55,0.2)] overflow-hidden flex items-center justify-center p-5">
               <img 
                 src={`/avatars/${img}`} 
                 className="w-full h-full object-contain transition-all duration-500 scale-100 group-hover:scale-110 drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)]" 

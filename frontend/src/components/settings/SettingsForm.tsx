@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from 'react';
 import { Check, Loader2, Shield, Volume2, Bell, UserCircle, Moon, Sun } from 'lucide-react';
@@ -105,16 +105,16 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
   };
 
   return (
-    <div className="relative flex flex-col p-8 md:p-12 space-y-6 max-h-[95vh] overflow-y-auto custom-scrollbar bg-black/40 [.light_&]:bg-white border border-gold/10 rounded-[3rem] shadow-2xl font-sans">
+    <div className="relative flex flex-col p-8 md:p-12 space-y-6 max-h-[95vh] overflow-y-auto custom-scrollbar bg-black/40 in-[.light]:bg-white border border-gold/10 rounded-[3rem] shadow-2xl font-sans">
       <div className="text-center">
-        <h2 className="text-white [.light_&]:text-zinc-900 font-cinzel text-4xl uppercase tracking-[0.25em]">Ajustes</h2>
+        <h2 className="text-white in-[.light]:text-zinc-900 font-cinzel text-4xl uppercase tracking-[0.25em]">Ajustes</h2>
         <p className="text-zinc-500 uppercase text-xs tracking-[0.4em] mt-2">Configuración de Élite</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-5xl mx-auto w-full">
         <div className="space-y-6">
           <SectionHeader title="Presencia & Social" icon={<UserCircle size={14}/>} />
-          <div className="p-8 bg-white/[0.03] [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 rounded-[2rem] space-y-6">
+          <div className="p-8 bg-white/3 in-[.light]:bg-zinc-100 border border-white/5 in-[.light]:border-zinc-200 rounded-4xl space-y-6">
             <div className="grid grid-cols-1 gap-2">
               <StatusBtn label="En Línea"  active={status === 'online'}    color="bg-emerald-500" onClick={() => setStatus('online')} />
               <StatusBtn label="Meditando" active={status === 'away'}      color="bg-amber-500"   onClick={() => setStatus('away')} />
@@ -133,12 +133,12 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
             onToggle={toggleDarkMode}
             icon={darkMode ? <Moon size={20}/> : <Sun size={20}/>}
           />
-          <div className="p-8 bg-black/60 [.light_&]:bg-zinc-100 border border-gold/20 [.light_&]:border-zinc-200 rounded-[2rem] space-y-5">
+          <div className="p-8 bg-black/60 in-[.light]:bg-zinc-100 border border-gold/20 in-[.light]:border-zinc-200 rounded-4xl space-y-5">
             <div className="flex justify-between items-end">
               <div className="flex items-center gap-2 text-gold/60 font-bold uppercase text-xs tracking-widest"><Volume2 size={24} /> Volumen</div>
-              <span className="text-2xl text-white [.light_&]:text-zinc-900 font-cinzel">{volume}%</span>
+              <span className="text-2xl text-white in-[.light]:text-zinc-900 font-cinzel">{volume}%</span>
             </div>
-            <input type="range" value={volume} onChange={(e) => setVolume(parseInt(e.target.value))} className="w-full h-1 accent-gold appearance-none rounded-full cursor-pointer bg-zinc-800 [.light_&]:bg-zinc-300" />
+            <input type="range" value={volume} onChange={(e) => setVolume(parseInt(e.target.value))} className="w-full h-1 accent-gold appearance-none rounded-full cursor-pointer bg-zinc-800 in-[.light]:bg-zinc-300" />
           </div>
         </div>
       </div>
@@ -155,30 +155,30 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
 const SectionHeader = ({ title, icon }: any) => (
   <div className="flex items-center gap-3 text-gold text-[10px] uppercase font-black tracking-[0.4em] px-2 opacity-80">
     {icon} <span>{title}</span>
-    <div className="flex-grow h-px bg-gold/10 ml-2" />
+    <div className="grow h-px bg-gold/10 ml-2" />
   </div>
 );
 
 const StatusBtn = ({ label, active, color, onClick }: any) => (
-  <button onClick={onClick} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${active ? 'bg-gold/10 border-gold/40' : 'bg-transparent border-white/5 [.light_&]:border-zinc-200 opacity-40 hover:opacity-100'}`}>
+  <button onClick={onClick} className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${active ? 'bg-gold/10 border-gold/40' : 'bg-transparent border-white/5 in-[.light]:border-zinc-200 opacity-40 hover:opacity-100'}`}>
     <div className="flex items-center gap-4">
       <div className={`w-2 h-2 rounded-full ${color} ${active ? 'animate-pulse' : ''}`}></div>
-      <span className={`text-[10px] font-black uppercase tracking-widest ${active ? 'text-gold' : 'text-zinc-400 [.light_&]:text-zinc-600'}`}>{label}</span>
+      <span className={`text-[10px] font-black uppercase tracking-widest ${active ? 'text-gold' : 'text-zinc-400 in-[.light]:text-zinc-600'}`}>{label}</span>
     </div>
     {active && <div className="w-1.5 h-1.5 bg-gold rotate-45" />}
   </button>
 );
 
 const ToggleItem = ({ label, desc, active, onToggle, icon }: any) => (
-  <button onClick={onToggle} className="w-full flex items-center justify-between p-6 bg-white/[0.03] [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 rounded-[2rem] hover:bg-white/[0.05] [.light_&]:hover:bg-zinc-200 transition-all text-left cursor-pointer">
-    <div className="flex items-center gap-4 text-zinc-400 [.light_&]:text-zinc-600">
+  <button onClick={onToggle} className="w-full flex items-center justify-between p-6 bg-white/3 in-[.light]:bg-zinc-100 border border-white/5 in-[.light]:border-zinc-200 rounded-4xl hover:bg-white/5 in-[.light]:hover:bg-zinc-200 transition-all text-left cursor-pointer">
+    <div className="flex items-center gap-4 text-zinc-400 in-[.light]:text-zinc-600">
       {icon}
       <div>
-        <p className="text-white [.light_&]:text-zinc-900 font-bold text-sm uppercase tracking-wider">{label}</p>
+        <p className="text-white in-[.light]:text-zinc-900 font-bold text-sm uppercase tracking-wider">{label}</p>
         <p className="text-[8px] text-zinc-500 uppercase tracking-widest">{desc}</p>
       </div>
     </div>
-    <div className={`w-10 h-5 rounded-full relative transition-all p-1 ${active ? 'bg-gold' : 'bg-zinc-800 [.light_&]:bg-zinc-300'}`}>
+    <div className={`w-10 h-5 rounded-full relative transition-all p-1 ${active ? 'bg-gold' : 'bg-zinc-800 in-[.light]:bg-zinc-300'}`}>
       <div className={`w-3 h-3 bg-black rounded-full transition-transform ${active ? 'translate-x-5 bg-white' : 'translate-x-0'}`} />
     </div>
   </button>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import PlayOnline from '@/components/game/PlayOnline';
@@ -45,7 +45,7 @@ const searchAnimations = `
 
 function CapturedBar({ captured }: { captured: string[] }) {
   return (
-    <div className="p-3 mt-3 rounded-2xl border border-black/30 shadow-inner min-h-[50px] flex items-center bg-gradient-to-br from-[#d2b48c] to-[#a68a64] relative z-10">
+    <div className="p-3 mt-3 rounded-2xl border border-black/30 shadow-inner min-h-[50px] flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64] relative z-10">
       <div className="flex flex-wrap gap-1 max-w-full">
         {captured.length > 0 ? (
           captured.map((img, i) => (
@@ -68,7 +68,7 @@ function OpponentBox({ name, elo, isActive, seconds, visible, captured, isLight 
   const title = getTitleByElo(Number(elo) || 1200);
 
   return (
-    <div className={`p-5 rounded-[2rem] border transition-all duration-1000 backdrop-blur-xl ${
+    <div className={`p-5 rounded-4xl border transition-all duration-1000 backdrop-blur-xl ${
       visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
     } ${
       isActive
@@ -163,14 +163,14 @@ function MyPlayerBox({ name, elo, isActive, seconds, captured, eloChange, isLigh
 
 function DrawOfferBanner({ sender, onAccept, onDecline }: { sender: string; onAccept: () => void; onDecline: () => void }) {
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-4 bg-zinc-950 [.light_&]:bg-white border border-gold/40 [.light_&]:border-gold/30 rounded-2xl shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-4 duration-500">
-      <span className="text-[10px] font-black text-white/80 [.light_&]:text-gray-700 uppercase tracking-widest">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-4 bg-zinc-950 in-[.light]:bg-white border border-gold/40 in-[.light]:border-gold/30 rounded-2xl shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-4 duration-500">
+      <span className="text-[10px] font-black text-white/80 in-[.light]:text-gray-700 uppercase tracking-widest">
         <span className="text-gold">{sender}</span> ofrece tablas
       </span>
       <button onClick={onAccept} className="px-4 py-1.5 bg-gold text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all cursor-pointer">
         Aceptar
       </button>
-      <button onClick={onDecline} className="px-4 py-1.5 bg-zinc-800 [.light_&]:bg-gray-100 border border-white/10 [.light_&]:border-gray-200 text-white/60 [.light_&]:text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-700 [.light_&]:hover:bg-gray-200 transition-all cursor-pointer">
+      <button onClick={onDecline} className="px-4 py-1.5 bg-zinc-800 in-[.light]:bg-gray-100 border border-white/10 in-[.light]:border-gray-200 text-white/60 in-[.light]:text-gray-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-700 in-[.light]:hover:bg-gray-200 transition-all cursor-pointer">
         Rechazar
       </button>
     </div>
@@ -204,12 +204,16 @@ export default function OnlinePremiumPage() {
   const [hasOfferedDraw, setHasOfferedDraw] = useState(false);
   const [eloChange, setEloChange] = useState<number | null>(null);
   const [incomingChat, setIncomingChat] = useState<{ username: string; message: string } | null>(null);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const statusRef = useRef(status);
   const currentModeRef = useRef(currentMode);
   const myColorRef = useRef<'w' | 'b'>('w');
   const matchmakingSocket = useRef<WebSocket | null>(null);
   const gameSocketRef = useRef<WebSocket | null>(null);
+  const pendingNavUrlRef = useRef<string | null>(null);
+  const confirmingLeaveRef = useRef(false);
 
   const serverTimeAnchorRef = useRef<{ w: number; b: number; receivedAt: number } | null>(null);
   const activeTurnRef = useRef<'w' | 'b'>('w');
@@ -275,11 +279,74 @@ export default function OnlinePremiumPage() {
       status.includes("FINALIZADA") || status.includes("GANAN") ||
       status.includes("VICTORIA") || status.includes("¡HAS GANADO");
     if (isGameOver && gameJoined) setShowGameEndWindow(true);
+    if (isGameOver) setShowLeaveModal(false);
   }, [status, gameJoined]);
+
+  // Aviso nativo al cerrar pestaña / recargar mientras hay partida activa
+  useEffect(() => {
+    if (!gameJoined) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      const over = statusRef.current.includes("MATE") || statusRef.current.includes("TABLAS") ||
+        statusRef.current.includes("FINALIZADA") || statusRef.current.includes("GANAN") ||
+        statusRef.current.includes("VICTORIA") || statusRef.current.includes("¡HAS GANADO");
+      if (over) return;
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [gameJoined]);
+
+  // Intercepta clics en links y botón atrás durante partida activa
+  useEffect(() => {
+    if (!gameJoined) return;
+
+    // Entrada de seguridad: el primer "atrás" aterriza en /play-online (misma ruta),
+    // Next.js lo trata como no-op y el componente no se desmonta
+    window.history.pushState(null, '', window.location.pathname + window.location.search);
+
+    const isOver = () =>
+      statusRef.current.includes("MATE") || statusRef.current.includes("TABLAS") ||
+      statusRef.current.includes("FINALIZADA") || statusRef.current.includes("GANAN") ||
+      statusRef.current.includes("VICTORIA") || statusRef.current.includes("¡HAS GANADO");
+
+    // Fase capture: se ejecuta antes de que Next.js procese el clic en el Link
+    const handleClick = (e: MouseEvent) => {
+      if (isOver()) return;
+      const anchor = (e.target as HTMLElement).closest('a');
+      if (!anchor) return;
+      const href = (anchor as HTMLAnchorElement).getAttribute('href');
+      if (!href || href.startsWith('#')) return;
+      try {
+        const url = new URL(href, window.location.origin);
+        if (url.pathname === '/play-online') return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        pendingNavUrlRef.current = href;
+        setShowLeaveModal(true);
+      } catch { /* URL inválida: dejar pasar */ }
+    };
+
+    // Botón atrás: solo intercepta si seguimos en /play-online (entrada de seguridad)
+    const handlePopState = () => {
+      if (isOver() || confirmingLeaveRef.current) return;
+      if (window.location.pathname !== '/play-online') return;
+      pendingNavUrlRef.current = '__back__';
+      setShowLeaveModal(true);
+    };
+
+    document.addEventListener('click', handleClick, true);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      document.removeEventListener('click', handleClick, true);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [gameJoined]);
 
   const startSearch = () => {
     const token = localStorage.getItem("access_token");
-    if (!token) return alert("No hay token de sesión.");
+    if (!token) { setShowAuthModal(true); return; }
     setIsSearching(true);
     setStatus("BUSCANDO RIVAL...");
     const ws = new WebSocket(`ws://localhost:8000/ws/matchmaking/?token=${token}`);
@@ -352,6 +419,28 @@ export default function OnlinePremiumPage() {
   };
 
   const handleDeclineDraw = () => { setDrawOfferSender(null); };
+
+  const handleConfirmLeave = useCallback(() => {
+    setShowLeaveModal(false);
+    if (gameSocketRef.current?.readyState === WebSocket.OPEN) {
+      gameSocketRef.current.send(JSON.stringify({ action: "resign" }));
+    }
+    const url = pendingNavUrlRef.current;
+    pendingNavUrlRef.current = null;
+    confirmingLeaveRef.current = true;
+    setTimeout(() => {
+      if (url === '__back__') {
+        window.history.go(-1); // vuelve a la página anterior (skipea la entrada de seguridad)
+      } else {
+        window.location.href = url || '/';
+      }
+    }, 150);
+  }, []);
+
+  const handleCancelLeave = useCallback(() => {
+    setShowLeaveModal(false);
+    pendingNavUrlRef.current = null;
+  }, []);
 
   const handleMoveUpdate = useCallback((
     newHistory: string[],
@@ -446,9 +535,98 @@ export default function OnlinePremiumPage() {
         <div className={`absolute inset-0 ${isLight ? 'bg-[#fffaf0]' : 'bg-[#070502]'}`} />
         <div className={`absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse ${isLight ? 'bg-gold/25' : 'bg-gold/20'}`} />
         <div className={`absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse [animation-delay:2s] ${isLight ? 'bg-amber-100/80' : 'bg-gold/10'}`} />
-        <div className={`absolute inset-0 [background-size:32px_32px] ${isLight ? 'opacity-[0.22] [background-image:radial-gradient(rgba(180,83,9,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
+        <div className={`absolute inset-0 bg-size-[32px_32px] ${isLight ? 'opacity-[0.22] bg-[radial-gradient(rgba(180,83,9,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.18] bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
         <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] ${isLight ? 'opacity-[0.14] mix-blend-multiply' : 'opacity-[0.2] mix-blend-overlay'}`} />
       </div>
+
+      {showLeaveModal && (
+        <div className="fixed inset-0 z-300 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCancelLeave} />
+          <div
+            className="relative z-10 flex flex-col gap-5 px-8 py-7 rounded-3xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden"
+            style={{
+              background: isLight
+                ? 'linear-gradient(135deg,rgba(255,253,245,0.99) 55%,rgba(255,245,245,0.99) 100%)'
+                : 'linear-gradient(135deg,rgba(14,12,7,0.99) 55%,rgba(24,10,10,0.99) 100%)',
+              border: `1px solid rgba(239,68,68,${isLight ? '0.4' : '0.3'})`,
+            }}
+          >
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-red-500 to-red-500/20 rounded-l-3xl" />
+            <div className="pl-3">
+              <p className="text-[8px] font-black uppercase tracking-[0.3em] text-red-400/70 mb-2">Advertencia</p>
+              <h3 className={`text-xl font-black uppercase tracking-tight ${isLight ? 'text-gray-900' : 'text-white'}`}>
+                ¿Abandonar la partida?
+              </h3>
+              <p className={`mt-2 text-[13px] leading-relaxed ${isLight ? 'text-gray-500' : 'text-zinc-400'}`}>
+                Si sales ahora contará como{' '}
+                <span className="text-red-400 font-bold">derrota</span> y perderás ELO.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pl-3">
+              <button
+                onClick={handleCancelLeave}
+                className={`py-3 rounded-2xl font-black text-[10px] tracking-widest uppercase transition-all cursor-pointer border ${
+                  isLight
+                    ? 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'
+                    : 'bg-zinc-800 border-white/10 text-white/60 hover:bg-zinc-700'
+                }`}
+              >
+                Quedarme
+              </button>
+              <button
+                onClick={handleConfirmLeave}
+                className="py-3 rounded-2xl font-black text-[10px] tracking-widest uppercase bg-red-500/20 border border-red-500/40 text-red-400 hover:bg-red-500/30 hover:border-red-500/60 transition-all cursor-pointer"
+              >
+                Salir y perder
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAuthModal && (
+        <div className="fixed inset-0 z-300 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAuthModal(false)} />
+          <div
+            className="relative z-10 flex flex-col gap-5 px-8 py-7 rounded-3xl shadow-2xl max-w-sm w-full mx-4 overflow-hidden"
+            style={{
+              background: isLight
+                ? 'linear-gradient(135deg,rgba(255,253,245,0.99) 55%,rgba(255,250,230,0.99) 100%)'
+                : 'linear-gradient(135deg,rgba(14,12,7,0.99) 55%,rgba(24,20,10,0.99) 100%)',
+              border: `1px solid rgba(212,175,55,${isLight ? '0.4' : '0.25'})`,
+            }}
+          >
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-gold to-gold/20 rounded-l-3xl" />
+            <div className="pl-3">
+              <p className="text-[8px] font-black uppercase tracking-[0.3em] text-gold/70 mb-2">Acceso requerido</p>
+              <h3 className={`text-xl font-black uppercase tracking-tight ${isLight ? 'text-gray-900' : 'text-white'}`}>
+                Inicia sesión para jugar
+              </h3>
+              <p className={`mt-2 text-[13px] leading-relaxed ${isLight ? 'text-gray-500' : 'text-zinc-400'}`}>
+                Necesitas una cuenta para jugar partidas online y que se registre tu ELO.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pl-3">
+              <button
+                onClick={() => setShowAuthModal(false)}
+                className={`py-3 rounded-2xl font-black text-[10px] tracking-widest uppercase transition-all cursor-pointer border ${
+                  isLight
+                    ? 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'
+                    : 'bg-zinc-800 border-white/10 text-white/60 hover:bg-zinc-700'
+                }`}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => { setShowAuthModal(false); window.dispatchEvent(new CustomEvent('open-login')); }}
+                className="py-3 rounded-2xl font-black text-[10px] tracking-widest uppercase bg-gold/20 border border-gold/40 text-gold hover:bg-gold/30 hover:border-gold/60 transition-all cursor-pointer"
+              >
+                Iniciar sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {drawOfferSender && (
         <DrawOfferBanner sender={drawOfferSender} onAccept={handleAcceptDraw} onDecline={handleDeclineDraw} />
@@ -469,7 +647,7 @@ export default function OnlinePremiumPage() {
         />
       )}
 
-      <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
+      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
         {/* Left sidebar */}
         <div className="col-span-12 xl:col-span-3 flex flex-col gap-3">
           <div style={{
@@ -520,7 +698,7 @@ export default function OnlinePremiumPage() {
                 </div>
                 <button
                   onClick={isSearching ? cancelSearch : startSearch}
-                  className={`w-full mt-8 py-5 rounded-[1.5rem] font-black text-[11px] tracking-[0.3em] uppercase transition-all duration-500 relative overflow-hidden ${
+                  className={`w-full mt-8 py-5 rounded-3xl font-black text-[11px] tracking-[0.3em] uppercase transition-all duration-500 relative overflow-hidden ${
                     isSearching
                       ? 'bg-zinc-800 text-red-400 border border-red-500/50 cursor-pointer hover:bg-red-950/40'
                       : isLight
@@ -543,11 +721,11 @@ export default function OnlinePremiumPage() {
                     </div>
                     <div className="relative group">
                       <div className={`absolute inset-0 blur-2xl opacity-20 transition-colors duration-1000 ${status.includes("BLANCAS") ? 'bg-white' : 'bg-gold'}`} />
-                      <div className={`relative rounded-[2rem] p-6 backdrop-blur-md ${
+                      <div className={`relative rounded-4xl p-6 backdrop-blur-md ${
                         isLight ? 'bg-gray-50 border border-gray-200' : 'bg-black/40 border border-white/5'
                       }`}>
                         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 mx-auto border shadow-xl ${
-                          isLight ? 'bg-gray-100 border-gray-200' : 'bg-gradient-to-b from-zinc-800 to-zinc-950 border-white/10'
+                          isLight ? 'bg-gray-100 border-gray-200' : 'bg-linear-to-b from-zinc-800 to-zinc-950 border-white/10'
                         }`}>
                           <span className="text-3xl animate-bounce">⚔️</span>
                         </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ReactNode, useState, useEffect } from 'react';
 import { Camera, Activity, Zap, Timer, Target, Trophy, Skull, Handshake, TrendingUp, TrendingDown, Minus, Swords, Flame, BarChart3, CalendarDays, Puzzle, CheckCircle2, XCircle, UserRound, Users } from 'lucide-react';
@@ -58,7 +58,7 @@ function EloModeCard({ mode, elo }: { mode: string; elo: number }) {
   const pct = Math.min(100, Math.max(0, ((elo - 800) / (3000 - 800)) * 100));
 
   return (
-    <div className="group relative bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[2rem] p-6 hover:border-white/10 [.light_&]:hover:border-zinc-300 transition-all duration-500 overflow-hidden">
+    <div className="group relative bg-black/50 in-[.light]:bg-zinc-50 border border-white/5 in-[.light]:border-zinc-200 rounded-4xl p-6 hover:border-white/10 in-[.light]:hover:border-zinc-300 transition-all duration-500 overflow-hidden">
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -71,12 +71,12 @@ function EloModeCard({ mode, elo }: { mode: string; elo: number }) {
         </div>
         <p className={`text-3xl font-black tabular-nums tracking-tighter ${color}`}>{elo}</p>
         <p className="text-[8px] text-zinc-600 uppercase tracking-widest mt-0.5">{title.label}</p>
-        <div className="mt-4 h-0.5 bg-white/5 [.light_&]:bg-zinc-200 rounded-full overflow-hidden">
+        <div className="mt-4 h-0.5 bg-white/5 in-[.light]:bg-zinc-200 rounded-full overflow-hidden">
           <div className={`h-full rounded-full transition-all duration-1000 bg-current ${color}`} style={{ width: `${pct}%` }} />
         </div>
         <div className="flex justify-between mt-1">
-          <span className="text-[7px] text-zinc-700 [.light_&]:text-zinc-400">800</span>
-          <span className="text-[7px] text-zinc-700 [.light_&]:text-zinc-400">3000</span>
+          <span className="text-[7px] text-zinc-700 in-[.light]:text-zinc-400">800</span>
+          <span className="text-[7px] text-zinc-700 in-[.light]:text-zinc-400">3000</span>
         </div>
       </div>
     </div>
@@ -85,7 +85,7 @@ function EloModeCard({ mode, elo }: { mode: string; elo: number }) {
 
 function StatPill({ label, value, color, icon }: any) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 bg-black/40 [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 rounded-2xl hover:border-white/10 [.light_&]:hover:border-zinc-300 transition-all">
+    <div className="flex items-center justify-between px-5 py-4 bg-black/40 in-[.light]:bg-zinc-100 border border-white/5 in-[.light]:border-zinc-200 rounded-2xl hover:border-white/10 in-[.light]:hover:border-zinc-300 transition-all">
       <div className="flex items-center gap-3">
         <span className={color}>{icon}</span>
         <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">{label}</span>
@@ -95,15 +95,15 @@ function StatPill({ label, value, color, icon }: any) {
   );
 }
 
-function MetricCard({ label, value, detail, icon, color = "text-white [.light_&]:text-zinc-900" }: any) {
+function MetricCard({ label, value, detail, icon, color = "text-white in-[.light]:text-zinc-900" }: any) {
   return (
-    <div className="bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-5 min-h-[116px]">
+    <div className="bg-black/50 in-[.light]:bg-zinc-50 border border-white/5 in-[.light]:border-zinc-200 rounded-[1.5rem] p-5 min-h-[116px]">
       <div className="flex items-center justify-between gap-3 mb-3">
         <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">{label}</span>
         <span className={color}>{icon}</span>
       </div>
       <p className={`text-3xl font-black tabular-nums tracking-tight ${color}`}>{value}</p>
-      {detail && <p className="text-[9px] text-zinc-600 [.light_&]:text-zinc-500 font-bold uppercase tracking-wider mt-1">{detail}</p>}
+      {detail && <p className="text-[9px] text-zinc-600 in-[.light]:text-zinc-500 font-bold uppercase tracking-wider mt-1">{detail}</p>}
     </div>
   );
 }
@@ -175,16 +175,16 @@ function RecentGameRow({ game, user }: { game: any; user: any }) {
   const date = getGameDate(game);
 
   return (
-    <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-2xl bg-black/35 [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200">
+    <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-2xl bg-black/35 in-[.light]:bg-zinc-100 border border-white/5 in-[.light]:border-zinc-200">
       <div className="flex items-center gap-3 min-w-0">
-        <div className={`w-8 h-8 rounded-xl flex items-center justify-center border border-white/5 [.light_&]:border-zinc-200 ${result.color}`}>
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center border border-white/5 in-[.light]:border-zinc-200 ${result.color}`}>
           {result.icon}
         </div>
         <div className="min-w-0">
-          <p className="text-xs font-black text-white [.light_&]:text-zinc-900 uppercase tracking-wide truncate">
+          <p className="text-xs font-black text-white in-[.light]:text-zinc-900 uppercase tracking-wide truncate">
             vs {opponent}
           </p>
-          <p className="text-[9px] text-zinc-600 [.light_&]:text-zinc-500 font-bold uppercase tracking-widest">
+          <p className="text-[9px] text-zinc-600 in-[.light]:text-zinc-500 font-bold uppercase tracking-widest">
             {game.mode || "modo"} · {date ? formatDate(date) : "sin fecha"}
           </p>
         </div>
@@ -251,7 +251,7 @@ export default function ProfileForm() {
   }, []);
 
   if (loading) return (
-    <div className="flex h-screen items-center justify-center bg-black [.light_&]:bg-white text-yellow-400 animate-pulse uppercase tracking-[0.5em] font-black text-xs">
+    <div className="flex h-screen items-center justify-center bg-black in-[.light]:bg-white text-yellow-400 animate-pulse uppercase tracking-[0.5em] font-black text-xs">
       Cargando perfil...
     </div>
   );
@@ -328,9 +328,9 @@ export default function ProfileForm() {
         <div className="chess-panel-gold !p-7 relative flex flex-col items-center">
 
           {/* Estado online */}
-          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/40 [.light_&]:bg-zinc-200/80 px-3 py-1 rounded-full border border-white/5 [.light_&]:border-zinc-300">
+          <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-black/40 in-[.light]:bg-zinc-200/80 px-3 py-1 rounded-full border border-white/5 in-[.light]:border-zinc-300">
             <div className={`w-1.5 h-1.5 rounded-full ${statusStyle.color} animate-pulse`} />
-            <span className="text-[7px] text-white/60 [.light_&]:text-zinc-700 font-black uppercase tracking-widest">{statusStyle.text}</span>
+            <span className="text-[7px] text-white/60 in-[.light]:text-zinc-700 font-black uppercase tracking-widest">{statusStyle.text}</span>
           </div>
 
           {/* Avatar */}
@@ -342,7 +342,7 @@ export default function ProfileForm() {
           </div>
 
           {/* Nombre */}
-          <h3 className="text-white [.light_&]:text-zinc-900 font-black text-base tracking-[0.15em] uppercase truncate mb-3 text-center">{user.name}</h3>
+          <h3 className="text-white in-[.light]:text-zinc-900 font-black text-base tracking-[0.15em] uppercase truncate mb-3 text-center">{user.name}</h3>
 
           {/* ── BLOQUE DE RANGO DESTACADO ── */}
           <div className={`w-full flex flex-col items-center gap-1 px-4 py-3 rounded-2xl border mb-4 ${mainTitle.borderColor} ${mainTitle.bgColor}`}>
@@ -362,25 +362,25 @@ export default function ProfileForm() {
 
           {/* Partidas / Efectividad */}
           <div className="grid grid-cols-2 gap-2 w-full text-center">
-            <div className="bg-white/5 [.light_&]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 [.light_&]:border-zinc-300">
+            <div className="bg-white/5 in-[.light]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 in-[.light]:border-zinc-300">
               <p className="text-yellow-400 text-[7px] font-black uppercase tracking-wider mb-1">Partidas</p>
-              <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{displayTotal}</p>
+              <p className="text-white in-[.light]:text-zinc-900 font-black text-lg">{displayTotal}</p>
             </div>
-            <div className="bg-white/5 [.light_&]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 [.light_&]:border-zinc-300">
+            <div className="bg-white/5 in-[.light]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 in-[.light]:border-zinc-300">
               <p className="text-yellow-400 text-[7px] font-black uppercase tracking-wider mb-1">Efectividad</p>
-              <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{displayWinRate}%</p>
+              <p className="text-white in-[.light]:text-zinc-900 font-black text-lg">{displayWinRate}%</p>
             </div>
           </div>
 
           {/* Puzzles rápidos */}
           <div className="grid grid-cols-2 gap-2 w-full text-center mt-1">
-            <div className="bg-white/5 [.light_&]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 [.light_&]:border-zinc-300">
+            <div className="bg-white/5 in-[.light]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 in-[.light]:border-zinc-300">
               <p className="text-emerald-400 text-[7px] font-black uppercase tracking-wider mb-1">Puzzles</p>
-              <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{totalPuzzles}</p>
+              <p className="text-white in-[.light]:text-zinc-900 font-black text-lg">{totalPuzzles}</p>
             </div>
-            <div className="bg-white/5 [.light_&]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 [.light_&]:border-zinc-300">
+            <div className="bg-white/5 in-[.light]:bg-zinc-200/60 rounded-2xl p-3 border border-white/5 in-[.light]:border-zinc-300">
               <p className="text-emerald-400 text-[7px] font-black uppercase tracking-wider mb-1">Acierto</p>
-              <p className="text-white [.light_&]:text-zinc-900 font-black text-lg">{puzzleRate}%</p>
+              <p className="text-white in-[.light]:text-zinc-900 font-black text-lg">{puzzleRate}%</p>
             </div>
           </div>
 
@@ -388,13 +388,13 @@ export default function ProfileForm() {
           <div className="w-full mt-2 space-y-1.5">
             <div className="flex items-center gap-2">
               <UserRound size={11} className="text-zinc-600 shrink-0" />
-              <span className="text-[8px] text-zinc-600 [.light_&]:text-zinc-500 font-black uppercase tracking-widest">
+              <span className="text-[8px] text-zinc-600 in-[.light]:text-zinc-500 font-black uppercase tracking-widest">
                 Miembro desde {memberSince}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <Users size={11} className="text-zinc-600 shrink-0" />
-              <span className="text-[8px] text-zinc-600 [.light_&]:text-zinc-500 font-black uppercase tracking-widest">
+              <span className="text-[8px] text-zinc-600 in-[.light]:text-zinc-500 font-black uppercase tracking-widest">
                 {(user.friends || []).length} amigo{(user.friends || []).length !== 1 ? 's' : ''}
               </span>
             </div>
@@ -402,19 +402,19 @@ export default function ProfileForm() {
         </div>
 
         {/* Rendimiento global */}
-        <div className="bg-black/60 [.light_&]:bg-white border border-white/5 [.light_&]:border-zinc-200 rounded-[2rem] p-5">
+        <div className="bg-black/60 in-[.light]:bg-white border border-white/5 in-[.light]:border-zinc-200 rounded-4xl p-5">
           <p className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-4">Rendimiento Global</p>
           <div className="space-y-3">
             <StatPill label="Victorias" value={displayWins}   color="text-emerald-400" icon={<Trophy size={14}/>} />
             <StatPill label="Tablas"    value={displayDraws}  color="text-amber-400"   icon={<Handshake size={14}/>} />
             <StatPill label="Derrotas"  value={displayLosses} color="text-red-400"     icon={<Skull size={14}/>} />
           </div>
-          <div className="mt-4 h-2 bg-white/5 [.light_&]:bg-zinc-200 rounded-full overflow-hidden flex">
+          <div className="mt-4 h-2 bg-white/5 in-[.light]:bg-zinc-200 rounded-full overflow-hidden flex">
             <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${displayWinRate}%` }} />
             <div className="bg-amber-500 h-full transition-all duration-1000"   style={{ width: `${displayDrawRate}%` }} />
             <div className="bg-red-500/60 h-full flex-1" />
           </div>
-          <div className="mt-5 pt-4 border-t border-white/5 [.light_&]:border-zinc-200">
+          <div className="mt-5 pt-4 border-t border-white/5 in-[.light]:border-zinc-200">
             <p className="text-[8px] font-black uppercase tracking-[0.3em] text-zinc-600 mb-3">Resultados</p>
             <FormStrip games={completedGames} user={user} />
           </div>
@@ -422,8 +422,8 @@ export default function ProfileForm() {
       </div>
 
       {/* ── PANEL DERECHO ── */}
-      <div className="flex-grow flex flex-col gap-4 min-w-0 h-full overflow-hidden">
-        <div className="flex-grow overflow-y-auto custom-scrollbar space-y-6 pr-1">
+      <div className="grow flex flex-col gap-4 min-w-0 h-full overflow-hidden">
+        <div className="grow overflow-y-auto custom-scrollbar space-y-6 pr-1">
           <div>
             <p className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-3 px-1">Rating por Modalidad</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -436,7 +436,7 @@ export default function ProfileForm() {
           <div>
             <div className="flex flex-wrap items-end justify-between gap-3 mb-3 px-1">
               <p className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600">Resumen reciente</p>
-              <span className="text-[8px] text-zinc-600 [.light_&]:text-zinc-500 font-black uppercase tracking-widest">
+              <span className="text-[8px] text-zinc-600 in-[.light]:text-zinc-500 font-black uppercase tracking-widest">
                 Basado en {completedGames.length} partidas cargadas
               </span>
             </div>
@@ -445,19 +445,19 @@ export default function ProfileForm() {
               <MetricCard label="Racha actual" value={currentStreak.count || "—"} detail={streakLabel} icon={<Flame size={15}/>} color={currentStreak.type === 'win' ? 'text-emerald-400' : currentStreak.type === 'loss' ? 'text-red-400' : 'text-amber-400'} />
               <MetricCard label="Última partida" value={lastGameDate} detail={favoriteMode.total > 0 ? `modo más jugado: ${favoriteMode.mode}` : "sin datos"} icon={<CalendarDays size={15}/>} color="text-blue-400" />
             </div>
-            <div className="mt-3 bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="mt-3 bg-black/50 in-[.light]:bg-zinc-50 border border-white/5 in-[.light]:border-zinc-200 rounded-[1.5rem] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <p className="text-[8px] font-black uppercase tracking-widest text-zinc-500 mb-2">Últimos resultados</p>
                 <FormStrip games={completedGames} user={user} />
               </div>
               <div className="grid grid-cols-2 gap-3 text-right">
                 <div>
-                  <p className="text-[8px] text-zinc-600 [.light_&]:text-zinc-500 font-black uppercase tracking-widest">Mejor racha V</p>
+                  <p className="text-[8px] text-zinc-600 in-[.light]:text-zinc-500 font-black uppercase tracking-widest">Mejor racha V</p>
                   <p className="text-xl font-black text-emerald-400">{bestWinStreak}</p>
                 </div>
                 <div>
-                  <p className="text-[8px] text-zinc-600 [.light_&]:text-zinc-500 font-black uppercase tracking-widest">Muestra</p>
-                  <p className="text-xl font-black text-white [.light_&]:text-zinc-900">{completedGames.length}</p>
+                  <p className="text-[8px] text-zinc-600 in-[.light]:text-zinc-500 font-black uppercase tracking-widest">Muestra</p>
+                  <p className="text-xl font-black text-white in-[.light]:text-zinc-900">{completedGames.length}</p>
                 </div>
               </div>
             </div>
@@ -471,20 +471,20 @@ export default function ProfileForm() {
                 const t = s.w + s.l + s.d;
                 const wr = t > 0 ? Math.round((s.w / t) * 100) : 0;
                 return (
-                  <div key={mode} className="bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-4">
+                  <div key={mode} className="bg-black/50 in-[.light]:bg-zinc-50 border border-white/5 in-[.light]:border-zinc-200 rounded-[1.5rem] p-4">
                     <div className="flex items-center justify-between gap-2 mb-3">
                       <div className="flex items-center gap-2">
                         <span className={modeColor[mode]}>{modeIcon[mode]}</span>
                         <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">{mode}</span>
                       </div>
-                      <span className="text-[8px] font-black text-zinc-600 [.light_&]:text-zinc-500">{t} partidas</span>
+                      <span className="text-[8px] font-black text-zinc-600 in-[.light]:text-zinc-500">{t} partidas</span>
                     </div>
                     <div className="grid grid-cols-3 gap-1 text-center mb-2">
-                      <div><p className="text-emerald-400 font-black text-base">{s.w}</p><p className="text-[6px] text-zinc-700 [.light_&]:text-zinc-500">V</p></div>
-                      <div><p className="text-amber-400 font-black text-base">{s.d}</p><p className="text-[6px] text-zinc-700 [.light_&]:text-zinc-500">T</p></div>
-                      <div><p className="text-red-400 font-black text-base">{s.l}</p><p className="text-[6px] text-zinc-700 [.light_&]:text-zinc-500">D</p></div>
+                      <div><p className="text-emerald-400 font-black text-base">{s.w}</p><p className="text-[6px] text-zinc-700 in-[.light]:text-zinc-500">V</p></div>
+                      <div><p className="text-amber-400 font-black text-base">{s.d}</p><p className="text-[6px] text-zinc-700 in-[.light]:text-zinc-500">T</p></div>
+                      <div><p className="text-red-400 font-black text-base">{s.l}</p><p className="text-[6px] text-zinc-700 in-[.light]:text-zinc-500">D</p></div>
                     </div>
-                    <div className="h-1 bg-white/5 [.light_&]:bg-zinc-200 rounded-full overflow-hidden">
+                    <div className="h-1 bg-white/5 in-[.light]:bg-zinc-200 rounded-full overflow-hidden">
                       <div className="h-full bg-emerald-500" style={{ width: `${wr}%` }} />
                     </div>
                   </div>
@@ -508,12 +508,12 @@ export default function ProfileForm() {
               <MetricCard label="Acierto"   value={totalPuzzles > 0 ? `${puzzleRate}%` : "—"} detail="tasa de éxito" icon={<BarChart3 size={15}/>} color={puzzleRate >= 50 ? "text-emerald-400" : "text-amber-400"} />
             </div>
             {totalPuzzles > 0 && (
-              <div className="mt-3 bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-4">
+              <div className="mt-3 bg-black/50 in-[.light]:bg-zinc-50 border border-white/5 in-[.light]:border-zinc-200 rounded-[1.5rem] p-4">
                 <div className="flex justify-between mb-2">
                   <span className="text-[8px] font-black uppercase tracking-widest text-zinc-500">Precisión global</span>
                   <span className="text-[8px] font-black text-emerald-400">{solvedPuzzles}✓ / {failedPuzzles}✗</span>
                 </div>
-                <div className="h-2 bg-white/5 [.light_&]:bg-zinc-200 rounded-full overflow-hidden flex">
+                <div className="h-2 bg-white/5 in-[.light]:bg-zinc-200 rounded-full overflow-hidden flex">
                   <div className="bg-emerald-500 h-full transition-all duration-1000" style={{ width: `${puzzleRate}%` }} />
                   <div className="bg-red-500/60 h-full flex-1" />
                 </div>
@@ -528,12 +528,12 @@ export default function ProfileForm() {
                 <p className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600">Amigos</p>
                 <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">{(user.friends || []).length} en total</span>
               </div>
-              <div className="bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-4">
+              <div className="bg-black/50 in-[.light]:bg-zinc-50 border border-white/5 in-[.light]:border-zinc-200 rounded-[1.5rem] p-4">
                 <div className="flex flex-wrap gap-2">
                   {(user.friends as string[]).map((username) => (
-                    <div key={username} className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 rounded-xl">
+                    <div key={username} className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 in-[.light]:bg-zinc-100 border border-white/5 in-[.light]:border-zinc-200 rounded-xl">
                       <Users size={10} className="text-zinc-500 shrink-0" />
-                      <span className="text-[9px] font-black uppercase tracking-wide text-zinc-300 [.light_&]:text-zinc-700">{username}</span>
+                      <span className="text-[9px] font-black uppercase tracking-wide text-zinc-300 in-[.light]:text-zinc-700">{username}</span>
                     </div>
                   ))}
                 </div>
@@ -547,7 +547,7 @@ export default function ProfileForm() {
               {completedGames.slice(0, 6).length > 0 ? completedGames.slice(0, 6).map(game => (
                 <RecentGameRow key={game.id} game={game} user={user} />
               )) : (
-                <div className="col-span-full bg-black/50 [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[1.5rem] p-8 text-center text-[10px] uppercase tracking-widest text-zinc-600">
+                <div className="col-span-full bg-black/50 in-[.light]:bg-zinc-50 border border-white/5 in-[.light]:border-zinc-200 rounded-[1.5rem] p-8 text-center text-[10px] uppercase tracking-widest text-zinc-600">
                   No hay partidas completadas para analizar
                 </div>
               )}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ReactNode, useState, useMemo, useEffect, useCallback } from 'react';
 import { Swords, Check, X, UserPlus, MessageSquare, Users, Loader2, UserMinus, Zap, Shield, TrendingUp } from 'lucide-react';
@@ -70,15 +70,15 @@ const avatarSrc = (src: string | null) => src ?? '/avatars/b_king_avatar.png';
 
 function ConfirmDialog({ username, onConfirm, onCancel }: { username: string; onConfirm: () => void; onCancel: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 [.light_&]:bg-black/40 backdrop-blur-sm">
-      <div className="bg-[#0f0f0f] [.light_&]:bg-white border border-white/10 [.light_&]:border-zinc-200 rounded-[32px] p-8 max-w-sm w-full mx-4 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 in-[.light]:bg-black/40 backdrop-blur-sm">
+      <div className="bg-[#0f0f0f] in-[.light]:bg-white border border-white/10 in-[.light]:border-zinc-200 rounded-[32px] p-8 max-w-sm w-full mx-4 shadow-2xl">
         <div className="flex flex-col items-center gap-4 mb-8">
           <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center">
             <UserMinus size={28} className="text-red-400" />
           </div>
           <div className="text-center">
-            <h3 className="text-white [.light_&]:text-zinc-900 font-serif font-bold text-xl tracking-widest uppercase mb-2">Eliminar amigo</h3>
-            <p className="text-zinc-400 [.light_&]:text-zinc-600 text-sm leading-relaxed">
+            <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-xl tracking-widest uppercase mb-2">Eliminar amigo</h3>
+            <p className="text-zinc-400 in-[.light]:text-zinc-600 text-sm leading-relaxed">
               ¿Seguro que quieres eliminar a <span className="text-gold font-bold">{username}</span> de tu lista?
             </p>
           </div>
@@ -87,7 +87,7 @@ function ConfirmDialog({ username, onConfirm, onCancel }: { username: string; on
           <button onClick={onConfirm} className="py-4 bg-red-500/10 text-red-400 border border-red-500/30 rounded-2xl font-bold text-xs tracking-widest hover:bg-red-500 hover:text-white transition-all active:scale-95 cursor-pointer">
             ELIMINAR
           </button>
-          <button onClick={onCancel} className="py-4 bg-white/5 [.light_&]:bg-zinc-100 text-zinc-400 rounded-2xl border border-white/10 [.light_&]:border-zinc-200 hover:bg-white/10 [.light_&]:hover:bg-zinc-200 hover:text-white [.light_&]:hover:text-zinc-900 transition-all text-xs tracking-widest cursor-pointer active:scale-95">
+          <button onClick={onCancel} className="py-4 bg-white/5 in-[.light]:bg-zinc-100 text-zinc-400 rounded-2xl border border-white/10 in-[.light]:border-zinc-200 hover:bg-white/10 in-[.light]:hover:bg-zinc-200 hover:text-white in-[.light]:hover:text-zinc-900 transition-all text-xs tracking-widest cursor-pointer active:scale-95">
             CANCELAR
           </button>
         </div>
@@ -101,15 +101,15 @@ function ChallengeModal({ friend, selectedMode, onModeChange, onSend, onCancel, 
   onSend: () => void; onCancel: () => void; sending: boolean;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 [.light_&]:bg-black/40 backdrop-blur-sm">
-      <div className="bg-[#0f0f0f] [.light_&]:bg-white border border-white/10 [.light_&]:border-zinc-200 rounded-[32px] p-8 max-w-sm w-full mx-4 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 in-[.light]:bg-black/40 backdrop-blur-sm">
+      <div className="bg-[#0f0f0f] in-[.light]:bg-white border border-white/10 in-[.light]:border-zinc-200 rounded-[32px] p-8 max-w-sm w-full mx-4 shadow-2xl">
         <div className="flex flex-col items-center gap-3 mb-6">
           <div className="w-16 h-16 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
             <Swords size={28} className="text-gold" />
           </div>
           <div className="text-center">
-            <h3 className="text-white [.light_&]:text-zinc-900 font-serif font-bold text-xl tracking-widest uppercase mb-1">Retar</h3>
-            <p className="text-zinc-400 [.light_&]:text-zinc-600 text-sm leading-relaxed">
+            <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-xl tracking-widest uppercase mb-1">Retar</h3>
+            <p className="text-zinc-400 in-[.light]:text-zinc-600 text-sm leading-relaxed">
               Enviando reto a <span className="text-gold font-bold">{friend.username}</span>
             </p>
           </div>
@@ -117,14 +117,14 @@ function ChallengeModal({ friend, selectedMode, onModeChange, onSend, onCancel, 
         <div className="space-y-4 mb-6">
           {TIME_MODES.map((cat) => (
             <div key={cat.label}>
-              <p className="text-[9px] font-black text-zinc-600 [.light_&]:text-gray-500 uppercase tracking-[0.3em] mb-2">{cat.label}</p>
+              <p className="text-[9px] font-black text-zinc-600 in-[.light]:text-gray-500 uppercase tracking-[0.3em] mb-2">{cat.label}</p>
               <div className="grid grid-cols-3 gap-2">
                 {cat.options.map((opt) => (
                   <button key={opt.n} onClick={() => onModeChange(opt)}
                     className={`py-2 rounded-xl text-[10px] font-black transition-all border cursor-pointer ${
                       selectedMode.n === opt.n
                         ? 'bg-gold text-black border-gold'
-                        : 'bg-white/5 [.light_&]:bg-gray-100 border-white/10 [.light_&]:border-gray-200 text-zinc-400 [.light_&]:text-gray-600 hover:border-white/30 [.light_&]:hover:border-gray-300'
+                        : 'bg-white/5 in-[.light]:bg-gray-100 border-white/10 in-[.light]:border-gray-200 text-zinc-400 in-[.light]:text-gray-600 hover:border-white/30 in-[.light]:hover:border-gray-300'
                     }`}>
                     {opt.n}
                   </button>
@@ -139,7 +139,7 @@ function ChallengeModal({ friend, selectedMode, onModeChange, onSend, onCancel, 
             {sending ? <Loader2 size={16} className="animate-spin" /> : <><Swords size={15} /> Enviar reto</>}
           </button>
           <button onClick={onCancel}
-            className="py-4 bg-white/5 [.light_&]:bg-zinc-100 text-zinc-400 [.light_&]:text-zinc-600 rounded-2xl border border-white/10 [.light_&]:border-zinc-200 hover:bg-white/10 [.light_&]:hover:bg-zinc-200 hover:text-white [.light_&]:hover:text-zinc-900 transition-all text-xs tracking-widest cursor-pointer active:scale-95">
+            className="py-4 bg-white/5 in-[.light]:bg-zinc-100 text-zinc-400 in-[.light]:text-zinc-600 rounded-2xl border border-white/10 in-[.light]:border-zinc-200 hover:bg-white/10 in-[.light]:hover:bg-zinc-200 hover:text-white in-[.light]:hover:text-zinc-900 transition-all text-xs tracking-widest cursor-pointer active:scale-95">
             Cancelar
           </button>
         </div>
@@ -326,7 +326,7 @@ export default function FriendsForm() {
 
       {toast && (
         <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl text-sm font-bold tracking-widest uppercase shadow-2xl transition-all
-            ${toast.ok ? 'bg-[#d4af37] text-black' : 'bg-red-600 text-white'}`}>
+            ${toast.ok ? 'bg-gold text-black' : 'bg-red-600 text-white'}`}>
           {toast.msg}
         </div>
       )}
@@ -397,7 +397,7 @@ export default function FriendsForm() {
                 </div>
               </div>
             </div>
-            <h3 className="text-white [.light_&]:text-zinc-900 font-serif font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-0.5">
+            <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-0.5">
               {me?.username ?? '· · ·'}
             </h3>
             <div className="flex items-center gap-1.5 mb-5">
@@ -438,21 +438,21 @@ export default function FriendsForm() {
       </div>
 
       {/* CENTER PANEL */}
-      <div className="flex-grow flex flex-col gap-8 min-w-0 h-full">
+      <div className="grow flex flex-col gap-8 min-w-0 h-full">
         <div className="h-full flex flex-col chess-card overflow-hidden">
-          <div className="px-10 py-7 border-b border-white/5 [.light_&]:border-zinc-200 flex flex-wrap justify-between items-center shrink-0 gap-4">
+          <div className="px-10 py-7 border-b border-white/5 in-[.light]:border-zinc-200 flex flex-wrap justify-between items-center shrink-0 gap-4">
             <div className="flex items-center gap-4 cursor-default">
               <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center">
                 <Users className="text-gold" size={20} />
               </div>
               <div>
-                <h2 className="text-2xl font-black font-serif text-white [.light_&]:text-zinc-900 tracking-[0.35em]">AMIGOS</h2>
+                <h2 className="text-2xl font-black font-serif text-white in-[.light]:text-zinc-900 tracking-[0.35em]">AMIGOS</h2>
                 <p className="text-[10px] text-zinc-600 tracking-widest uppercase">
                   {friendDetails.length} contacto{friendDetails.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
-            <div className="relative flex-grow max-w-md">
+            <div className="relative grow max-w-md">
               <input
                 type="text"
                 placeholder="Buscar contacto..."
@@ -463,7 +463,7 @@ export default function FriendsForm() {
             </div>
           </div>
 
-          <div className="flex-grow overflow-y-auto px-6 py-4 custom-scrollbar">
+          <div className="grow overflow-y-auto px-6 py-4 custom-scrollbar">
             {initialLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-zinc-500">
                 <Loader2 size={32} className="animate-spin text-gold" />
@@ -478,7 +478,7 @@ export default function FriendsForm() {
               </div>
             ) : filteredFriends.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-zinc-600">
-                <div className="w-20 h-20 rounded-full bg-white/[0.02] [.light_&]:bg-zinc-100 border border-white/5 [.light_&]:border-zinc-200 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-white/2 in-[.light]:bg-zinc-100 border border-white/5 in-[.light]:border-zinc-200 flex items-center justify-center">
                   <Users size={36} strokeWidth={1} />
                 </div>
                 <p className="text-xs tracking-widest uppercase text-center">{emptyMessage}</p>
@@ -501,17 +501,17 @@ export default function FriendsForm() {
       <div className="hidden xl:flex flex-col w-96 gap-6 shrink-0 h-full overflow-hidden">
         <InvitePanel onSend={sendFriendRequest} actionLoading={actionLoading} />
 
-        <div className="chess-panel flex-grow overflow-hidden flex flex-col">
+        <div className="chess-panel grow overflow-hidden flex flex-col">
           <div className="flex items-center justify-between mb-6 shrink-0">
             <h4 className="chess-label italic cursor-default">Solicitudes</h4>
             {requests.length > 0 && (
               <span className="bg-gold text-black text-[10px] font-black px-2.5 py-1 rounded-full">{requests.length}</span>
             )}
           </div>
-          <div className="flex-grow overflow-y-auto pr-1 space-y-4 custom-scrollbar">
+          <div className="grow overflow-y-auto pr-1 space-y-4 custom-scrollbar">
             {requests.length === 0 && (
               <div className="flex flex-col items-center justify-center py-10 gap-3 text-zinc-700">
-                <div className="w-12 h-12 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-white/2 border border-white/5 flex items-center justify-center">
                   <UserPlus size={20} strokeWidth={1.5} />
                 </div>
                 <p className="text-xs tracking-widest uppercase text-center">Sin solicitudes pendientes</p>
@@ -529,9 +529,9 @@ export default function FriendsForm() {
 
 function MiniStat({ label, value, icon, highlight }: { label: string; value: string | number; icon: ReactNode; highlight?: boolean }) {
   return (
-    <div className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 px-1 ${highlight ? 'bg-gold/8 border border-gold/15' : 'bg-white/[0.025] [.light_&]:bg-zinc-200/60 border border-white/5 [.light_&]:border-zinc-300'}`}>
+    <div className={`flex flex-col items-center gap-1.5 rounded-2xl py-3 px-1 ${highlight ? 'bg-gold/8 border border-gold/15' : 'bg-white/[0.025] in-[.light]:bg-zinc-200/60 border border-white/5 in-[.light]:border-zinc-300'}`}>
       <span className={`${highlight ? 'text-gold' : 'text-zinc-600'}`}>{icon}</span>
-      <span className={`text-base font-black font-serif leading-none ${highlight ? 'text-gold' : 'text-zinc-300 [.light_&]:text-zinc-700'}`}>{value}</span>
+      <span className={`text-base font-black font-serif leading-none ${highlight ? 'text-gold' : 'text-zinc-300 in-[.light]:text-zinc-700'}`}>{value}</span>
       <span className="text-[8px] text-zinc-600 tracking-[0.3em] uppercase font-bold">{label}</span>
     </div>
   );
@@ -545,7 +545,7 @@ function EloBar({ label, value, max, color }: { label: string; value: number; ma
         <span className="text-[9px] text-zinc-600 tracking-[0.35em] uppercase font-bold">{label}</span>
         <span className="text-sm font-black font-serif" style={{ color }}>{value || '—'}</span>
       </div>
-      <div className="h-0.5 w-full rounded-full bg-white/5 [.light_&]:bg-zinc-200 overflow-hidden">
+      <div className="h-0.5 w-full rounded-full bg-white/5 in-[.light]:bg-zinc-200 overflow-hidden">
         <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>
@@ -590,11 +590,11 @@ function InvitePanel({ onSend, actionLoading }: { onSend: (u: string) => void; a
 function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingRequest; onAccept: () => void; onReject: () => void; actionLoading: string | null }) {
   const isLoading = actionLoading === req.sender_username;
   return (
-    <div className="bg-white/[0.03] [.light_&]:bg-zinc-50 border border-white/5 [.light_&]:border-zinc-200 rounded-[28px] p-5 hover:border-gold/20 transition-all animate-fadeIn">
+    <div className="bg-white/3 in-[.light]:bg-zinc-50 border border-white/5 in-[.light]:border-zinc-200 rounded-[28px] p-5 hover:border-gold/20 transition-all animate-fadeIn">
       <div className="flex items-center gap-3 mb-4 cursor-default">
-        <img src={avatarSrc(req.sender_avatar)} className="w-12 h-12 rounded-2xl object-cover border border-white/10 [.light_&]:border-zinc-200" alt="" />
-        <div className="min-w-0 flex-grow">
-          <p className="text-white [.light_&]:text-zinc-900 font-serif text-sm font-bold truncate tracking-wide">{req.sender_username}</p>
+        <img src={avatarSrc(req.sender_avatar)} className="w-12 h-12 rounded-2xl object-cover border border-white/10 in-[.light]:border-zinc-200" alt="" />
+        <div className="min-w-0 grow">
+          <p className="text-white in-[.light]:text-zinc-900 font-serif text-sm font-bold truncate tracking-wide">{req.sender_username}</p>
           <p className="text-zinc-600 text-[10px] tracking-widest uppercase">{new Date(req.created_at).toLocaleDateString('es-ES')}</p>
         </div>
       </div>
@@ -604,7 +604,7 @@ function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingR
           {isLoading ? <Loader2 size={14} className="animate-spin" /> : <><Check size={14} strokeWidth={3} /> Aceptar</>}
         </button>
         <button onClick={onReject} disabled={isLoading}
-          className="py-3 bg-white/[0.03] [.light_&]:bg-zinc-100 text-zinc-500 rounded-xl border border-white/8 [.light_&]:border-zinc-200 hover:text-red-400 hover:border-red-500/20 transition-all flex items-center justify-center gap-2 text-xs tracking-wider cursor-pointer disabled:opacity-50">
+          className="py-3 bg-white/3 in-[.light]:bg-zinc-100 text-zinc-500 rounded-xl border border-white/8 in-[.light]:border-zinc-200 hover:text-red-400 hover:border-red-500/20 transition-all flex items-center justify-center gap-2 text-xs tracking-wider cursor-pointer disabled:opacity-50">
           <X size={14} /> Rechazar
         </button>
       </div>
@@ -616,14 +616,14 @@ function FriendRow({ friend, rank, onChat, onDelete, onChallenge, actionLoading 
   const isDeleting = actionLoading === friend.username;
   return (
     <div className="friend-row group cursor-default relative animate-fadeIn">
-      <div className="w-7 h-7 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center shrink-0 group-hover:border-gold/20 transition-colors">
+      <div className="w-7 h-7 rounded-lg bg-white/3 border border-white/5 flex items-center justify-center shrink-0 group-hover:border-gold/20 transition-colors">
         <span className="text-[10px] text-zinc-600 font-bold group-hover:text-gold/60 transition-colors">{rank}</span>
       </div>
       <div className="avatar-container group-hover:scale-105 shrink-0 w-14 h-14">
         <img src={friend.avatar ?? '/avatars/b_king_avatar.png'} className="avatar-img border-gold shadow-gold/20 w-14 h-14" alt="" />
       </div>
-      <div className="flex-grow min-w-0">
-        <h3 className="text-white [.light_&]:text-zinc-900 font-serif font-bold text-2xl tracking-widest uppercase truncate group-hover:text-gold transition-colors">{friend.username}</h3>
+      <div className="grow min-w-0">
+        <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-2xl tracking-widest uppercase truncate group-hover:text-gold transition-colors">{friend.username}</h3>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gold font-bold tracking-widest flex items-center gap-1"><Zap size={12} /> {friend.elo_blitz} Blitz</span>
           <span className="text-xs text-zinc-600 italic">{friend.elo_rapid} Rapid · {friend.elo_bullet} Bullet</span>
@@ -638,7 +638,7 @@ function FriendRow({ friend, rank, onChat, onDelete, onChallenge, actionLoading 
           <MessageSquare size={18} strokeWidth={2.5} />
         </button>
         <button title="Eliminar amigo" onClick={e => { e.stopPropagation(); onDelete(); }} disabled={isDeleting}
-          className="p-3.5 bg-white/[0.03] text-zinc-600 rounded-xl hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all border border-white/5 active:scale-90 cursor-pointer disabled:opacity-50">
+          className="p-3.5 bg-white/3 text-zinc-600 rounded-xl hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all border border-white/5 active:scale-90 cursor-pointer disabled:opacity-50">
           {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <UserMinus size={18} strokeWidth={2} />}
         </button>
       </div>

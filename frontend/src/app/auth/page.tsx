@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from 'react';
 import LoginForm from "@/components/auth/LoginForm";
@@ -13,9 +13,9 @@ export default function AuthPage() {
 
 
   return (
-    <main className="min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-96px)] bg-[#050505] [.light_&]:bg-[#f4f4f5] relative overflow-hidden flex items-center justify-center p-6">
+    <main className="min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-96px)] bg-[#050505] in-[.light]:bg-[#f4f4f5] relative overflow-hidden flex items-center justify-center p-6">
       {/* EFECTOS DE FONDO */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#d4af37]/5 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold/5 blur-[120px] rounded-full pointer-events-none"></div>
 
       <div className="relative z-10 w-full max-w-md animate-in fade-in zoom-in duration-500">
         {isLogin ? (

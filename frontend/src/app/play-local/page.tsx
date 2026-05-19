@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from 'react';
 import PlayLocal from '@/components/game/PlayLocal';
@@ -20,7 +20,7 @@ function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut
   };
 
   return (
-    <div className={`p-5 rounded-[2rem] border transition-all duration-500 relative overflow-hidden ${
+    <div className={`p-5 rounded-4xl border transition-all duration-500 relative overflow-hidden ${
       isTimedOut
         ? 'bg-red-950/40 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
         : isActive
@@ -31,7 +31,7 @@ function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut
             ? 'bg-white border-gray-200'
             : 'bg-zinc-900/40 border-white/10 opacity-80 backdrop-blur-xl'
     }`}>
-      {isTimedOut && <div className="absolute inset-0 bg-red-500/[0.05] pointer-events-none" />}
+      {isTimedOut && <div className="absolute inset-0 bg-red-500/5 pointer-events-none" />}
 
       <div className="flex justify-between items-center mb-4 relative z-10">
         <div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut
               : isActive ? isLight ? 'bg-blue-400 animate-pulse' : 'bg-gold animate-pulse shadow-[0_0_10px_#d4af37]'
               : isLight ? 'bg-gray-300' : 'bg-zinc-700'
           }`} />
-          <h4 className={`font-black text-[11px] uppercase tracking-[0.1em] leading-none ${
+          <h4 className={`font-black text-[11px] uppercase tracking-widest leading-none ${
             isTimedOut ? 'text-red-400' : isLight ? 'text-gray-900' : 'text-white'
           }`}>
             {isTimedOut ? '¡Tiempo!' : name}
@@ -57,7 +57,7 @@ function PlayerBox({ name, captured, isActive, seconds, isNoTimeMode, isTimedOut
         </div>
       </div>
 
-      <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-[65px] flex items-center bg-gradient-to-br from-[#d2b48c] to-[#a68a64] relative z-10">
+      <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-[65px] flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64] relative z-10">
         <div className="flex flex-wrap gap-1 max-w-full">
           {captured.length > 0 ? (
             captured.map((img: string, i: number) => (
@@ -79,7 +79,7 @@ function TimeoutOverlay({ loser, onReset }: { loser: 'w' | 'b'; onReset: () => v
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center rounded-xl overflow-hidden">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
-      <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-b from-red-900/20 to-transparent" />
       <div className="relative flex flex-col items-center gap-6 px-8 text-center">
         <div className="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500/50
           flex items-center justify-center
@@ -194,11 +194,11 @@ export default function LocalPremiumPage() {
         <div className={`absolute inset-0 ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#00050a]'}`} />
         <div className={`absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse ${isLight ? 'bg-sky-200/55' : 'bg-blue-600/25'}`} />
         <div className={`absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse [animation-delay:2s] ${isLight ? 'bg-blue-100/70' : 'bg-blue-900/30'}`} />
-        <div className={`absolute inset-0 [background-size:32px_32px] ${isLight ? 'opacity-[0.22] [background-image:radial-gradient(rgba(37,99,235,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.2] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
+        <div className={`absolute inset-0 bg-size-[32px_32px] ${isLight ? 'opacity-[0.22] bg-[radial-gradient(rgba(37,99,235,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.2] bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
         <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] ${isLight ? 'opacity-[0.14] mix-blend-multiply' : 'opacity-[0.25] mix-blend-overlay'}`} />
       </div>
 
-      <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-8 items-start">
+      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-8 items-start">
         <div className="col-span-12 xl:col-span-3 flex flex-col gap-2">
           <PlayerBox
             name="Usuario Local 2" captured={capturedW}
@@ -208,7 +208,7 @@ export default function LocalPremiumPage() {
             isLight={isLight}
           />
 
-          <div className={`${panel} border rounded-[2rem] p-6 shadow-2xl backdrop-blur-xl`}>
+          <div className={`${panel} border rounded-4xl p-6 shadow-2xl backdrop-blur-xl`}>
             <div className="mb-6">
               <p className={`text-[10px] font-black tracking-[0.25em] ${labelText} uppercase mb-3 px-1`}>Elegir Bando</p>
               <div className={`grid grid-cols-2 gap-2 p-1.5 rounded-2xl border ${
@@ -269,7 +269,7 @@ export default function LocalPremiumPage() {
             <div className={`grid grid-cols-1 gap-3 transition-opacity duration-300 ${isNoTimeMode ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
               {TIME_MODES.map((category) => (
                 <div key={category.label} className={`flex items-center justify-between gap-3 p-3 rounded-2xl border ${
-                  isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/50 border-white/[0.06]'
+                  isLight ? 'bg-gray-50 border-gray-200' : 'bg-black/50 border-white/6'
                 }`}>
                   <span className={`text-[9px] uppercase font-black tracking-tight w-12 ${subText}`}>{category.label}</span>
                   <div className="flex gap-1.5">

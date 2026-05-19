@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 @theme {
   --color-gold: #d4af37;
@@ -9,7 +9,7 @@
 
 @layer base {
   body {
-    @apply bg-[#050505] text-white antialiased transition-colors duration-500 [.light_&]:bg-gray-50 [.light_&]:text-black;
+    @apply bg-[#050505] text-white antialiased transition-colors duration-500 in-[.light]:bg-gray-50 in-[.light]:text-black;
   }
   
   input:-webkit-autofill,
@@ -29,16 +29,16 @@
 
 /* --- CONTENEDORES MAESTROS --- */
 .chess-card {
-  @apply border border-white/10 backdrop-blur-xl shadow-2xl rounded-[2.5rem] [.light_&]:border-black/10 [.light_&]:bg-white/90;
+  @apply border border-white/10 backdrop-blur-xl shadow-2xl rounded-[2.5rem] in-[.light]:border-black/10 in-[.light]:bg-white/90;
   background-color: rgba(0, 0, 0, 0.4);
 }
 
 .chess-panel {
-  @apply bg-black/40 border border-white/5 rounded-[40px] p-8 backdrop-blur-md shadow-lg flex flex-col [.light_&]:bg-white/80 [.light_&]:border-black/10 [.light_&]:shadow-xl;
+  @apply bg-black/40 border border-white/5 rounded-[40px] p-8 backdrop-blur-md shadow-lg flex flex-col in-[.light]:bg-white/80 in-[.light]:border-black/10 in-[.light]:shadow-xl;
 }
 
 .chess-panel-gold {
-  @apply bg-gradient-to-b from-gold/20 to-black/40 border border-gold/30 rounded-[40px] p-8 shadow-xl text-center [.light_&]:from-gold/10 [.light_&]:to-white/50 [.light_&]:border-gold/20;
+  @apply bg-linear-to-b from-gold/20 to-black/40 border border-gold/30 rounded-[40px] p-8 shadow-xl text-center in-[.light]:from-gold/10 in-[.light]:to-white/50 in-[.light]:border-gold/20;
 }
 
 /* --- TIPOGRAFÍA Y TÍTULOS --- */
@@ -47,7 +47,7 @@
 }
 
 .chess-title-group h2 {
-  @apply text-4xl md:text-5xl font-black text-white tracking-[0.2em] font-serif uppercase [.light_&]:text-black;
+  @apply text-4xl md:text-5xl font-black text-white tracking-[0.2em] font-serif uppercase in-[.light]:text-black;
 }
 
 .chess-title-group p {
@@ -64,7 +64,7 @@
 }
 
 .chess-label {
-  @apply text-gold text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ml-1 font-sans [.light_&]:text-black;
+  @apply text-gold text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ml-1 font-sans in-[.light]:text-black;
 }
 
 .chess-label-dot {
@@ -72,12 +72,12 @@
 }
 
 .chess-input {
-  @apply w-full border border-white/10 rounded-2xl p-4 text-white outline-none transition-all text-sm font-sans [.light_&]:text-black [.light_&]:border-gray-200 [.light_&]:bg-white;
+  @apply w-full border border-white/10 rounded-2xl p-4 text-white outline-none transition-all text-sm font-sans in-[.light]:text-black in-[.light]:border-gray-200 in-[.light]:bg-white;
   background-color: rgba(255, 255, 255, 0.03);
 }
 
 .chess-input:focus {
-  @apply border-gold/50 [.light_&]:bg-white [.light_&]:shadow-md;
+  @apply border-gold/50 in-[.light]:bg-white in-[.light]:shadow-md;
   background-color: rgba(255, 255, 255, 0.07);
 }
 
@@ -96,12 +96,12 @@
 .btn-gold:disabled { @apply opacity-50 cursor-not-allowed; }
 
 .chess-link {
-  @apply text-gold text-[10px] font-black uppercase tracking-widest hover:text-white [.light_&]:hover:text-black transition-colors underline underline-offset-8 font-sans cursor-pointer;
+  @apply text-gold text-[10px] font-black uppercase tracking-widest hover:text-white in-[.light]:hover:text-black transition-colors underline underline-offset-8 font-sans cursor-pointer;
 }
 
 /* --- INTERFAZ SOCIAL (FRIENDS) --- */
 .friend-row {
-  @apply flex items-center gap-6 p-6 mb-3 rounded-[32px] transition-all border border-transparent hover:bg-white/[0.04] hover:border-white/5 [.light_&]:hover:bg-black/5 [.light_&]:hover:border-black/10 relative shrink-0;
+  @apply flex items-center gap-6 p-6 mb-3 rounded-[32px] transition-all border border-transparent hover:bg-white/4 hover:border-white/5 in-[.light]:hover:bg-black/5 in-[.light]:hover:border-black/10 relative shrink-0;
 }
 
 .friend-row.offline {
@@ -113,23 +113,23 @@
 }
 
 .avatar-img {
-  @apply w-16 h-16 rounded-2xl object-cover border-2 border-white [.light_&]:border-black;
+  @apply w-16 h-16 rounded-2xl object-cover border-2 border-white in-[.light]:border-black;
 }
 
 .status-dot {
-  @apply absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-black [.light_&]:border-white;
+  @apply absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-black in-[.light]:border-white;
 }
 
 .log-item {
-  @apply flex flex-col border-l-2 border-gold/30 pl-5 py-2 hover:bg-white/5 [.light_&]:hover:bg-gray-100 transition-all cursor-pointer;
+  @apply flex flex-col border-l-2 border-gold/30 pl-5 py-2 hover:bg-white/5 in-[.light]:hover:bg-gray-100 transition-all cursor-pointer;
 }
 
-.log-item p { @apply text-xs text-white font-bold tracking-tight uppercase truncate [.light_&]:text-black; }
-.log-item span { @apply text-[9px] text-gold/40 mt-1 font-bold [.light_&]:text-zinc-500; }
+.log-item p { @apply text-xs text-white font-bold tracking-tight uppercase truncate in-[.light]:text-black; }
+.log-item span { @apply text-[9px] text-gold/40 mt-1 font-bold in-[.light]:text-zinc-500; }
 
 /* --- TABLERO DE AJEDREZ --- */
 .chess-board-grid {
-  @apply grid grid-cols-8 grid-rows-8 w-full h-full border-2 border-[#d4af37]/20 shadow-2xl overflow-hidden aspect-square;
+  @apply grid grid-cols-8 grid-rows-8 w-full h-full border-2 border-gold/20 shadow-2xl overflow-hidden aspect-square;
 }
 
 .chess-square {
@@ -153,7 +153,7 @@
 
 /* --- CHAT Y SIDEBARS --- */
 .chat-sidebar {
-  @apply fixed top-0 right-0 h-full w-full max-w-[460px] bg-[#050505] [.light_&]:bg-gray-50 border-l z-[1000] flex flex-col transition-all duration-500;
+  @apply fixed top-0 right-0 h-full w-full max-w-[460px] bg-[#050505] in-[.light]:bg-gray-50 border-l z-[1000] flex flex-col transition-all duration-500;
   border-color: rgba(212, 175, 55, 0.3);
 }
 
@@ -163,7 +163,7 @@
 }
 
 .chat-bubble-friend {
-  @apply bg-[#121212] [.light_&]:bg-white text-white [.light_&]:text-black border border-white/10 [.light_&]:border-gray-200 rounded-[24px] rounded-tl-none px-6 py-4 backdrop-blur-md shadow-xl;
+  @apply bg-[#121212] in-[.light]:bg-white text-white in-[.light]:text-black border border-white/10 in-[.light]:border-gray-200 rounded-[24px] rounded-tl-none px-6 py-4 backdrop-blur-md shadow-xl;
 }
 
 /* --- UTILIDADES DE SCROLL --- */

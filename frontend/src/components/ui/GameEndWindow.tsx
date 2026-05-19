@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
@@ -222,12 +222,12 @@ export default function GameEndModal({
               className={`group w-full py-5 px-6 rounded-2xl font-black text-sm uppercase tracking-[0.3em] shadow-2xl hover:scale-[1.02] transition-all duration-500 cursor-pointer relative overflow-hidden ${
                 isLight
                   ? 'bg-gray-900 text-white hover:bg-gold hover:text-black'
-                  : 'bg-gradient-to-r from-white/90 to-zinc-100 text-black hover:from-white hover:to-zinc-200 hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]'
+                  : 'bg-linear-to-r from-white/90 to-zinc-100 text-black hover:from-white hover:to-zinc-200 hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]'
               }`}
               type="button"
             >
               <span className="relative z-10">Nueva Partida</span>
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-30 bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-30 bg-linear-to-r from-transparent via-white/50 to-transparent" />
             </button>
           </div>
 

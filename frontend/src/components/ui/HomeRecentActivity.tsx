@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from 'react';
 
 interface GameFromAPI {
@@ -83,7 +83,7 @@ export default function HomeRecentActivity() {
           return (
             <div
               key={game.id}
-              className="flex items-center justify-between py-3 px-3 -mx-1 rounded-xl transition-all duration-700 group/item border border-transparent hover:bg-white/5 [.light_&]:hover:bg-black/5"
+              className="flex items-center justify-between py-3 px-3 -mx-1 rounded-xl transition-all duration-700 group/item border border-transparent hover:bg-white/5 in-[.light]:hover:bg-black/5"
             >
               <div className="flex items-center gap-4">
                 <div className={`text-[9px] font-black px-2 py-1 rounded border ${
@@ -97,7 +97,7 @@ export default function HomeRecentActivity() {
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold text-white [.light_&]:text-zinc-800 uppercase tracking-tight group-hover/item:text-gold transition-colors">
+                  <p className="text-xs font-bold text-white in-[.light]:text-zinc-800 uppercase tracking-tight group-hover/item:text-gold transition-colors">
                     vs. {opponent || "Oponente"}
                   </p>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">

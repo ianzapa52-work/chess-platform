@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -91,15 +91,15 @@ export default function HomeFriendsSidebar() {
   }, [fetchFriends]);
 
   return (
-    <div className="flex flex-col h-full bg-black/20 [.light_&]:bg-black/[0.03]">
-      <div className="p-6 border-b border-gold/10 [.light_&]:border-gray-100 flex justify-between items-center">
+    <div className="flex flex-col h-full bg-black/20 in-[.light]:bg-black/3">
+      <div className="p-6 border-b border-gold/10 in-[.light]:border-gray-100 flex justify-between items-center">
         <h3 className="chess-label">Amigos</h3>
         <span className="text-[10px] text-gold font-black bg-gold/10 px-2 py-1 rounded-md">
           {loading ? '···' : `${friends.length} AMIGOS`}
         </span>
       </div>
 
-      <div className="flex-grow overflow-y-auto custom-scrollbar p-3 space-y-2">
+      <div className="grow overflow-y-auto custom-scrollbar p-3 space-y-2">
         {loading ? (
           <div className="py-10 text-center chess-label opacity-20 animate-pulse">
             Cargando...
@@ -115,25 +115,25 @@ export default function HomeFriendsSidebar() {
                   })
                 )
               }
-              className="w-full flex items-center gap-4 p-3 rounded-2xl transition-all border border-transparent hover:bg-gold/5 [.light_&]:hover:bg-black/[0.05] hover:border-gold/10 group cursor-pointer"
+              className="w-full flex items-center gap-4 p-3 rounded-2xl transition-all border border-transparent hover:bg-gold/5 in-[.light]:hover:bg-black/5 hover:border-gold/10 group cursor-pointer"
             >
               <div className="relative shrink-0">
                 <img
                   src={avatarSrc(f.avatar)}
-                  className="w-13 h-13 rounded-xl border border-white/10 [.light_&]:border-gray-200 group-hover:border-gold/30 object-cover"
+                  className="w-13 h-13 rounded-xl border border-white/10 in-[.light]:border-gray-200 group-hover:border-gold/30 object-cover"
                   alt=""
                 />
               </div>
               <div className="flex flex-col items-start min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-base font-bold uppercase tracking-widest text-white [.light_&]:text-zinc-800 group-hover:text-gold truncate font-['Cinzel']">
+                  <span className="text-base font-bold uppercase tracking-widest text-white in-[.light]:text-zinc-800 group-hover:text-gold truncate font-['Cinzel']">
                     {f.username}
                   </span>
                   <span className="text-[11px] text-gold/50 font-black font-['Cinzel']">
                     {f.elo_blitz}
                   </span>
                 </div>
-                <span className="text-[11px] text-zinc-500 [.light_&]:text-zinc-400 italic truncate tracking-tight">
+                <span className="text-[11px] text-zinc-500 in-[.light]:text-zinc-400 italic truncate tracking-tight">
                   {f.elo_rapid} Rapid · {f.elo_bullet} Bullet
                 </span>
               </div>

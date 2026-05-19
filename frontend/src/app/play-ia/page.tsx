@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import PlayIA from '@/components/game/PlayIA';
@@ -16,8 +16,8 @@ const COUNTDOWN_OPTIONS = [
 
 function IABox({ captured, isLight }: { captured: string[]; isLight: boolean }) {
   return (
-    <div className={`p-5 rounded-[2rem] border backdrop-blur-xl shadow-xl ${
-      isLight ? 'bg-white border-gray-200' : 'border-white/[0.08] bg-black/40'
+    <div className={`p-5 rounded-4xl border backdrop-blur-xl shadow-xl ${
+      isLight ? 'bg-white border-gray-200' : 'border-white/8 bg-black/40'
     }`}>
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-3">
@@ -32,13 +32,13 @@ function IABox({ captured, isLight }: { captured: string[]; isLight: boolean }) 
           </div>
         </div>
         <div className={`px-3 py-1.5 rounded-xl border font-mono text-base font-black tracking-widest ${
-          isLight ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-black/60 border-white/[0.06] text-zinc-500'
+          isLight ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-black/60 border-white/6 text-zinc-500'
         }`}>
           ∞
         </div>
       </div>
-      <div className={`h-px mb-3 ${isLight ? 'bg-gray-100' : 'bg-white/[0.05]'}`} />
-      <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-[52px] flex items-center bg-gradient-to-br from-[#d2b48c] to-[#a68a64]">
+      <div className={`h-px mb-3 ${isLight ? 'bg-gray-100' : 'bg-white/5'}`} />
+      <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-13 flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64]">
         <div className="flex flex-wrap gap-1 max-w-full">
           {captured.length > 0 ? (
             captured.map((img, i) => (
@@ -66,7 +66,7 @@ function PlayerBox({
   const isVeryLow = showClock && seconds <= 10 && !isTimedOut;
 
   return (
-    <div className={`p-5 rounded-[2rem] border-2 transition-all duration-500 relative overflow-hidden ${
+    <div className={`p-5 rounded-4xl border-2 transition-all duration-500 relative overflow-hidden ${
       isTimedOut
         ? 'bg-red-950/40 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
         : isActive
@@ -75,10 +75,10 @@ function PlayerBox({
             : 'bg-black/50 border-gold shadow-[0_0_40px_rgba(212,175,55,0.12)]'
           : isLight
             ? 'bg-white border-gray-200'
-            : 'bg-black/40 border-white/[0.06]'
+            : 'bg-black/40 border-white/6'
     }`}>
-      {isActive && !isTimedOut && <div className={`absolute inset-0 pointer-events-none ${isLight ? 'bg-gold/[0.04]' : 'bg-gold/[0.03]'}`} />}
-      {isTimedOut && <div className="absolute inset-0 bg-red-500/[0.05] pointer-events-none" />}
+      {isActive && !isTimedOut && <div className={`absolute inset-0 pointer-events-none ${isLight ? 'bg-gold/4' : 'bg-gold/3'}`} />}
+      {isTimedOut && <div className="absolute inset-0 bg-red-500/5 pointer-events-none" />}
 
       <div className="relative flex justify-between items-center mb-3">
         <div className="flex items-center gap-3">
@@ -118,8 +118,8 @@ function PlayerBox({
         )}
       </div>
 
-      <div className={`h-px mb-3 ${isLight ? 'bg-gray-100' : 'bg-white/[0.05]'}`} />
-      <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-[52px] flex items-center bg-gradient-to-br from-[#d2b48c] to-[#a68a64]">
+      <div className={`h-px mb-3 ${isLight ? 'bg-gray-100' : 'bg-white/5'}`} />
+      <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-13 flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64]">
         <div className="flex flex-wrap gap-1 max-w-full">
           {captured.length > 0 ? (
             captured.map((img, i) => (
@@ -138,7 +138,7 @@ function TimeoutOverlay({ onReset }: { onReset: () => void }) {
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center rounded-xl overflow-hidden">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
-      <div className="absolute inset-0 bg-gradient-to-b from-red-900/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-b from-red-900/20 to-transparent" />
       <div className="relative flex flex-col items-center gap-6 px-8 text-center">
         <div className="w-20 h-20 rounded-full bg-red-500/20 border-2 border-red-500/50
           flex items-center justify-center
@@ -256,7 +256,7 @@ export default function PlayIAPage() {
 
   const panel = isLight
     ? 'bg-white border border-gray-200'
-    : 'bg-black/50 border border-white/[0.07]';
+    : 'bg-black/50 border border-white/7';
 
   const gridBg = isLight
     ? 'bg-gray-100 border-gray-200'
@@ -271,11 +271,11 @@ export default function PlayIAPage() {
         <div className={`absolute top-[-25%] left-1/2 -translate-x-1/2 w-[85%] h-[75%] blur-[180px] rounded-full animate-pulse ${isLight ? 'bg-red-200/55' : 'bg-red-500/35'}`} />
         <div className={`absolute top-[5%] right-[-10%] w-[45%] h-[55%] blur-[160px] rounded-full animate-pulse [animation-delay:1.2s] ${isLight ? 'bg-rose-300/35' : 'bg-rose-600/25'}`} />
         <div className={`absolute bottom-[-25%] left-1/2 -translate-x-1/2 w-[90%] h-[70%] blur-[200px] rounded-full animate-pulse [animation-delay:2.5s] ${isLight ? 'bg-red-100/70' : 'bg-red-800/30'}`} />
-        <div className={`absolute inset-0 [background-size:32px_32px] ${isLight ? 'opacity-[0.2] [background-image:radial-gradient(rgba(190,18,60,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.18] [background-image:radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
+        <div className={`absolute inset-0 bg-size-[32px_32px] ${isLight ? 'opacity-[0.2] bg-[radial-gradient(rgba(190,18,60,0.42)_1.5px,transparent_1.5px)]' : 'opacity-[0.18] bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)]'}`} />
         <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] ${isLight ? 'opacity-[0.14] mix-blend-multiply' : 'opacity-[0.22] mix-blend-overlay'}`} />
       </div>
 
-      <div className="relative z-10 max-w-[1700px] mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
+      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
         <div className="col-span-12 xl:col-span-3 flex flex-col gap-3">
           <div style={{
             maxHeight: gameStarted ? '200px' : '0px',
@@ -287,7 +287,7 @@ export default function PlayIAPage() {
             <IABox captured={capturedW} isLight={isLight} />
           </div>
 
-          <div className={`${panel} rounded-[2rem] p-5 shadow-2xl backdrop-blur-xl space-y-5`}>
+          <div className={`${panel} rounded-4xl p-5 shadow-2xl backdrop-blur-xl space-y-5`}>
             <div>
               <p className={`text-[10px] font-black tracking-[0.35em] ${labelText} uppercase mb-3`}>Nivel IA</p>
               <div className={`grid grid-cols-2 gap-1.5 p-1 ${gridBg} rounded-2xl border`}>
@@ -339,7 +339,7 @@ export default function PlayIAPage() {
               </div>
             </div>
 
-            <div className={`h-px ${isLight ? 'bg-gray-100' : 'bg-white/[0.04]'}`} />
+            <div className={`h-px ${isLight ? 'bg-gray-100' : 'bg-white/4'}`} />
 
             <div>
               <p className={`text-[10px] font-black tracking-[0.35em] ${labelText} uppercase mb-3`}>Tu tiempo</p>
