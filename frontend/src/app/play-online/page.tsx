@@ -402,7 +402,7 @@ export default function OnlinePremiumPage() {
     if (!token) { setShowAuthModal(true); return; }
     setIsSearching(true);
     setStatus("BUSCANDO RIVAL...");
-    const ws = new WebSocket(`ws://localhost:8000/ws/matchmaking/?token=${token}`);
+    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000'}/ws/matchmaking/?token=${token}`);
     matchmakingSocket.current = ws;
     ws.onopen = () => {
       ws.send(JSON.stringify({
@@ -869,7 +869,7 @@ export default function OnlinePremiumPage() {
             {gameJoined && gameId ? (
               <div className="relative w-[min(95vw,780px)]">
                 <PlayOnline
-                  serverUrl={`ws://localhost:8000/ws/games/${gameId}/`}
+                  serverUrl={`${process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000'}/ws/games/${gameId}/`}
                   onGameStateChange={handleGameStateChange}
                   onMoveUpdate={handleMoveUpdate}
                   onGameData={handleGameData}

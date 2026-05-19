@@ -17,6 +17,8 @@ interface GameFromAPI {
   winner_username: string | null;
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+
 export default function HistoryForm() {
   const [games, setGames] = useState<GameFromAPI[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +31,7 @@ export default function HistoryForm() {
       const token = localStorage.getItem("access_token");
 
       try {
-        const meRes = await fetch("http://localhost:8000/api/users/me/", {
+        const meRes = await fetch(`${API_BASE}/api/users/me/`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (meRes.ok) {
@@ -41,7 +43,7 @@ export default function HistoryForm() {
       }
 
       try {
-        const response = await fetch("http://localhost:8000/api/games/my-games/", {
+        const response = await fetch(`${API_BASE}/api/games/my-games/`, {
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"

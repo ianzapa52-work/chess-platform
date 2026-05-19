@@ -62,7 +62,7 @@ export function useAIGameSocket(difficulty: number): AIGameSocketResult {
     setConnected(false);
     setConnecting(true);
 
-    const url = `ws://localhost:8000/ws/stockfish/${difficulty}/`;
+    const url = `${process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000'}/ws/stockfish/${difficulty}/`;
     const socket = new WebSocket(url);
 
     socket.onopen = () => {

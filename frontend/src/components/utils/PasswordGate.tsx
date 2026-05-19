@@ -32,7 +32,7 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
     if (!input) return;
 
     try {
-      const res = await fetch("http://localhost:8000/api/core/verify-master-password/", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/core/verify-master-password/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: input }),

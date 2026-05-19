@@ -104,7 +104,7 @@ export default function RankingForm() {
       };
 
       const response = await fetch(
-        `http://localhost:8000/api/users/leaderboard/?mode=${selectedMode}&limit=50`,
+        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/users/leaderboard/?mode=${selectedMode}&limit=50`,
         { headers, signal: abortRef.current.signal }
       );
 

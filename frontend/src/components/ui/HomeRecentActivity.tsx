@@ -26,7 +26,8 @@ export default function HomeRecentActivity() {
       }
 
       try {
-        const meRes = await fetch("http://localhost:8000/api/users/me/", {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+        const meRes = await fetch(`${API_BASE}/api/users/me/`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (meRes.ok) {
@@ -34,7 +35,7 @@ export default function HomeRecentActivity() {
           setMyUsername(meData.username);
         }
 
-        const response = await fetch("http://localhost:8000/api/games/my-games/", {
+        const response = await fetch(`${API_BASE}/api/games/my-games/`, {
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
