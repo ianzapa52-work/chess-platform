@@ -5,7 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useRouter } from "next/navigation";
 import { Swords, Check, X, Loader2 } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_BASE = process.env.API_URL ?? "http://localhost:8000";
 
 function getInitials(name: string) {
   return name

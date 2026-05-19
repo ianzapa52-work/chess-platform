@@ -48,7 +48,7 @@ export default function HomePage() {
       const token = localStorage.getItem("access_token");
       if (!token) { setStatsLoading(false); return; }
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+        const API_BASE = process.env.API_URL ?? 'http://localhost:8000';
         const res = await fetch(`${API_BASE}/api/users/me/`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });

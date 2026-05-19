@@ -194,7 +194,7 @@ function RecentGameRow({ game, user }: { game: any; user: any }) {
   );
 }
 
-const API = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api`;
+const API = `${process.env.API_URL ?? 'http://localhost:8000'}/api`;
 
 export default function ProfileForm() {
   const [user, setUser] = useState<any>(null);

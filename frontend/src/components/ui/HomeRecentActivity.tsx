@@ -26,7 +26,7 @@ export default function HomeRecentActivity() {
       }
 
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+        const API_BASE = process.env.API_URL ?? 'http://localhost:8000';
         const meRes = await fetch(`${API_BASE}/api/users/me/`, {
           headers: { "Authorization": `Bearer ${token}` }
         });

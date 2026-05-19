@@ -11,7 +11,7 @@ export function useNotifications(token: string | null, onNotification: Notificat
   const connect = useCallback(() => {
     if (!token || wsRef.current) return;
 
-    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000'}/ws/notifications/?token=${token}`);
+    const ws = new WebSocket(`${process.env.WS_URL ?? 'ws://localhost:8000'}/ws/notifications/?token=${token}`);
     wsRef.current = ws;
 
     ws.onmessage = (event) => {

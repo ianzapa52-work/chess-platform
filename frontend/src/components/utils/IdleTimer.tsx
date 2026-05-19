@@ -13,7 +13,7 @@ export default function IdleTimer() {
       window.dispatchEvent(new Event('user-updated'));
       if (token) {
         try {
-          await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/users/me/`, {
+          await fetch(`${process.env.API_URL ?? 'http://localhost:8000'}/api/users/me/`, {
             method: 'PATCH',
             headers: {
               'Authorization': `Bearer ${token}`,
