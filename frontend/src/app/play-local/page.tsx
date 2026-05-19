@@ -189,7 +189,7 @@ export default function LocalPremiumPage() {
   const subText = isLight ? 'text-gray-500' : 'text-zinc-400';
 
   return (
-    <main className={`min-h-screen ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-6 pb-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+    <main className={`h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-6 pb-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
       <div className="fixed inset-0 z-0 transition-opacity duration-500 opacity-100">
         <div className={`absolute inset-0 ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#00050a]'}`} />
         <div className={`absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse ${isLight ? 'bg-sky-200/55' : 'bg-blue-600/25'}`} />

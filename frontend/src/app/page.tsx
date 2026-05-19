@@ -106,7 +106,7 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
               <GameCard href="/play-online" title="Jugar Online" subtitle="Arena Multiplayer" desc="Compite contra el mundo en tiempo real." stats="3,210 Jugadores activos" img="/pieces/w_queen.svg" online />
-              <GameCard href="/play-ia" title="Desafiar IA" subtitle="Entrenamiento IA" desc="Stockfish v16 listo para ponerte a prueba." stats="Niveles 1-20 adaptativos" img="/pieces/w_king.svg" />
+              <GameCard href="/play-ia" title="Desafiar IA" subtitle="Entrenamiento IA" desc="Stockfish v16 listo para ponerte a prueba." stats="Niveles 1-8 adaptativos" img="/pieces/w_king.svg" />
               <GameCard href="/play-local" title="Duelo Local" subtitle="En Persona" desc="Tablero virtual perfecto para jugar cara a cara." stats="Incluye reloj de torneo" img="/pieces/w_rook.svg" />
             </div>
 
