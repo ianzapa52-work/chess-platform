@@ -24,6 +24,9 @@
     "path-to-regexp": "^8.0.0",
     "esbuild": "^0.25.0"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "devDependencies": {
     "@types/node": "25.6.0",
     "@types/react": "^19.2.14",

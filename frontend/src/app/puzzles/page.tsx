@@ -4,7 +4,7 @@ import { ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import PuzzleBoard from '@/components/game/PuzzleBoard';
 import AchievementToast from '@/components/ui/AchievementToast';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 interface ApiPuzzle {
   id: string;
@@ -30,8 +30,8 @@ function getUserElo(): number | null {
 async function fetchRandomPuzzle(): Promise<ApiPuzzle> {
   const elo = getUserElo();
   const url = elo
-    ? `${API_BASE}/games/puzzles/random/?elo=${elo}`
-    : `${API_BASE}/games/puzzles/random/`;
+    ? `${API_BASE}/api/games/puzzles/random/?elo=${elo}`
+    : `${API_BASE}/api/games/puzzles/random/`;
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
   const headers: HeadersInit = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -290,13 +290,13 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
   );
 }
 
-const API_BASE_PUZZLES = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+const API_BASE_PUZZLES = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 async function submitPuzzleAttempt(lichessId: string, successful: boolean): Promise<void> {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
   if (!token) return;
   try {
-    await fetch(`${API_BASE_PUZZLES}/games/puzzles/solve/`, {
+    await fetch(`${API_BASE_PUZZLES}/api/games/puzzles/solve/`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
       body: JSON.stringify({ lichess_id: lichessId, successful }),
