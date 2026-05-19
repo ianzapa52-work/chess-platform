@@ -11,7 +11,7 @@ interface Friend {
   elo_bullet: number;
 }
 
-const API = process.env.API_URL ?? 'http://localhost:8000';
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 async function apiFetch<T>(path: string): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;

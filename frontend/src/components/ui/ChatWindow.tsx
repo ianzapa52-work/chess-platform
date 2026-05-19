@@ -19,8 +19,8 @@ interface ChatRoom {
   last_message_at: string;
 }
 
-const API = process.env.API_URL ?? 'http://localhost:8000';
-const WS_BASE = process.env.WS_URL ?? 'ws://localhost:8000';
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+const WS_BASE = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000';
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;

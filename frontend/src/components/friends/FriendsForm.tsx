@@ -47,7 +47,7 @@ const TIME_MODES: { label: string; options: TimeOption[] }[] = [
   { label: "Rápidas", options: [{ n: "10+0", m: 600, i: 0, mode: "rapid" }, { n: "15+10", m: 900, i: 10, mode: "rapid" }] },
 ];
 
-const API = process.env.API_URL ?? 'http://localhost:8000';
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;

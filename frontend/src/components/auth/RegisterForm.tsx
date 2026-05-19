@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 
-const API_BASE = process.env.API_URL ?? 'http://localhost:8000';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [name, setName] = useState('');

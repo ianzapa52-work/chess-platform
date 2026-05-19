@@ -4,7 +4,7 @@ import { ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import PuzzleBoard from '@/components/game/PuzzleBoard';
 import AchievementToast from '@/components/ui/AchievementToast';
 
-const API_BASE = process.env.API_URL ?? "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 interface ApiPuzzle {
   id: string;
@@ -290,7 +290,7 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
   );
 }
 
-const API_BASE_PUZZLES = process.env.API_URL ?? "http://localhost:8000";
+const API_BASE_PUZZLES = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 async function submitPuzzleAttempt(lichessId: string, successful: boolean): Promise<void> {
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;

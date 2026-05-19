@@ -24,7 +24,7 @@ export default function HomeRankingSidebar() {
       try {
         const token = localStorage.getItem("access_token");
         const response = await fetch(
-          `${process.env.API_URL ?? 'http://localhost:8000'}/api/users/leaderboard/?mode=${modality}&limit=3`,
+          `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/users/leaderboard/?mode=${modality}&limit=3`,
           {
             headers: {
               "Authorization": `Bearer ${token}`,
