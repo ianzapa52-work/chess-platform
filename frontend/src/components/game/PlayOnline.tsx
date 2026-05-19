@@ -14,6 +14,8 @@ interface PlayOnlineProps {
   onGameEnded: (data: { result: string; termination_reason: string; eloChange?: number }) => void;
   onDrawOffered: (senderUsername: string) => void;
   onChatMessage: (username: string, message: string) => void;
+  onPlayerDisconnected?: (color: string) => void;
+  onPlayerReconnected?: (color: string) => void;
   serverUrl: string;
   socketRef: MutableRefObject<WebSocket | null>;
 }
@@ -54,7 +56,8 @@ const getCapturedPieces = (chess: Chess) => {
 
 export default function PlayOnline({
   onGameStateChange, onMoveUpdate, onGameData, onGameEnded,
-  onDrawOffered, onChatMessage, serverUrl, socketRef,
+  onDrawOffered, onChatMessage, onPlayerDisconnected, onPlayerReconnected,
+  serverUrl, socketRef,
 }: PlayOnlineProps) {
   const chessRef = useRef(new Chess());
   const [board, setBoard]               = useState<BoardMatrix>([]);
@@ -193,6 +196,8 @@ export default function PlayOnline({
         if (payload.action === "draw_offered" && payload.sender !== myUsernameRef.current) {
           onDrawOffered(payload.sender);
         }
+        if (payload.action === "player_disconnected") onPlayerDisconnected?.(payload.color);
+        if (payload.action === "player_reconnected")  onPlayerReconnected?.(payload.color);
       }
       if (msg.type === "chat_message") onChatMessage(msg.username, msg.message);
       if (msg.type === "move_error" || msg.type === "error") {

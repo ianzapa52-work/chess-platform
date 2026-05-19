@@ -206,6 +206,8 @@ export default function OnlinePremiumPage() {
   const [incomingChat, setIncomingChat] = useState<{ username: string; message: string } | null>(null);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [opponentDisconnectedAt, setOpponentDisconnectedAt] = useState<number | null>(null);
+  const [disconnectCountdown, setDisconnectCountdown] = useState(60);
 
   const statusRef = useRef(status);
   const currentModeRef = useRef(currentMode);
@@ -218,9 +220,35 @@ export default function OnlinePremiumPage() {
   const serverTimeAnchorRef = useRef<{ w: number; b: number; receivedAt: number } | null>(null);
   const activeTurnRef = useRef<'w' | 'b'>('w');
   const timeoutClaimedRef = useRef(false);
+  const abandonmentClaimedRef = useRef(false);
 
   useEffect(() => { statusRef.current = status; }, [status]);
   useEffect(() => { currentModeRef.current = currentMode; }, [currentMode]);
+
+  // Persiste el game_id activo para poder reconectar desde otras páginas
+  useEffect(() => {
+    if (gameJoined && gameId) {
+      localStorage.setItem("active_game_id", gameId);
+      window.dispatchEvent(new CustomEvent('active-game-change'));
+    }
+  }, [gameJoined, gameId]);
+
+  // Cuenta regresiva cuando el rival se desconecta
+  useEffect(() => {
+    if (!opponentDisconnectedAt || !gameJoined) return;
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - opponentDisconnectedAt) / 1000);
+      const remaining = Math.max(0, 60 - elapsed);
+      setDisconnectCountdown(remaining);
+      if (remaining === 0 && !abandonmentClaimedRef.current) {
+        if (gameSocketRef.current?.readyState === WebSocket.OPEN) {
+          abandonmentClaimedRef.current = true;
+          gameSocketRef.current.send(JSON.stringify({ action: "claim_victory", claim_type: "abandonment" }));
+        }
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [opponentDisconnectedAt, gameJoined]);
 
   // Auto-join cuando se llega via reto (?game_id=...) o cuando ya estamos en la página
   useEffect(() => {
@@ -247,6 +275,28 @@ export default function OnlinePremiumPage() {
     if (!gameSocketRef.current || gameSocketRef.current.readyState !== WebSocket.OPEN) return;
     timeoutClaimedRef.current = true;
     gameSocketRef.current.send(JSON.stringify({ action: "claim_victory", claim_type: "timeout" }));
+  }, []);
+
+  const handleClaimAbandon = useCallback(() => {
+    if (abandonmentClaimedRef.current) return;
+    if (!gameSocketRef.current || gameSocketRef.current.readyState !== WebSocket.OPEN) return;
+    abandonmentClaimedRef.current = true;
+    gameSocketRef.current.send(JSON.stringify({ action: "claim_victory", claim_type: "abandonment" }));
+  }, []);
+
+  const handlePlayerDisconnected = useCallback((color: string) => {
+    if (color !== myColorRef.current) {
+      setOpponentDisconnectedAt(Date.now());
+      setDisconnectCountdown(60);
+      abandonmentClaimedRef.current = false;
+    }
+  }, []);
+
+  const handlePlayerReconnected = useCallback((color: string) => {
+    if (color !== myColorRef.current) {
+      setOpponentDisconnectedAt(null);
+      setDisconnectCountdown(60);
+    }
   }, []);
 
   useEffect(() => {
@@ -279,7 +329,10 @@ export default function OnlinePremiumPage() {
       status.includes("FINALIZADA") || status.includes("GANAN") ||
       status.includes("VICTORIA") || status.includes("¡HAS GANADO");
     if (isGameOver && gameJoined) setShowGameEndWindow(true);
-    if (isGameOver) setShowLeaveModal(false);
+    if (isGameOver) {
+      setShowLeaveModal(false);
+      setOpponentDisconnectedAt(null);
+    }
   }, [status, gameJoined]);
 
   // Aviso nativo al cerrar pestaña / recargar mientras hay partida activa
@@ -394,8 +447,13 @@ export default function OnlinePremiumPage() {
     setTimeW(currentModeRef.current.m);
     setTimeB(currentModeRef.current.m);
     setShowGameEndWindow(false);
+    setOpponentDisconnectedAt(null);
+    setDisconnectCountdown(60);
     serverTimeAnchorRef.current = null;
     timeoutClaimedRef.current = false;
+    abandonmentClaimedRef.current = false;
+    localStorage.removeItem("active_game_id");
+    window.dispatchEvent(new CustomEvent('active-game-change'));
   };
 
   const handleNewGame = () => resetGame();
@@ -503,12 +561,15 @@ export default function OnlinePremiumPage() {
 
   const handleGameEnded = useCallback((data: { result: string; termination_reason: string; eloChange?: number }) => {
     const resultLabels: Record<string, string> = { "1-0": "VICTORIA BLANCAS", "0-1": "VICTORIA NEGRAS", "1/2-1/2": "TABLAS" };
-    const reasonLabels: Record<string, string> = { "resignation": "por abandono", "timeout": "por tiempo", "checkmate": "por jaque mate", "agreed_draw": "acordadas", "draw": "técnicas" };
+    const reasonLabels: Record<string, string> = { "resignation": "por abandono", "timeout": "por tiempo", "checkmate": "por jaque mate", "agreed_draw": "acordadas", "draw": "técnicas", "disconnected": "por abandono" };
     const label = resultLabels[data.result] || "PARTIDA FINALIZADA";
     const reason = reasonLabels[data.termination_reason] || "";
     setStatus(`${label}${reason ? ` (${reason})` : ""}`);
     if (data.eloChange !== undefined) setEloChange(data.eloChange);
     serverTimeAnchorRef.current = null;
+    setOpponentDisconnectedAt(null);
+    localStorage.removeItem("active_game_id");
+    window.dispatchEvent(new CustomEvent('active-game-change'));
   }, []);
 
   const handleDrawOffered = useCallback((sender: string) => setDrawOfferSender(sender), []);
@@ -630,6 +691,35 @@ export default function OnlinePremiumPage() {
 
       {drawOfferSender && (
         <DrawOfferBanner sender={drawOfferSender} onAccept={handleAcceptDraw} onDecline={handleDeclineDraw} />
+      )}
+
+      {opponentDisconnectedAt && gameJoined && !isGameOver && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-500">
+          <div className={`flex items-center gap-4 px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-xl border ${
+            isLight ? 'bg-orange-50 border-orange-300' : 'bg-zinc-950 border-orange-500/40'
+          }`}>
+            <div className="w-2 h-2 rounded-full bg-orange-400 animate-pulse shrink-0" />
+            <div>
+              <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${isLight ? 'text-orange-700' : 'text-orange-300'}`}>
+                {opponent.name} se ha desconectado
+              </p>
+              <p className={`text-[9px] mt-0.5 ${isLight ? 'text-orange-600/70' : 'text-zinc-400'}`}>
+                {disconnectCountdown > 0
+                  ? <>Reclamar victoria en <span className={`font-black ${isLight ? 'text-orange-600' : 'text-orange-400'}`}>{disconnectCountdown}s</span></>
+                  : <span className={`font-black ${isLight ? 'text-orange-600' : 'text-orange-400'}`}>¡Ya puedes reclamar la victoria!</span>
+                }
+              </p>
+            </div>
+            {disconnectCountdown <= 0 && (
+              <button
+                onClick={handleClaimAbandon}
+                className="px-4 py-2 bg-orange-500/20 border border-orange-500/40 text-orange-400 rounded-xl text-[9px] font-black uppercase tracking-wider hover:bg-orange-500/30 cursor-pointer transition-all whitespace-nowrap"
+              >
+                Reclamar
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       {showGameEndWindow && (
@@ -786,6 +876,8 @@ export default function OnlinePremiumPage() {
                   onGameEnded={handleGameEnded}
                   onDrawOffered={handleDrawOffered}
                   onChatMessage={handleChatMessage}
+                  onPlayerDisconnected={handlePlayerDisconnected}
+                  onPlayerReconnected={handlePlayerReconnected}
                   socketRef={gameSocketRef}
                 />
               </div>
