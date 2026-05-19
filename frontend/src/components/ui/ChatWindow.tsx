@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useEffect, useRef, useCallback } from 'react';
-import { Send, X, Shield, Loader2, MessageSquare } from 'lucide-react';
+import { Send, X, Shield, Loader2 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 interface ChatMessage {
@@ -55,14 +55,13 @@ export default function ChatWindow() {
   const [wsReady, setWsReady]       = useState(false);
   const [error, setError]           = useState<string | null>(null);
   const [myUsername, setMyUsername] = useState<string | null>(null);
-  const [unreadCount, setUnreadCount] = useState(0);
 
   const { isLight } = useTheme();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const wsRef     = useRef<WebSocket | null>(null);
-  const isOpenRef = useRef(false);
+  const scrollRef      = useRef<HTMLDivElement>(null);
+  const wsRef          = useRef<WebSocket | null>(null);
+  const isOpenRef      = useRef(false);
+  const optimisticIdRef = useRef(-1);
 
-  // Mantener ref sincronizada con isOpen para usarla dentro de callbacks
   useEffect(() => { isOpenRef.current = isOpen; }, [isOpen]);
 
   const scrollToBottom = useCallback(() => {
@@ -115,26 +114,16 @@ export default function ChatWindow() {
         };
 
         setMessages(prev => {
-          const withoutOptimistic = prev.filter(m => m.id !== -1);
-          return [...withoutOptimistic, incoming];
+          // Reemplazar el primer mensaje optimista del mismo remitente con el real
+          const idx = prev.findIndex(m => m.id < 0 && m.sender_username === incoming.sender_username);
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = incoming;
+            return next;
+          }
+          return [...prev, incoming];
         });
 
-        // Badge: solo si el chat está cerrado y el mensaje no es mío
-        setMyUsername(myUser => {
-          if (!isOpenRef.current && incoming.sender_username !== myUser) {
-            setUnreadCount(prev => prev + 1);
-            window.dispatchEvent(new CustomEvent('app-notification', {
-              detail: {
-                type: 'message',
-                data: {
-                  message: incoming.text,
-                  username: incoming.sender_username,
-                },
-              },
-            }));
-          }
-          return myUser;
-        });
       } catch { /* silent */ }
     };
 
@@ -157,7 +146,6 @@ export default function ChatWindow() {
 
       setFriendUsername(username);
       setIsOpen(true);
-      setUnreadCount(0);
       setError(null);
       setMessages([]);
       setLoadingRoom(true);
@@ -190,8 +178,6 @@ export default function ChatWindow() {
 
   const handleClose = () => {
     setIsOpen(false);
-    setUnreadCount(0);
-    closeWs();
   };
 
   const handleSend = (e: FormEvent) => {
@@ -203,7 +189,7 @@ export default function ChatWindow() {
     setInputValue('');
 
     const optimistic: ChatMessage = {
-      id:              -1,
+      id:              optimisticIdRef.current--,
       sender_username: myUsername ?? '__me__',
       text,
       is_read:         false,
@@ -228,19 +214,6 @@ export default function ChatWindow() {
           ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={handleClose}
       />
-
-      {/* Badge flotante — visible cuando el chat está cerrado y hay mensajes */}
-      {!isOpen && unreadCount > 0 && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-[997] w-14 h-14 bg-gold text-black rounded-full shadow-2xl flex items-center justify-center hover:bg-white transition-all active:scale-95 cursor-pointer"
-        >
-          <MessageSquare size={22} strokeWidth={2.5} />
-          <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        </button>
-      )}
 
       <aside
         data-chat-open={isOpen ? "true" : "false"}

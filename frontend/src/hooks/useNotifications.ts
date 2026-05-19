@@ -5,6 +5,8 @@ export type NotificationHandler = (type: string, data: unknown) => void;
 export function useNotifications(token: string | null, onNotification: NotificationHandler) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onNotificationRef = useRef(onNotification);
+  onNotificationRef.current = onNotification;
 
   const connect = useCallback(() => {
     if (!token || wsRef.current) return;
@@ -15,7 +17,7 @@ export function useNotifications(token: string | null, onNotification: Notificat
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        onNotification(msg.type, msg.data);
+        onNotificationRef.current(msg.type, msg.data);
       } catch {}
     };
 
@@ -25,14 +27,17 @@ export function useNotifications(token: string | null, onNotification: Notificat
     };
 
     ws.onerror = () => ws.close();
-  }, [token, onNotification]);
+  }, [token]);
 
   useEffect(() => {
     connect();
     return () => {
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
-      wsRef.current?.close();
-      wsRef.current = null;
+      if (wsRef.current) {
+        wsRef.current.onclose = null;
+        wsRef.current.close();
+        wsRef.current = null;
+      }
     };
   }, [connect]);
 }
