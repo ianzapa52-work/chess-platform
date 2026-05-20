@@ -11,6 +11,7 @@ interface Friend {
   elo_blitz: number;
   elo_rapid: number;
   elo_bullet: number;
+  last_seen: string | null;
 }
 
 interface PendingRequest {
@@ -38,6 +39,15 @@ interface ApiPublicUser {
   elo_blitz: number;
   elo_rapid: number;
   elo_bullet: number;
+  last_seen: string | null;
+}
+
+function friendStatus(lastSeen: string | null): 'online' | 'away' | 'offline' {
+  if (!lastSeen) return 'offline';
+  const diff = Date.now() - new Date(lastSeen).getTime();
+  if (diff < 5 * 60 * 1000)  return 'online';
+  if (diff < 30 * 60 * 1000) return 'away';
+  return 'offline';
 }
 
 type TimeOption = { n: string; m: number; i: number; mode: string };
@@ -227,6 +237,7 @@ export default function FriendsForm() {
           elo_blitz: u.elo_blitz,
           elo_rapid: u.elo_rapid,
           elo_bullet: u.elo_bullet,
+          last_seen: u.last_seen ?? null,
         }));
 
       setFriendDetails(prev => {
@@ -635,6 +646,13 @@ function FriendRow({ friend, rank, onChat, onDelete, onChallenge, actionLoading 
             alt=""
           />
         </div>
+        {(() => {
+          const st = friendStatus(friend.last_seen);
+          const cls = st === 'online' ? 'bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]'
+            : st === 'away' ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]'
+            : 'bg-zinc-600';
+          return <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black in-[.light]:border-white ${cls}`} />;
+        })()}
       </div>
       <div className="grow min-w-0">
         <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-2xl tracking-wide truncate group-hover:text-gold transition-colors">{friend.username}</h3>

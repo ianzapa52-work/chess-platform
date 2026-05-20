@@ -43,6 +43,14 @@ const avatarSrc = (src: string | null | undefined) => src ?? '/avatars/b_king_av
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+function calcFriendStatus(lastSeen: string | null): 'online' | 'away' | 'offline' {
+  if (!lastSeen) return 'offline';
+  const diff = Date.now() - new Date(lastSeen).getTime();
+  if (diff < 5 * 60 * 1000)  return 'online';
+  if (diff < 30 * 60 * 1000) return 'away';
+  return 'offline';
+}
+
 export default function ChatWindow() {
   const [isOpen, setIsOpen]         = useState(false);
   const [mounted, setMounted]       = useState(false);
@@ -142,11 +150,11 @@ export default function ChatWindow() {
     setMounted(true);
 
     const handleOpen = async (e: Event) => {
-      const { username, last_seen } = (e as CustomEvent).detail as { username: string; last_seen?: string | null };
+      const { username } = (e as CustomEvent).detail as { username: string };
       if (!username) return;
 
       setFriendUsername(username);
-      setFriendLastSeen(last_seen ?? null);
+      setFriendLastSeen(null);
       setIsOpen(true);
       setError(null);
       setMessages([]);
@@ -154,11 +162,12 @@ export default function ChatWindow() {
       closeWs();
 
       try {
-        const chatRoom = await apiFetch<ChatRoom>(
-          `/api/chat/start/${username}/`,
-          { method: 'POST' }
-        );
+        const [chatRoom, profile] = await Promise.all([
+          apiFetch<ChatRoom>(`/api/chat/start/${username}/`, { method: 'POST' }),
+          apiFetch<{ last_seen: string | null }>(`/api/users/${username}/`).catch(() => ({ last_seen: null })),
+        ]);
         setRoom(chatRoom);
+        setFriendLastSeen(profile.last_seen ?? null);
 
         const history = await apiFetch<ChatMessage[]>(`/api/chat/${chatRoom.id}/history/`);
         setMessages(history);
@@ -243,20 +252,16 @@ export default function ChatWindow() {
                   {friendUsername ?? 'Chat'}
                 </h3>
                 {(() => {
-                  const st = getFriendStatus(friendLastSeen);
-                  const dot = st === 'online'
-                    ? 'bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.7)] animate-pulse'
-                    : st === 'away'
-                    ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)] animate-pulse'
+                  const st = calcFriendStatus(friendLastSeen);
+                  const dot = st === 'online' ? 'bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.7)] animate-pulse'
+                    : st === 'away'   ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)] animate-pulse'
                     : 'bg-zinc-600';
-                  const label = st === 'online' ? 'En línea' : st === 'away' ? 'Meditando' : 'Desconectado';
-                  const textColor = st === 'online' ? 'text-green-400/70' : st === 'away' ? 'text-amber-400/70' : 'text-zinc-600';
+                  const txt = st === 'online' ? 'En línea' : st === 'away' ? 'Meditando' : 'Desconectado';
+                  const col = st === 'online' ? 'text-green-400/70' : st === 'away' ? 'text-amber-400/70' : 'text-zinc-600';
                   return (
                     <div className="flex items-center gap-2 mt-1">
                       <div className={`w-2 h-2 rounded-full shrink-0 transition-all duration-300 ${dot}`} />
-                      <span className={`text-[10px] font-sans font-bold tracking-[0.2em] uppercase transition-colors ${textColor}`}>
-                        {label}
-                      </span>
+                      <span className={`text-[10px] font-sans font-bold tracking-[0.2em] uppercase transition-colors ${col}`}>{txt}</span>
                     </div>
                   );
                 })()}
