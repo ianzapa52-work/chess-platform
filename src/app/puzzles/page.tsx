@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { ReactNode, useState, useEffect, useCallback, useRef } from 'react';
 import PuzzleBoard from '@/components/game/PuzzleBoard';
@@ -14,6 +14,8 @@ interface ApiPuzzle {
   blunder_move: string;
   solution: string[];
 }
+
+type PuzzleResult = 'solved' | 'failed';
 
 function getUserElo(): number | null {
   if (typeof window === "undefined") return null;
@@ -52,6 +54,20 @@ async function fetchRandomPuzzle(): Promise<ApiPuzzle> {
   return res.json();
 }
 
+async function submitPuzzleAttempt(lichessId: string, successful: boolean): Promise<void> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  if (!token) return;
+  try {
+    await fetch(`${API_BASE}/api/games/puzzles/solve/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ lichess_id: lichessId, successful }),
+    });
+  } catch { /* silently fail */ }
+}
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+
 function Divider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 px-1">
@@ -76,8 +92,9 @@ function Stat({ value, label, accent }: { value: string | number; label: string;
 function ThemeBadge({ theme }: { theme: string }) {
   return (
     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider
-      bg-emerald-950/50 in-[.light]:bg-emerald-50 border border-emerald-500/15 in-[.light]:border-emerald-300/50 text-emerald-400/70 in-[.light]:text-emerald-700 hover:border-emerald-500/40 in-[.light]:hover:border-emerald-400
-      hover:text-emerald-300 in-[.light]:hover:text-emerald-600 transition-colors duration-200">
+      bg-emerald-950/50 in-[.light]:bg-emerald-50 border border-emerald-500/15 in-[.light]:border-emerald-300/50
+      text-emerald-400/70 in-[.light]:text-emerald-700 hover:border-emerald-500/40 hover:text-emerald-300
+      in-[.light]:hover:border-emerald-400 in-[.light]:hover:text-emerald-600 transition-colors duration-200">
       {theme}
     </span>
   );
@@ -98,22 +115,69 @@ function Panel({ children, className = "", accent = false }: {
   );
 }
 
+// ── Session history trail ─────────────────────────────────────────────────────
+
+function SessionTrail({ history }: { history: PuzzleResult[] }) {
+  if (history.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-2 pt-3 border-t border-white/4 in-[.light]:border-gray-100">
+      <p className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600 in-[.light]:text-gray-500">
+        Historial de sesión
+      </p>
+      <div className="flex flex-wrap gap-1">
+        {history.map((r, i) => (
+          <div
+            key={i}
+            title={r === 'solved' ? 'Resuelto' : 'Fallido'}
+            className={`w-4 h-4 rounded-sm transition-all duration-300 ${
+              r === 'solved'
+                ? 'bg-emerald-500/70 shadow-[0_0_4px_rgba(16,185,129,0.4)]'
+                : 'bg-red-500/40'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Left panel ────────────────────────────────────────────────────────────────
+
 function LeftPanel({
   loading, error, feedback, objective, onNext,
+  hasFailed, gaveUp, onGiveUp, totalSteps,
 }: {
   loading: boolean;
   error: string | null;
   feedback: { text: string; color: string };
   objective: string;
   onNext: () => void;
+  hasFailed: boolean;
+  gaveUp: boolean;
+  onGiveUp: () => void;
+  totalSteps: number;
 }) {
+  const accentColor =
+    feedback.color === 'text-emerald-400' ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
+    : feedback.color === 'text-red-500'   ? 'bg-red-400'
+    : feedback.color === 'text-sky-400'   ? 'bg-sky-400 shadow-[0_0_8px_#38bdf8]'
+    : 'bg-zinc-700 in-[.light]:bg-gray-300';
+
   return (
     <div className="flex flex-col gap-4">
+      {/* Objetivo */}
       <Panel accent>
         <div className="p-5">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/70 in-[.light]:text-emerald-700 mb-3">
-            Objetivo
-          </p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-500/70 in-[.light]:text-emerald-700">
+              Objetivo
+            </p>
+            {totalSteps > 1 && !loading && (
+              <span className="text-[9px] font-black text-zinc-600 in-[.light]:text-gray-400 uppercase tracking-widest">
+                {totalSteps} jugadas
+              </span>
+            )}
+          </div>
           <div className="rounded-xl bg-linear-to-br from-emerald-500/15 to-emerald-900/20 in-[.light]:from-emerald-50 in-[.light]:to-emerald-100/80
             border border-emerald-500/20 in-[.light]:border-emerald-300/60 px-4 py-5 flex items-center justify-center min-h-[72px]">
             {loading ? (
@@ -132,15 +196,12 @@ function LeftPanel({
         </div>
       </Panel>
 
+      {/* Estado */}
       <Panel>
         <div className="p-5 flex flex-col items-center gap-3">
           <p className="text-[9px] font-black uppercase tracking-[0.3em] text-zinc-600 in-[.light]:text-gray-500">Estado</p>
           <div className="relative w-full flex items-center justify-center py-3">
-            <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full transition-all duration-500 ${
-              feedback.color === 'text-emerald-400' ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
-              : feedback.color === 'text-red-500'   ? 'bg-red-400'
-              : 'bg-zinc-700 in-[.light]:bg-gray-300'
-            }`} />
+            <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full transition-all duration-500 ${accentColor}`} />
             {loading ? (
               <div className="flex gap-1.5">
                 {[0, 150, 300].map(d => (
@@ -161,6 +222,21 @@ function LeftPanel({
         </div>
       </Panel>
 
+      {/* Botón rendirse — aparece tras el primer error */}
+      {hasFailed && !gaveUp && !loading && (
+        <button
+          onClick={onGiveUp}
+          className="w-full py-2.5 rounded-2xl border border-red-500/30 in-[.light]:border-red-300
+            text-red-400/80 in-[.light]:text-red-600 font-black text-[9px] tracking-[0.25em] uppercase
+            hover:bg-red-950/30 hover:border-red-500/60 hover:text-red-400
+            in-[.light]:hover:bg-red-50 in-[.light]:hover:border-red-400
+            transition-all duration-200 active:scale-[0.98] cursor-pointer"
+        >
+          Rendirse · Ver solución
+        </button>
+      )}
+
+      {/* Siguiente puzzle */}
       <button
         onClick={onNext}
         disabled={loading}
@@ -195,13 +271,25 @@ function LeftPanel({
   );
 }
 
-function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number; failedCount: number; puzzle: ApiPuzzle | null }) {
+// ── Right panel ───────────────────────────────────────────────────────────────
+
+function RightPanel({
+  solvedCount, failedCount, puzzle, sessionHistory,
+}: {
+  solvedCount: number;
+  failedCount: number;
+  puzzle: ApiPuzzle | null;
+  sessionHistory: PuzzleResult[];
+}) {
   const themes = puzzle?.themes?.filter(Boolean) ?? [];
   const ratingLevel = !puzzle ? null
     : puzzle.rating < 1200 ? { label: "Principiante", color: "text-sky-400" }
     : puzzle.rating < 1600 ? { label: "Intermedio",   color: "text-emerald-400" }
     : puzzle.rating < 2000 ? { label: "Avanzado",     color: "text-amber-400" }
     :                        { label: "Experto",       color: "text-red-400" };
+
+  const total    = solvedCount + failedCount;
+  const accuracy = total > 0 ? `${Math.round((solvedCount / total) * 100)}%` : "—";
 
   return (
     <div className="flex flex-col gap-4">
@@ -213,20 +301,24 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
           <div className="flex justify-around items-center py-2">
             <Stat value={solvedCount} label="Resueltos" accent />
             <div className="w-px h-10 bg-white/5 in-[.light]:bg-gray-200" />
-            <Stat value={solvedCount + failedCount > 0 ? `${Math.round((solvedCount / (solvedCount + failedCount)) * 100)}%` : "—"} label="Aciertos" />
+            <Stat value={accuracy} label="Aciertos" />
+            <div className="w-px h-10 bg-white/5 in-[.light]:bg-gray-200" />
+            <Stat value={failedCount} label="Fallidos" />
           </div>
-          {solvedCount > 0 && (
+          {total > 0 && (
             <div className="mt-4 pt-4 border-t border-white/4 in-[.light]:border-gray-100">
-              <div className="flex justify-between mb-2">
-                <span className="text-[9px] uppercase tracking-widest text-zinc-500 in-[.light]:text-gray-500 font-black">Racha</span>
-                <span className="text-[9px] font-black text-emerald-400 in-[.light]:text-emerald-600">{solvedCount} seguidos</span>
-              </div>
-              <div className="h-1 rounded-full bg-zinc-900 in-[.light]:bg-gray-200 overflow-hidden">
+              {/* W/L bar */}
+              <div className="h-1.5 w-full bg-zinc-900 in-[.light]:bg-gray-200 rounded-full overflow-hidden flex mb-3">
                 <div
-                  className="h-full bg-linear-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-700"
-                  style={{ width: `${Math.min(100, solvedCount * 10)}%` }}
+                  className="h-full bg-emerald-500 transition-all duration-700 rounded-l-full"
+                  style={{ width: `${(solvedCount / total) * 100}%` }}
+                />
+                <div
+                  className="h-full bg-red-500/60 transition-all duration-700 rounded-r-full"
+                  style={{ width: `${(failedCount / total) * 100}%` }}
                 />
               </div>
+              <SessionTrail history={sessionHistory} />
             </div>
           )}
         </div>
@@ -281,8 +373,7 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
                 href={`https://lichess.org/training/${puzzle.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[10px] font-black text-zinc-400 in-[.light]:text-gray-600 hover:text-emerald-400 in-[.light]:hover:text-emerald-600 transition-colors
-                  flex items-center gap-1 group"
+                className="text-[10px] font-black text-zinc-400 in-[.light]:text-gray-600 hover:text-emerald-400 in-[.light]:hover:text-emerald-600 transition-colors flex items-center gap-1 group"
               >
                 {puzzle.id}
                 <svg className="w-2.5 h-2.5 opacity-40 group-hover:opacity-100 transition-opacity"
@@ -299,52 +390,60 @@ function RightPanel({ solvedCount, failedCount, puzzle }: { solvedCount: number;
   );
 }
 
-const API_BASE_PUZZLES = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-async function submitPuzzleAttempt(lichessId: string, successful: boolean): Promise<void> {
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  if (!token) return;
-  try {
-    await fetch(`${API_BASE_PUZZLES}/api/games/puzzles/solve/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-      body: JSON.stringify({ lichess_id: lichessId, successful }),
-    });
-  } catch { /* silently fail */ }
-}
+// ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function PuzzlesPremiumPage() {
-  useEffect(() => {
-    document.title = "WELIKECHESS | Puzzles";
-  }, []);
+  useEffect(() => { document.title = "WELIKECHESS | Puzzles"; }, []);
 
-  const [puzzle, setPuzzle]   = useState<ApiPuzzle | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-  const [solvedCount, setSolvedCount] = useState(0);
-  const [failedCount, setFailedCount] = useState(0);
-  const [feedback, setFeedback] = useState({ text: "TU TURNO", color: "text-white" });
+  const [puzzle, setPuzzle]             = useState<ApiPuzzle | null>(null);
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState<string | null>(null);
+  const [solvedCount, setSolvedCount]   = useState(0);
+  const [failedCount, setFailedCount]   = useState(0);
+  const [feedback, setFeedback]         = useState({ text: "TU TURNO", color: "text-white" });
+  const [wrongMoveCount, setWrongMoveCount] = useState(0);
+  const [gaveUp, setGaveUp]             = useState(false);
+  const [sessionHistory, setSessionHistory] = useState<PuzzleResult[]>([]);
 
-  const currentPuzzleRef  = useRef<ApiPuzzle | null>(null);
-  const puzzleSolvedRef   = useRef(false);
-  const puzzleAttemptedRef = useRef(false);
+  const currentPuzzleRef   = useRef<ApiPuzzle | null>(null);
+  const puzzleSolvedRef    = useRef(false);
+  const wrongMoveCountRef  = useRef(0);
+  const gaveUpRef          = useRef(false);
+  const giveUpTimerRef     = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialLoadDone    = useRef(false);
 
   useEffect(() => { currentPuzzleRef.current = puzzle; }, [puzzle]);
 
-  const initialLoadDone = useRef(false);
-
+  // ── Load puzzle ─────────────────────────────────────────────────────────────
   const loadPuzzle = useCallback(async (specificId?: string) => {
-    // Si el puzzle actual fue intentado pero no resuelto, registrar como fallido
-    if (currentPuzzleRef.current && !puzzleSolvedRef.current && puzzleAttemptedRef.current) {
-      submitPuzzleAttempt(currentPuzzleRef.current.id, false);
-      setFailedCount(c => c + 1);
-    }
-    puzzleSolvedRef.current   = false;
-    puzzleAttemptedRef.current = false;
+    // Cancel any pending give-up auto-advance
+    if (giveUpTimerRef.current) { clearTimeout(giveUpTimerRef.current); giveUpTimerRef.current = null; }
 
+    // Commit result of the previous puzzle to session history
+    if (currentPuzzleRef.current) {
+      if (puzzleSolvedRef.current) {
+        setSessionHistory(h => [...h, 'solved']);
+      } else if (wrongMoveCountRef.current > 0 && !gaveUpRef.current) {
+        // Skipped after failing without giving up explicitly → record failure now
+        submitPuzzleAttempt(currentPuzzleRef.current.id, false);
+        setFailedCount(c => c + 1);
+        setSessionHistory(h => [...h, 'failed']);
+      } else if (gaveUpRef.current) {
+        // Already submitted + recorded in handleGiveUp; just add to history
+        setSessionHistory(h => [...h, 'failed']);
+      }
+    }
+
+    // Reset per-puzzle state
+    puzzleSolvedRef.current   = false;
+    wrongMoveCountRef.current = 0;
+    gaveUpRef.current         = false;
+    setWrongMoveCount(0);
+    setGaveUp(false);
     setLoading(true);
     setError(null);
     setFeedback({ text: "TU TURNO", color: "text-white" });
+
     try {
       const data = specificId ? await fetchPuzzleById(specificId) : await fetchRandomPuzzle();
       setPuzzle(data);
@@ -355,6 +454,7 @@ export default function PuzzlesPremiumPage() {
     }
   }, []);
 
+  // Initial load (respects ?id= param + sessionStorage preload)
   useEffect(() => {
     if (initialLoadDone.current) return;
     initialLoadDone.current = true;
@@ -368,22 +468,16 @@ export default function PuzzlesPremiumPage() {
       if (stored) {
         try {
           const parsed: ApiPuzzle = JSON.parse(stored);
-          if (parsed.id === id) {
-            setPuzzle(parsed);
-            setLoading(false);
-            return;
-          }
-        } catch { /* fall through to fetch */ }
+          if (parsed.id === id) { setPuzzle(parsed); setLoading(false); return; }
+        } catch { /* fall through */ }
       }
     }
 
     loadPuzzle(id ?? undefined);
   }, [loadPuzzle]);
 
+  // ── Callbacks ───────────────────────────────────────────────────────────────
   const handleFeedback = useCallback((text: string, color: string) => {
-    if (text === "INTÉNTALO DE NUEVO") {
-      puzzleAttemptedRef.current = true;
-    }
     const tailwindColor =
       color === "#2ecc71" ? "text-emerald-400"
       : text === "TU TURNO" ? "text-white"
@@ -399,7 +493,25 @@ export default function PuzzlesPremiumPage() {
     }
   }, []);
 
-  const objective = puzzle?.themes?.filter(Boolean)[0] ?? "Encuentra la jugada";
+  const handleWrongMove = useCallback(() => {
+    wrongMoveCountRef.current += 1;
+    setWrongMoveCount(c => c + 1);
+  }, []);
+
+  const handleGiveUp = useCallback(() => {
+    if (!currentPuzzleRef.current || puzzleSolvedRef.current || gaveUpRef.current) return;
+    gaveUpRef.current = true;
+    setGaveUp(true);
+    setFeedback({ text: "SOLUCIÓN", color: "text-sky-400" });
+    // Submit failure immediately (not lazily)
+    submitPuzzleAttempt(currentPuzzleRef.current.id, false);
+    setFailedCount(c => c + 1);
+    // Auto-advance after showing the solution for 2.5 s
+    giveUpTimerRef.current = setTimeout(() => loadPuzzle(), 2500);
+  }, [loadPuzzle]);
+
+  const totalSteps = puzzle ? Math.ceil(puzzle.solution.length / 2) : 0;
+  const objective  = puzzle?.themes?.filter(Boolean)[0] ?? "Encuentra la jugada";
 
   return (
     <main className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] bg-[#020202] in-[.light]:bg-[#f3fff8] text-zinc-400 pt-2 px-4 pb-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
@@ -419,6 +531,10 @@ export default function PuzzlesPremiumPage() {
             feedback={feedback}
             objective={objective}
             onNext={() => loadPuzzle()}
+            hasFailed={wrongMoveCount > 0 && !puzzleSolvedRef.current}
+            gaveUp={gaveUp}
+            onGiveUp={handleGiveUp}
+            totalSteps={totalSteps}
           />
         </div>
 
@@ -443,8 +559,7 @@ export default function PuzzlesPremiumPage() {
           {error && !loading && (
             <div className="w-[min(95vw,780px)] h-[min(95vw,780px)] rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
               border border-red-500/10 in-[.light]:border-red-200 flex flex-col items-center justify-center gap-5">
-              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20
-                flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
                 <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -466,12 +581,19 @@ export default function PuzzlesPremiumPage() {
               puzzle={puzzle}
               onSuccess={handleSuccess}
               onFeedback={handleFeedback}
+              onWrongMove={handleWrongMove}
+              giveUp={gaveUp}
             />
           )}
         </div>
 
         <div className="col-span-12 xl:col-span-3">
-          <RightPanel solvedCount={solvedCount} failedCount={failedCount} puzzle={!loading ? puzzle : null} />
+          <RightPanel
+            solvedCount={solvedCount}
+            failedCount={failedCount}
+            puzzle={!loading ? puzzle : null}
+            sessionHistory={sessionHistory}
+          />
         </div>
       </div>
 
