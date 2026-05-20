@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import PlayOnline from '@/components/game/PlayOnline';
 import GameHistoryOnline from '@/components/ui/GameHistoryOnline';
 import GameEndWindow from '@/components/ui/GameEndWindow';
@@ -183,6 +184,7 @@ export default function OnlinePremiumPage() {
   }, []);
 
   const { isLight } = useTheme();
+  const pageSearchParams = useSearchParams();
 
   const [isSearching, setIsSearching] = useState(false);
   const [gameJoined, setGameJoined] = useState(false);
@@ -250,15 +252,17 @@ export default function OnlinePremiumPage() {
     return () => clearInterval(interval);
   }, [opponentDisconnectedAt, gameJoined]);
 
-  // Auto-join cuando se llega via reto (?game_id=...) o cuando ya estamos en la página
+  // Auto-join cuando cambia el game_id en la URL (incluye reconexión desde el header)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const gid = params.get('game_id');
+    const gid = pageSearchParams.get('game_id');
     if (gid) {
       setGameId(gid);
       setGameJoined(true);
     }
+  }, [pageSearchParams]);
 
+  // Auto-join via reto (evento interno)
+  useEffect(() => {
     const handleChallengeJoin = (e: Event) => {
       const gid = (e as CustomEvent<{ game_id: string | number }>).detail.game_id;
       if (gid) {
