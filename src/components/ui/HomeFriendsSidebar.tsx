@@ -19,18 +19,7 @@ interface Friend {
   elo_blitz: number;
   elo_rapid: number;
   elo_bullet: number;
-  last_seen: string | null;
 }
-
-function getStatus(lastSeen: string | null): 'online' | 'away' | 'offline' {
-  if (!lastSeen) return 'offline';
-  const diff = Date.now() - new Date(lastSeen).getTime();
-  if (diff < 5 * 60 * 1000) return 'online';
-  if (diff < 30 * 60 * 1000) return 'away';
-  return 'offline';
-}
-
-const STATUS_ORDER = { online: 0, away: 1, offline: 2 };
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 

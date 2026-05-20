@@ -52,7 +52,7 @@ export default function HistoryForm() {
 
         if (response.ok) {
           const data = await response.json();
-          setGames(Array.isArray(data) ? data : (data.results ?? []));
+          setGames(data);
         }
       } catch (error) {
         console.error("Error cargando historial:", error);

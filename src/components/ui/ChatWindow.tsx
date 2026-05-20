@@ -43,14 +43,6 @@ const avatarSrc = (src: string | null | undefined) => src ?? '/avatars/b_king_av
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-function getFriendStatus(lastSeen: string | null): 'online' | 'away' | 'offline' {
-  if (!lastSeen) return 'offline';
-  const diff = Date.now() - new Date(lastSeen).getTime();
-  if (diff < 5 * 60 * 1000) return 'online';
-  if (diff < 30 * 60 * 1000) return 'away';
-  return 'offline';
-}
-
 export default function ChatWindow() {
   const [isOpen, setIsOpen]         = useState(false);
   const [mounted, setMounted]       = useState(false);
