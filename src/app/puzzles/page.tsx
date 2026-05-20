@@ -481,7 +481,7 @@ export default function PuzzlesPremiumPage() {
   const handleFeedback = useCallback((text: string, color: string) => {
     const tailwindColor =
       color === "#2ecc71" ? "text-emerald-400"
-      : text === "TU TURNO" ? "text-white"
+      : color === "#ffffff" ? "text-white"
       : "text-red-500";
     setFeedback({ text, color: tailwindColor });
   }, []);
@@ -514,7 +514,10 @@ export default function PuzzlesPremiumPage() {
   }, [loadPuzzle]);
 
   const totalSteps = puzzle ? Math.ceil(puzzle.solution.length / 2) : 0;
-  const objective  = puzzle?.themes?.filter(Boolean)[0] ?? "Encuentra la jugada";
+  const rawTheme   = puzzle?.themes?.filter(Boolean)[0];
+  const objective  = rawTheme
+    ? rawTheme.replace(/([A-Z])/g, ' $1').replace(/(\d+)/g, ' $1').trim().replace(/^\w/, c => c.toUpperCase())
+    : "Encuentra la jugada";
 
   return (
     <main className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] bg-[#020202] in-[.light]:bg-[#f3fff8] text-zinc-400 pt-2 px-4 pb-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">

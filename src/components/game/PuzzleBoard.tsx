@@ -58,6 +58,7 @@ export default function PuzzleBoard({
   const solvedRef        = useRef(false);
   const stepIndexRef     = useRef(0);
   const stepStartFenRef  = useRef(stepStartFen);
+  const onFeedbackRef    = useRef(onFeedback);
   const onGiveUpDoneRef  = useRef(onGiveUpDone);
   const giveUpTimersRef  = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -65,6 +66,7 @@ export default function PuzzleBoard({
   useEffect(() => { solvedRef.current       = solved;        }, [solved]);
   useEffect(() => { stepIndexRef.current    = stepIndex;     }, [stepIndex]);
   useEffect(() => { stepStartFenRef.current = stepStartFen;  }, [stepStartFen]);
+  useEffect(() => { onFeedbackRef.current    = onFeedback;   }, [onFeedback]);
   useEffect(() => { onGiveUpDoneRef.current = onGiveUpDone;  }, [onGiveUpDone]);
 
   // Play through all remaining solution moves when giving up
@@ -138,6 +140,7 @@ export default function PuzzleBoard({
     solvedRef.current      = false;
     stepIndexRef.current   = 0;
     stepStartFenRef.current = fen;
+    onFeedbackRef.current(g.turn() === 'w' ? "JUEGAN BLANCAS" : "JUEGAN NEGRAS", "#ffffff");
     const t = setTimeout(() => setAppearing(false), 900);
     return () => clearTimeout(t);
   }, [puzzle]);
@@ -191,7 +194,7 @@ export default function PuzzleBoard({
               window.dispatchEvent(new CustomEvent('puzzle-solved', { detail: puzzle.id }));
               onSuccess();
             } else {
-              onFeedback("TU TURNO", "#ffffff");
+              onFeedback(getPuzzleOrientation(puzzle) === 'w' ? "JUEGAN BLANCAS" : "JUEGAN NEGRAS", "#ffffff");
             }
           }, 600);
         } else {
@@ -226,7 +229,7 @@ export default function PuzzleBoard({
         setTimeout(() => {
           setReturnPiece(null);
           setReturnOffset(null);
-          onFeedback("TU TURNO", "#ffffff");
+          onFeedback(getPuzzleOrientation(puzzle) === 'w' ? "JUEGAN BLANCAS" : "JUEGAN NEGRAS", "#ffffff");
         }, FLASH_MS + SLIDE_MS);
       }
       return true;
