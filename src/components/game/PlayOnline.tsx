@@ -12,7 +12,6 @@ interface PlayOnlineProps {
   onMoveUpdate: (history: string[], lastMoveColor: 'w' | 'b' | null, serverTimes?: {w: number, b: number}) => void;
   onGameData: (data: any, color: 'w' | 'b') => void;
   onGameEnded: (data: { result: string; termination_reason: string; eloChange?: number }) => void;
-  onGameAlreadyEnded?: (color: 'w' | 'b') => void;
   onDrawOffered: (senderUsername: string) => void;
   onChatMessage: (username: string, message: string) => void;
   onPlayerDisconnected?: (color: string) => void;
@@ -56,7 +55,7 @@ const getCapturedPieces = (chess: Chess) => {
 };
 
 export default function PlayOnline({
-  onGameStateChange, onMoveUpdate, onGameData, onGameEnded, onGameAlreadyEnded,
+  onGameStateChange, onMoveUpdate, onGameData, onGameEnded,
   onDrawOffered, onChatMessage, onPlayerDisconnected, onPlayerReconnected,
   serverUrl, socketRef,
 }: PlayOnlineProps) {
@@ -165,7 +164,7 @@ export default function PlayOnline({
       const msg = JSON.parse(event.data);
       if (msg.type === "game_state") {
         if (msg.status === "completed") {
-          onGameAlreadyEnded?.(msg.color || 'w');
+          handleGameEnd(msg.result || "*", msg.termination_reason || "");
           return;
         }
         moveHistoryRef.current = []; lastMoveColorRef.current = null;

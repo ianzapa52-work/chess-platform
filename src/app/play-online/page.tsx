@@ -594,28 +594,6 @@ export default function OnlinePremiumPage() {
     }
   }, []);
 
-  const handleGameAlreadyEnded = useCallback(async (color: 'w' | 'b') => {
-    setMyColor(color);
-    myColorRef.current = color;
-    const token = localStorage.getItem('access_token');
-    if (token && gameId) {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/games/${gameId}/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        const myPlayerData  = color === 'w' ? data.white_player : data.black_player;
-        const oppPlayerData = color === 'w' ? data.black_player : data.white_player;
-        if (myPlayerData)  setMyData(myPlayerData);
-        if (oppPlayerData) setOpponentData(oppPlayerData);
-        const eloChange = color === 'w' ? data.white_elo_change : data.black_elo_change;
-        handleGameEnded({ result: data.result, termination_reason: data.termination_reason || "", eloChange });
-        return;
-      } catch { /* fallback below */ }
-    }
-    handleGameEnded({ result: "*", termination_reason: "" });
-  }, [gameId, handleGameEnded]);
-
   const handleDrawOffered = useCallback((sender: string) => setDrawOfferSender(sender), []);
   const handleChatMessage = useCallback((username: string, message: string) => {
     setIncomingChat({ username, message });
@@ -923,7 +901,6 @@ export default function OnlinePremiumPage() {
                   onMoveUpdate={handleMoveUpdate}
                   onGameData={handleGameData}
                   onGameEnded={handleGameEnded}
-                  onGameAlreadyEnded={handleGameAlreadyEnded}
                   onDrawOffered={handleDrawOffered}
                   onChatMessage={handleChatMessage}
                   onPlayerDisconnected={handlePlayerDisconnected}
