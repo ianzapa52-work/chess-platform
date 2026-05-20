@@ -7,15 +7,6 @@ import HomeRecentActivity from "@/components/ui/HomeRecentActivity";
 import HomeRankingSidebar from "@/components/ui/HomeRankingSidebar";
 import PingCounter from "@/components/ui/PingCounter";
 
-const quotes = [
-  { text: "El Ajedrez es algo más que un juego; es una diversión intelectual.", author: "J.R. Capablanca" },
-  { text: "En el ajedrez, como en la vida, la mejor jugada es la que se realiza.", author: "S. Tarrasch" },
-  { text: "El Ajedrez es la piedra de toque del intelecto.", author: "Goethe" },
-  { text: "Ayudad a vuestras piezas, y ellas os ayudarán a vosotros.", author: "Paul Morphy" },
-  { text: "El ajedrez es una tortura mental.", author: "Garry Kasparov" },
-  { text: "Una mala jugada anula cuarenta buenas.", author: "Bernhard Horwitz" },
-  { text: "El ajedrez, como el amor y la música, tiene el poder de hacer felices a los hombres.", author: "S. Tarrasch" }
-];
 
 interface UserStats {
   total: number;
@@ -34,13 +25,6 @@ interface UserStats {
 export default function HomePage() {
   useEffect(() => {
     document.title = "WELIKECHESS | Home";
-  }, []);
-
-  const [quote, setQuote] = useState(quotes[0]);
-
-  useEffect(() => {
-    const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-    setQuote(quotes[daysSinceEpoch % quotes.length]);
   }, []);
 
   const [userStats, setUserStats] = useState<UserStats | null>(null);
@@ -251,14 +235,6 @@ export default function HomePage() {
             <div className="flex flex-col gap-2">
               <ActivityBars />
               <p className="text-[9px] text-zinc-600 uppercase font-bold text-center tracking-widest">Tu Actividad · 7 días</p>
-            </div>
-
-            {/* Cita */}
-            <div className="bg-linear-to-br from-gold/8 to-transparent rounded-2xl p-4 border border-gold/10 relative overflow-hidden">
-              <div className="absolute -top-3 -left-1 text-6xl text-gold/8 font-serif leading-none select-none">"</div>
-              <p className="text-[10px] font-black uppercase text-gold/60 tracking-[0.3em] mb-2">Cita del maestro</p>
-              <p className="text-[12px] italic text-zinc-300 in-[.light]:text-zinc-700 leading-relaxed font-serif relative z-10">"{quote.text}"</p>
-              <p className="text-[9px] font-bold text-zinc-600 in-[.light]:text-zinc-400 uppercase tracking-widest mt-3">— {quote.author}</p>
             </div>
 
             {/* Footer */}

@@ -2,6 +2,16 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
+const quotes = [
+  { text: "El Ajedrez es algo más que un juego; es una diversión intelectual.", author: "J.R. Capablanca" },
+  { text: "En el ajedrez, como en la vida, la mejor jugada es la que se realiza.", author: "S. Tarrasch" },
+  { text: "El Ajedrez es la piedra de toque del intelecto.", author: "Goethe" },
+  { text: "Ayudad a vuestras piezas, y ellas os ayudarán a vosotros.", author: "Paul Morphy" },
+  { text: "El ajedrez es una tortura mental.", author: "Garry Kasparov" },
+  { text: "Una mala jugada anula cuarenta buenas.", author: "Bernhard Horwitz" },
+  { text: "El ajedrez, como el amor y la música, tiene el poder de hacer felices a los hombres.", author: "S. Tarrasch" },
+];
+
 interface Friend {
   id: string;
   username: string;
@@ -36,6 +46,12 @@ const avatarSrc = (src: string | null) => src ?? '/avatars/b_king_avatar.png';
 export default function HomeFriendsSidebar() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
+  const [quote, setQuote] = useState(quotes[0]);
+
+  useEffect(() => {
+    const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    setQuote(quotes[daysSinceEpoch % quotes.length]);
+  }, []);
 
   const fetchFriends = useCallback(async () => {
     try {
@@ -144,6 +160,16 @@ export default function HomeFriendsSidebar() {
             Sin contactos
           </div>
         )}
+      </div>
+
+      {/* Cita del maestro */}
+      <div className="shrink-0 p-3 border-t border-gold/10 in-[.light]:border-gray-100">
+        <div className="bg-linear-to-br from-gold/8 to-transparent rounded-xl p-3 border border-gold/10 relative overflow-hidden">
+          <div className="absolute -top-2 -left-1 text-4xl text-gold/8 font-serif leading-none select-none">"</div>
+          <p className="text-[9px] font-black uppercase text-gold/60 tracking-[0.25em] mb-1.5">Cita del maestro</p>
+          <p className="text-[10px] italic text-zinc-300 in-[.light]:text-zinc-700 leading-relaxed font-serif relative z-10">"{quote.text}"</p>
+          <p className="text-[8px] font-bold text-zinc-600 in-[.light]:text-zinc-400 uppercase tracking-widest mt-2">— {quote.author}</p>
+        </div>
       </div>
     </div>
   );

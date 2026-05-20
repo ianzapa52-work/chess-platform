@@ -238,13 +238,10 @@ export default function PlayOnline({
   const { boardRef, dragFrom, dragOver, isDragging } = useDragController({
     orientation,
     canDrag: (coord) => {
-      const chess   = chessRef.current;
-      const myColor = orientationRef.current;
-      if (chess.turn() !== myColor) return false;
       const file  = coord.charCodeAt(0) - 97;
       const rank  = 8 - parseInt(coord[1]);
-      const piece = chess.board()[rank]?.[file];
-      return !!piece && piece.color === myColor;
+      const piece = chessRef.current.board()[rank]?.[file];
+      return !!piece && piece.color === orientationRef.current;
     },
     pieceSrc: (coord) => {
       const file  = coord.charCodeAt(0) - 97;
@@ -254,8 +251,13 @@ export default function PlayOnline({
       return `/pieces/${piece.color}_${PIECE_MAP[piece.type]}.svg`;
     },
     onDragStart: (from) => {
+      const chess = chessRef.current;
       setSelectedSquare(from);
-      setLegalMoves(chessRef.current.moves({ square: from, verbose: true }).map(m => m.to));
+      if (chess.turn() === orientationRef.current) {
+        setLegalMoves(chess.moves({ square: from, verbose: true }).map(m => m.to));
+      } else {
+        setLegalMoves([]);
+      }
     },
     onDragEnd: (from, to) => {
       if (to && to !== from) {
@@ -295,7 +297,7 @@ export default function PlayOnline({
         </div>
       )}
       {premove && (
-        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/40 rounded-full">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-1 bg-black/70 backdrop-blur-sm border border-red-500/40 rounded-full">
           <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
           <span className="text-[8px] font-black text-red-400 uppercase tracking-widest">
             Premovimiento: {premove.from} → {premove.to}
