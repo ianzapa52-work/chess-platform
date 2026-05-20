@@ -238,7 +238,7 @@ export function useDragController({
       const sq = pointToSquare(e.clientX, e.clientY);
 
       // Si hay pieza seleccionada y clicamos en otra casilla (sin pieza arrastrable)
-      // lo tratamos como destino del movimiento por clic
+      // lo tratamos como destino del movimiento por click
       const currentSelected = selectedRef.current;
       if (currentSelected && sq && sq !== currentSelected && !canDragRef.current(sq)) {
         selectSquare(null);
