@@ -181,6 +181,11 @@ function DrawOfferBanner({ sender, onAccept, onDecline }: { sender: string; onAc
 export default function OnlinePremiumPage() {
   useEffect(() => {
     document.title = "WELIKECHESS | Jugar Online";
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/users/me/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then(r => r.json()).then(setMyProfile).catch(() => {});
   }, []);
 
   const { isLight } = useTheme();
@@ -199,7 +204,8 @@ export default function OnlinePremiumPage() {
   const [capturedB, setCapturedB] = useState<string[]>([]);
   const [myColor, setMyColor] = useState<'w' | 'b'>('w');
   const [myData, setMyData] = useState<any>(null);
-  const [opponent, setOpponent] = useState({ name: "Rival", elo: "????" });
+  const [myProfile, setMyProfile] = useState<any>(null);
+  const [opponentData, setOpponentData] = useState<any>(null);
 
   const [showGameEndWindow, setShowGameEndWindow] = useState(false);
   const [drawOfferSender, setDrawOfferSender] = useState<string | null>(null);
@@ -443,6 +449,7 @@ export default function OnlinePremiumPage() {
     setCapturedW([]);
     setCapturedB([]);
     setMyData(null);
+    setOpponentData(null);
     setDrawOfferSender(null);
     setHasOfferedDraw(false);
     setEloChange(null);
@@ -540,10 +547,10 @@ export default function OnlinePremiumPage() {
     const mode = currentModeRef.current.mode;
     if (color === 'w') {
       if (data.white_player) setMyData(data.white_player);
-      if (data.black_player) setOpponent({ name: data.black_player.username, elo: getEloForMode(data.black_player, mode) });
+      if (data.black_player) setOpponentData(data.black_player);
     } else {
       if (data.black_player) setMyData(data.black_player);
-      if (data.white_player) setOpponent({ name: data.white_player.username, elo: getEloForMode(data.white_player, mode) });
+      if (data.white_player) setOpponentData(data.white_player);
     }
     if (data.time_white !== undefined && data.time_black !== undefined) {
       serverTimeAnchorRef.current = { w: data.time_white, b: data.time_black, receivedAt: Date.now() };
@@ -586,8 +593,13 @@ export default function OnlinePremiumPage() {
   const isGameOver = status.includes("MATE") || status.includes("TABLAS") ||
     status.includes("FINALIZADA") || status.includes("GANAN") || status.includes("VICTORIA") || status.includes("¡HAS GANADO");
 
-  const myElo = myData ? getEloForMode(myData, currentMode.mode) : "????";
-  const myName = myData?.username || "Tú";
+  const effectiveMyData = myData ?? myProfile;
+  const myElo = effectiveMyData ? getEloForMode(effectiveMyData, currentMode.mode) : "????";
+  const myName = effectiveMyData?.username || "Tú";
+  const opponent = {
+    name: opponentData?.username ?? "Rival",
+    elo:  opponentData ? getEloForMode(opponentData, currentMode.mode) : "????",
+  };
 
   const panel = isLight ? 'bg-white border-gray-200' : 'bg-zinc-950/60 border-white/10';
   const labelText = isLight ? 'text-gray-500' : 'text-gold';
