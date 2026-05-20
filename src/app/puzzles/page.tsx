@@ -401,7 +401,7 @@ export default function PuzzlesPremiumPage() {
             error={error}
             feedback={feedback}
             objective={objective}
-            onNext={loadPuzzle}
+            onNext={() => loadPuzzle()}
           />
         </div>
 
@@ -434,7 +434,7 @@ export default function PuzzlesPremiumPage() {
               </div>
               <p className="text-red-400 font-black text-sm">{error}</p>
               <button
-                onClick={loadPuzzle}
+                onClick={() => loadPuzzle()}
                 className="py-2.5 px-6 rounded-xl border border-emerald-500/30 in-[.light]:border-emerald-400 text-emerald-400 in-[.light]:text-emerald-700
                   font-black text-[10px] uppercase tracking-widest hover:bg-emerald-950/50 in-[.light]:hover:bg-emerald-50 transition-colors"
               >
