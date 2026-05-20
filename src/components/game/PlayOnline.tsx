@@ -163,6 +163,10 @@ export default function PlayOnline({
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
       if (msg.type === "game_state") {
+        if (msg.status === "completed") {
+          handleGameEnd(msg.result || "*", msg.termination_reason || "");
+          return;
+        }
         moveHistoryRef.current = []; lastMoveColorRef.current = null;
         if (msg.fen) chessRef.current.load(msg.fen);
         orientationRef.current = msg.color || 'w';
