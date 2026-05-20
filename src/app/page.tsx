@@ -25,10 +25,16 @@ interface UserStats {
 export default function HomePage() {
   useEffect(() => {
     document.title = "WELIKECHESS | Home";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+    fetch(`${API_BASE}/api/users/`)
+      .then(r => r.json())
+      .then(data => setTotalPlayers(data.count ?? null))
+      .catch(() => {});
   }, []);
 
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [totalPlayers, setTotalPlayers] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -107,7 +113,7 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <GameCard href="/play-online" title="Jugar Online" subtitle="Arena Multiplayer" desc="Compite contra el mundo en tiempo real." stats="3,210 Jugadores activos" img="/pieces/w_queen.svg" online />
+              <GameCard href="/play-online" title="Jugar Online" subtitle="Arena Multiplayer" desc="Compite contra el mundo en tiempo real." stats={totalPlayers !== null ? `${totalPlayers.toLocaleString('es-ES')} Jugadores registrados` : 'Jugadores registrados'} img="/pieces/w_queen.svg" online />
               <GameCard href="/play-ia" title="Desafiar IA" subtitle="Entrenamiento IA" desc="Stockfish v16 listo para ponerte a prueba." stats="Niveles 1-8 adaptativos" img="/pieces/w_king.svg" />
               <GameCard href="/play-local" title="Duelo Local" subtitle="En Persona" desc="Tablero virtual perfecto para jugar cara a cara." stats="Incluye reloj de torneo" img="/pieces/w_rook.svg" />
             </div>
