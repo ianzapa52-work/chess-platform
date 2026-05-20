@@ -27,6 +27,15 @@ function getUserElo(): number | null {
   }
 }
 
+async function fetchPuzzleById(id: string): Promise<ApiPuzzle> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE}/api/games/puzzles/${id}/`, { headers });
+  if (!res.ok) return fetchRandomPuzzle();
+  return res.json();
+}
+
 async function fetchRandomPuzzle(): Promise<ApiPuzzle> {
   const elo = getUserElo();
   const url = elo
@@ -322,7 +331,9 @@ export default function PuzzlesPremiumPage() {
 
   useEffect(() => { currentPuzzleRef.current = puzzle; }, [puzzle]);
 
-  const loadPuzzle = useCallback(async () => {
+  const initialLoadDone = useRef(false);
+
+  const loadPuzzle = useCallback(async (specificId?: string) => {
     // Si el puzzle actual fue intentado pero no resuelto, registrar como fallido
     if (currentPuzzleRef.current && !puzzleSolvedRef.current && puzzleAttemptedRef.current) {
       submitPuzzleAttempt(currentPuzzleRef.current.id, false);
@@ -335,7 +346,7 @@ export default function PuzzlesPremiumPage() {
     setError(null);
     setFeedback({ text: "TU TURNO", color: "text-white" });
     try {
-      const data = await fetchRandomPuzzle();
+      const data = specificId ? await fetchPuzzleById(specificId) : await fetchRandomPuzzle();
       setPuzzle(data);
     } catch (err: any) {
       setError(err.message ?? "Error al cargar el puzzle");
@@ -344,7 +355,13 @@ export default function PuzzlesPremiumPage() {
     }
   }, []);
 
-  useEffect(() => { loadPuzzle(); }, [loadPuzzle]);
+  useEffect(() => {
+    if (initialLoadDone.current) return;
+    initialLoadDone.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    loadPuzzle(id ?? undefined);
+  }, [loadPuzzle]);
 
   const handleFeedback = useCallback((text: string, color: string) => {
     if (text === "INTÉNTALO DE NUEVO") {

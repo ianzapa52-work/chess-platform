@@ -117,17 +117,7 @@ export default function HomePage() {
                 <HomeRecentActivity />
               </SectionBox>
               <SectionBox title="Desafío Táctico">
-                <div className="flex gap-6 items-center grow bg-gold/5 in-[.light]:bg-gold/10 rounded-2xl p-6 border border-gold/10">
-                  <div className="w-24 h-24 rounded-lg bg-black/40 in-[.light]:bg-white/50 border border-gold/20 flex items-center justify-center text-5xl">🧩</div>
-                  <div className="grow">
-                    <p className="text-[11px] text-gold/70 font-black uppercase tracking-widest">Dificultad Media</p>
-                    <h4 className="text-xl font-bold text-white in-[.light]:text-black uppercase tracking-tight mt-1 font-['Cinzel']">Ganan Blancas</h4>
-                    <p className="text-xs text-zinc-400 in-[.light]:text-zinc-600 mt-1">Encuentra la secuencia de mate forzado.</p>
-                  </div>
-                  <Link href="/puzzles" className="px-6 py-3 bg-gold text-black rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white in-[.light]:hover:bg-black in-[.light]:hover:text-white transition-colors shadow-lg active:scale-95">
-                    Resolver
-                  </Link>
-                </div>
+                <TacticalChallengeCard />
               </SectionBox>
             </div>
           </section>
@@ -430,6 +420,49 @@ function GameCard({ href, title, subtitle, desc, stats, img, online = false }: a
         <span className="text-[10px] text-zinc-500 in-[.light]:text-zinc-400 uppercase font-bold mt-2 block tracking-widest">{stats}</span>
       </div>
     </Link>
+  );
+}
+
+function TacticalChallengeCard() {
+  const [puzzle, setPuzzle] = useState<{ id: string; rating: number; themes: string[] } | null>(null);
+
+  useEffect(() => {
+    const fetchPuzzle = async () => {
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+        const token = localStorage.getItem('access_token');
+        const headers: HeadersInit = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${API_BASE}/api/games/puzzles/random/`, { headers });
+        if (!res.ok) return;
+        const data = await res.json();
+        setPuzzle(data);
+      } catch { /* keep defaults */ }
+    };
+    fetchPuzzle();
+  }, []);
+
+  const level = !puzzle ? 'Media'
+    : puzzle.rating < 1200 ? 'Principiante'
+    : puzzle.rating < 1600 ? 'Intermedio'
+    : puzzle.rating < 2000 ? 'Avanzado'
+    : 'Experto';
+
+  const theme = puzzle?.themes?.filter(Boolean)[0] ?? 'Desafío Táctico';
+  const href = puzzle ? `/puzzles?id=${puzzle.id}` : '/puzzles';
+
+  return (
+    <div className="flex gap-6 items-center grow bg-gold/5 in-[.light]:bg-gold/10 rounded-2xl p-6 border border-gold/10">
+      <div className="w-24 h-24 rounded-lg bg-black/40 in-[.light]:bg-white/50 border border-gold/20 flex items-center justify-center text-5xl shrink-0">🧩</div>
+      <div className="grow min-w-0">
+        <p className="text-[11px] text-gold/70 font-black uppercase tracking-widest">{level}</p>
+        <h4 className="text-xl font-bold text-white in-[.light]:text-black uppercase tracking-tight mt-1 font-['Cinzel'] truncate">{theme}</h4>
+        <p className="text-xs text-zinc-400 in-[.light]:text-zinc-600 mt-1">Encuentra la jugada ganadora.</p>
+      </div>
+      <Link href={href} className="shrink-0 px-6 py-3 bg-gold text-black rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white in-[.light]:hover:bg-black in-[.light]:hover:text-white transition-colors shadow-lg active:scale-95">
+        Resolver
+      </Link>
+    </div>
   );
 }
 
