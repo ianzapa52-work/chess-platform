@@ -56,14 +56,23 @@ export default function IdleTimer() {
       idleTimer = setTimeout(goIdle, IDLE_MS);
     };
 
+    const onSettingsChanged = () => {
+      const s = JSON.parse(localStorage.getItem("user_settings") || "{}");
+      if (s.status === 'invisible' || s.manualAway) {
+        clearTimeout(heartbeatTimer);
+      }
+    };
+
     const activityEvents = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
     activityEvents.forEach(ev => window.addEventListener(ev, handleActivity));
+    window.addEventListener('user-updated', onSettingsChanged);
     handleActivity(); // arranca el timer y el primer heartbeat
 
     return () => {
       clearTimeout(idleTimer);
       clearTimeout(heartbeatTimer);
       activityEvents.forEach(ev => window.removeEventListener(ev, handleActivity));
+      window.removeEventListener('user-updated', onSettingsChanged);
     };
   }, []);
 
