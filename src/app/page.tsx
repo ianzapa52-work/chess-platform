@@ -52,29 +52,43 @@ export default function HomePage() {
       if (!token) { setStatsLoading(false); return; }
       try {
         const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
-        const res = await fetch(`${API_BASE}/api/users/me/`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const wins = data.wins || 0;
-          const losses = data.losses || 0;
-          const draws = data.draws || 0;
-          const total = wins + losses + draws;
-          setUserStats({
-            total,
-            wins,
-            losses,
-            draws,
-            winRate: total > 0 ? Math.round((wins / total) * 100) : 0,
-            drawRate: total > 0 ? Math.round((draws / total) * 100) : 0,
-            elo_blitz: data.elo_blitz || 1200,
-            elo_bullet: data.elo_bullet || 1200,
-            elo_rapid: data.elo_rapid || 1200,
-            username: data.username || 'Maestro',
-            rank: data.rank,
+        const [userRes, gamesRes] = await Promise.all([
+          fetch(`${API_BASE}/api/users/me/`,       { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(`${API_BASE}/api/games/my-games/`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        ]);
+        if (!userRes.ok) return;
+        const data = await userRes.json();
+        const username = data.username || 'Maestro';
+
+        let wins = 0, losses = 0, draws = 0;
+        if (gamesRes.ok) {
+          const gamesData = await gamesRes.json();
+          const games: any[] = Array.isArray(gamesData) ? gamesData : (gamesData.results || []);
+          games.forEach((g) => {
+            const status = (g.status || '').toLowerCase();
+            const result = (g.result || '');
+            const finished = status === 'completed' || status.includes('finaliz') || status.includes('finish') || !!result;
+            if (!finished) return;
+            if (result === '1/2-1/2' || (g.winner_username == null && finished)) { draws++; return; }
+            if (g.winner_username === username) { wins++; return; }
+            if (g.winner_username) losses++;
           });
         }
+
+        const total = wins + losses + draws;
+        setUserStats({
+          total,
+          wins,
+          losses,
+          draws,
+          winRate:  total > 0 ? Math.round((wins  / total) * 100) : 0,
+          drawRate: total > 0 ? Math.round((draws / total) * 100) : 0,
+          elo_blitz:  data.elo_blitz  || 1200,
+          elo_bullet: data.elo_bullet || 1200,
+          elo_rapid:  data.elo_rapid  || 1200,
+          username,
+          rank: data.rank,
+        });
       } catch (e) {
         console.error("Error cargando stats:", e);
       } finally {
@@ -144,17 +158,6 @@ export default function HomePage() {
             {/* Ranking */}
             <div>
               <HomeRankingSidebar />
-            </div>
-
-            {/* Separador */}
-            <div className="h-px bg-linear-to-r from-transparent via-gold/15 to-transparent" />
-
-            {/* Cita */}
-            <div className="bg-linear-to-br from-gold/8 to-transparent rounded-2xl p-4 border border-gold/10 relative overflow-hidden">
-              <div className="absolute -top-3 -left-1 text-6xl text-gold/8 font-serif leading-none select-none">"</div>
-              <p className="text-[10px] font-black uppercase text-gold/60 tracking-[0.3em] mb-2">Cita del maestro</p>
-              <p className="text-[12px] italic text-zinc-300 in-[.light]:text-zinc-700 leading-relaxed font-serif relative z-10">"{quote.text}"</p>
-              <p className="text-[9px] font-bold text-zinc-600 in-[.light]:text-zinc-400 uppercase tracking-widest mt-3">— {quote.author}</p>
             </div>
 
             {/* Separador */}
@@ -248,6 +251,14 @@ export default function HomePage() {
             <div className="flex flex-col gap-2">
               <ActivityBars />
               <p className="text-[9px] text-zinc-600 uppercase font-bold text-center tracking-widest">Tu Actividad · 7 días</p>
+            </div>
+
+            {/* Cita */}
+            <div className="bg-linear-to-br from-gold/8 to-transparent rounded-2xl p-4 border border-gold/10 relative overflow-hidden">
+              <div className="absolute -top-3 -left-1 text-6xl text-gold/8 font-serif leading-none select-none">"</div>
+              <p className="text-[10px] font-black uppercase text-gold/60 tracking-[0.3em] mb-2">Cita del maestro</p>
+              <p className="text-[12px] italic text-zinc-300 in-[.light]:text-zinc-700 leading-relaxed font-serif relative z-10">"{quote.text}"</p>
+              <p className="text-[9px] font-bold text-zinc-600 in-[.light]:text-zinc-400 uppercase tracking-widest mt-3">— {quote.author}</p>
             </div>
 
             {/* Footer */}
