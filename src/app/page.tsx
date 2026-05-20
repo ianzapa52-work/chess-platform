@@ -459,7 +459,11 @@ function TacticalChallengeCard() {
         <h4 className="text-xl font-bold text-white in-[.light]:text-black uppercase tracking-tight mt-1 font-['Cinzel'] truncate">{theme}</h4>
         <p className="text-xs text-zinc-400 in-[.light]:text-zinc-600 mt-1">Encuentra la jugada ganadora.</p>
       </div>
-      <Link href={href} className="shrink-0 px-6 py-3 bg-gold text-black rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white in-[.light]:hover:bg-black in-[.light]:hover:text-white transition-colors shadow-lg active:scale-95">
+      <Link
+        href={href}
+        onClick={() => { if (puzzle) sessionStorage.setItem('puzzle_preload', JSON.stringify(puzzle)); }}
+        className="shrink-0 px-6 py-3 bg-gold text-black rounded-full font-bold text-xs uppercase tracking-widest hover:bg-white in-[.light]:hover:bg-black in-[.light]:hover:text-white transition-colors shadow-lg active:scale-95"
+      >
         Resolver
       </Link>
     </div>

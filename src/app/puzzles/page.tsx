@@ -358,8 +358,25 @@ export default function PuzzlesPremiumPage() {
   useEffect(() => {
     if (initialLoadDone.current) return;
     initialLoadDone.current = true;
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
+
+    if (id) {
+      const stored = sessionStorage.getItem('puzzle_preload');
+      sessionStorage.removeItem('puzzle_preload');
+      if (stored) {
+        try {
+          const parsed: ApiPuzzle = JSON.parse(stored);
+          if (parsed.id === id) {
+            setPuzzle(parsed);
+            setLoading(false);
+            return;
+          }
+        } catch { /* fall through to fetch */ }
+      }
+    }
+
     loadPuzzle(id ?? undefined);
   }, [loadPuzzle]);
 
