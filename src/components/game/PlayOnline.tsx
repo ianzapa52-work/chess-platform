@@ -297,12 +297,12 @@ export default function PlayOnline({
         </div>
       )}
       {premove && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-3 py-1 bg-black/70 backdrop-blur-sm border border-red-500/40 rounded-full">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-          <span className="text-[8px] font-black text-red-400 uppercase tracking-widest">
-            Premovimiento: {premove.from} → {premove.to}
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-2 py-0.5 bg-black/60 backdrop-blur-sm border border-red-500/30 rounded-full">
+          <div className="w-1 h-1 rounded-full bg-red-400 animate-pulse" />
+          <span className="text-[7px] font-black text-red-400/80 uppercase tracking-widest">
+            Premovimiento: {premove.from}→{premove.to}
           </span>
-          <button onClick={clearPremove} className="text-red-400/60 hover:text-red-400 text-[10px] font-black ml-1 cursor-pointer">✕</button>
+          <button onClick={clearPremove} className="text-red-400/50 hover:text-red-400 text-[8px] font-black ml-0.5 cursor-pointer">✕</button>
         </div>
       )}
 
