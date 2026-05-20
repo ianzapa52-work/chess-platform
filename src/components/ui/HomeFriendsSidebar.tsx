@@ -19,7 +19,18 @@ interface Friend {
   elo_blitz: number;
   elo_rapid: number;
   elo_bullet: number;
+  last_seen: string | null;
 }
+
+function getStatus(lastSeen: string | null): 'online' | 'away' | 'offline' {
+  if (!lastSeen) return 'offline';
+  const diff = Date.now() - new Date(lastSeen).getTime();
+  if (diff < 5 * 60 * 1000) return 'online';
+  if (diff < 30 * 60 * 1000) return 'away';
+  return 'offline';
+}
+
+const STATUS_ORDER = { online: 0, away: 1, offline: 2 };
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
@@ -76,14 +87,15 @@ export default function HomeFriendsSidebar() {
             elo_blitz: number;
             elo_rapid: number;
             elo_bullet: number;
+            last_seen: string | null;
           }>(`/api/users/${u}/`)
         )
       );
 
       const resolved: Friend[] = profiles
         .filter((r): r is PromiseFulfilledResult<Friend> => r.status === 'fulfilled')
-        .map(({ value }) => value)
-        .sort((a, b) => b.elo_blitz - a.elo_blitz);
+        .map(({ value }) => ({ ...value, last_seen: value.last_seen ?? null }))
+        .sort((a, b) => STATUS_ORDER[getStatus(a.last_seen)] - STATUS_ORDER[getStatus(b.last_seen)]);
 
       setFriends(resolved);
     } catch (e) {
@@ -121,40 +133,49 @@ export default function HomeFriendsSidebar() {
             Cargando...
           </div>
         ) : friends.length > 0 ? (
-          friends.map((f) => (
-            <button
-              key={f.id}
-              onClick={() =>
-                window.dispatchEvent(
-                  new CustomEvent('open-chat', {
-                    detail: { ...f, status: 'offline' },
-                  })
-                )
-              }
-              className="w-full flex items-center gap-4 p-3 rounded-2xl transition-all border border-transparent hover:bg-gold/5 in-[.light]:hover:bg-black/5 hover:border-gold/10 group cursor-pointer"
-            >
-              <div className="relative shrink-0">
-                <img
-                  src={avatarSrc(f.avatar)}
-                  className="w-13 h-13 rounded-xl border border-white/10 in-[.light]:border-gray-200 group-hover:border-gold/30 object-cover"
-                  alt=""
-                />
-              </div>
-              <div className="flex flex-col items-start min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-base font-bold uppercase tracking-widest text-white in-[.light]:text-zinc-800 group-hover:text-gold truncate font-['Cinzel']">
-                    {f.username}
-                  </span>
-                  <span className="text-[11px] text-gold/50 font-black font-['Cinzel']">
-                    {f.elo_blitz}
+          friends.map((f) => {
+            const st = getStatus(f.last_seen);
+            const dot = st === 'online'
+              ? 'bg-green-400 shadow-[0_0_5px_rgba(74,222,128,0.8)]'
+              : st === 'away'
+              ? 'bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.8)]'
+              : 'bg-zinc-600';
+            return (
+              <button
+                key={f.id}
+                onClick={() =>
+                  window.dispatchEvent(
+                    new CustomEvent('open-chat', {
+                      detail: { username: f.username, last_seen: f.last_seen },
+                    })
+                  )
+                }
+                className="w-full flex items-center gap-4 p-3 rounded-2xl transition-all border border-transparent hover:bg-gold/5 in-[.light]:hover:bg-black/5 hover:border-gold/10 group cursor-pointer"
+              >
+                <div className="relative shrink-0">
+                  <img
+                    src={avatarSrc(f.avatar)}
+                    className="w-13 h-13 rounded-xl border border-white/10 in-[.light]:border-gray-200 group-hover:border-gold/30 object-cover"
+                    alt=""
+                  />
+                  <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-black in-[.light]:border-white ${dot}`} />
+                </div>
+                <div className="flex flex-col items-start min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold uppercase tracking-widest text-white in-[.light]:text-zinc-800 group-hover:text-gold truncate font-['Cinzel']">
+                      {f.username}
+                    </span>
+                    <span className="text-[11px] text-gold/50 font-black font-['Cinzel']">
+                      {f.elo_blitz}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-zinc-500 in-[.light]:text-zinc-400 italic truncate tracking-tight">
+                    {f.elo_rapid} Rapid · {f.elo_bullet} Bullet
                   </span>
                 </div>
-                <span className="text-[11px] text-zinc-500 in-[.light]:text-zinc-400 italic truncate tracking-tight">
-                  {f.elo_rapid} Rapid · {f.elo_bullet} Bullet
-                </span>
-              </div>
-            </button>
-          ))
+              </button>
+            );
+          })
         ) : (
           <div className="py-10 text-center chess-label opacity-20">
             Sin contactos

@@ -11,6 +11,7 @@ interface Friend {
   elo_blitz: number;
   elo_rapid: number;
   elo_bullet: number;
+  last_seen: string | null;
 }
 
 interface PendingRequest {
@@ -38,6 +39,15 @@ interface ApiPublicUser {
   elo_blitz: number;
   elo_rapid: number;
   elo_bullet: number;
+  last_seen: string | null;
+}
+
+function getStatus(lastSeen: string | null): 'online' | 'away' | 'offline' {
+  if (!lastSeen) return 'offline';
+  const diff = Date.now() - new Date(lastSeen).getTime();
+  if (diff < 5 * 60 * 1000) return 'online';
+  if (diff < 30 * 60 * 1000) return 'away';
+  return 'offline';
 }
 
 type TimeOption = { n: string; m: number; i: number; mode: string };
@@ -227,6 +237,7 @@ export default function FriendsForm() {
           elo_blitz: u.elo_blitz,
           elo_rapid: u.elo_rapid,
           elo_bullet: u.elo_bullet,
+          last_seen: u.last_seen ?? null,
         }));
 
       setFriendDetails(prev => {
@@ -311,7 +322,7 @@ export default function FriendsForm() {
   };
 
   const handleOpenChat = (friend: Friend) => {
-    window.dispatchEvent(new CustomEvent('open-chat', { detail: { username: friend.username } }));
+    window.dispatchEvent(new CustomEvent('open-chat', { detail: { username: friend.username, last_seen: friend.last_seen } }));
   };
 
   const filteredFriends = useMemo(() =>
@@ -618,6 +629,12 @@ function RequestCard({ req, onAccept, onReject, actionLoading }: { req: PendingR
 
 function FriendRow({ friend, rank, onChat, onDelete, onChallenge, actionLoading }: { friend: Friend; rank: number; onChat: () => void; onDelete: () => void; onChallenge: () => void; actionLoading: string | null }) {
   const isDeleting = actionLoading === friend.username;
+  const status = getStatus(friend.last_seen);
+  const statusDot = status === 'online'
+    ? 'bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]'
+    : status === 'away'
+    ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]'
+    : 'bg-zinc-600';
   return (
     <div className="friend-row group cursor-default relative animate-fadeIn">
       <div className="w-7 h-7 rounded-lg bg-white/3 border border-white/5 flex items-center justify-center shrink-0 group-hover:border-gold/20 transition-colors">
@@ -635,6 +652,7 @@ function FriendRow({ friend, rank, onChat, onDelete, onChallenge, actionLoading 
             alt=""
           />
         </div>
+        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-black in-[.light]:border-white ${statusDot}`} />
       </div>
       <div className="grow min-w-0">
         <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-2xl tracking-wide truncate group-hover:text-gold transition-colors">{friend.username}</h3>

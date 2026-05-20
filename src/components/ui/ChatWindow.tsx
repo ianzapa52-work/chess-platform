@@ -43,11 +43,20 @@ const avatarSrc = (src: string | null | undefined) => src ?? '/avatars/b_king_av
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+function getFriendStatus(lastSeen: string | null): 'online' | 'away' | 'offline' {
+  if (!lastSeen) return 'offline';
+  const diff = Date.now() - new Date(lastSeen).getTime();
+  if (diff < 5 * 60 * 1000) return 'online';
+  if (diff < 30 * 60 * 1000) return 'away';
+  return 'offline';
+}
+
 export default function ChatWindow() {
   const [isOpen, setIsOpen]         = useState(false);
   const [mounted, setMounted]       = useState(false);
   const [room, setRoom]             = useState<ChatRoom | null>(null);
   const [friendUsername, setFriendUsername] = useState<string | null>(null);
+  const [friendLastSeen, setFriendLastSeen] = useState<string | null>(null);
   const [messages, setMessages]     = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [loadingRoom, setLoadingRoom] = useState(false);
@@ -141,10 +150,11 @@ export default function ChatWindow() {
     setMounted(true);
 
     const handleOpen = async (e: Event) => {
-      const { username } = (e as CustomEvent).detail as { username: string };
+      const { username, last_seen } = (e as CustomEvent).detail as { username: string; last_seen?: string | null };
       if (!username) return;
 
       setFriendUsername(username);
+      setFriendLastSeen(last_seen ?? null);
       setIsOpen(true);
       setError(null);
       setMessages([]);
@@ -240,18 +250,24 @@ export default function ChatWindow() {
                 <h3 className="text-white in-[.light]:text-gray-900 font-serif font-medium text-2xl tracking-tight leading-tight italic">
                   {friendUsername ?? 'Chat'}
                 </h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className={`w-2 h-2 rounded-full shrink-0 transition-all duration-300 ${
-                    wsReady
-                      ? 'bg-emerald-400 shadow-[0_0_6px_rgba(74,222,128,0.7)] animate-pulse'
-                      : 'bg-zinc-600'
-                  }`} />
-                  <span className={`text-[10px] font-sans font-bold tracking-[0.2em] uppercase transition-colors ${
-                    wsReady ? 'text-emerald-400/70' : 'text-zinc-600'
-                  }`}>
-                    {wsReady ? 'Conectado' : 'Conectando...'}
-                  </span>
-                </div>
+                {(() => {
+                  const st = getFriendStatus(friendLastSeen);
+                  const dot = st === 'online'
+                    ? 'bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.7)] animate-pulse'
+                    : st === 'away'
+                    ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)] animate-pulse'
+                    : 'bg-zinc-600';
+                  const label = st === 'online' ? 'En línea' : st === 'away' ? 'Meditando' : 'Desconectado';
+                  const textColor = st === 'online' ? 'text-green-400/70' : st === 'away' ? 'text-amber-400/70' : 'text-zinc-600';
+                  return (
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className={`w-2 h-2 rounded-full shrink-0 transition-all duration-300 ${dot}`} />
+                      <span className={`text-[10px] font-sans font-bold tracking-[0.2em] uppercase transition-colors ${textColor}`}>
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
             <button onClick={handleClose} className="group p-2 hover:bg-white/5 in-[.light]:hover:bg-gray-100 rounded-full transition-all cursor-pointer">
