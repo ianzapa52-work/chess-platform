@@ -145,7 +145,7 @@ function SessionTrail({ history }: { history: PuzzleResult[] }) {
 
 function LeftPanel({
   loading, error, feedback, objective, onNext,
-  hasFailed, gaveUp, onGiveUp, totalSteps,
+  hasFailed, gaveUp, onGiveUp, totalSteps, currentSolved,
 }: {
   loading: boolean;
   error: string | null;
@@ -156,6 +156,7 @@ function LeftPanel({
   gaveUp: boolean;
   onGiveUp: () => void;
   totalSteps: number;
+  currentSolved: boolean;
 }) {
   const accentColor =
     feedback.color === 'text-emerald-400' ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
@@ -236,37 +237,39 @@ function LeftPanel({
         </button>
       )}
 
-      {/* Siguiente puzzle */}
-      <button
-        onClick={onNext}
-        disabled={loading}
-        className="group relative w-full py-4 rounded-2xl overflow-hidden
-          border border-emerald-500/40 bg-emerald-950/30 in-[.light]:bg-emerald-50 in-[.light]:border-emerald-300
-          text-emerald-400 in-[.light]:text-emerald-700 font-black text-[10px] tracking-[0.3em] uppercase
-          transition-all duration-200
-          hover:bg-emerald-500 hover:text-black hover:border-emerald-400
-          hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(16,185,129,0.25)]
-          active:scale-[0.98] active:translate-y-0
-          disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-      >
-        <span className="relative z-10 flex items-center justify-center gap-2">
-          {loading ? (
-            <>
-              <div className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:0ms]" />
-              <div className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:150ms]" />
-              <div className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:300ms]" />
-            </>
-          ) : (
-            <>
-              Siguiente puzzle
-              <svg className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </>
-          )}
-        </span>
-      </button>
+      {/* Siguiente puzzle — only after solving */}
+      {currentSolved && (
+        <button
+          onClick={onNext}
+          disabled={loading}
+          className="group relative w-full py-4 rounded-2xl overflow-hidden
+            border border-emerald-500/40 bg-emerald-950/30 in-[.light]:bg-emerald-50 in-[.light]:border-emerald-300
+            text-emerald-400 in-[.light]:text-emerald-700 font-black text-[10px] tracking-[0.3em] uppercase
+            transition-all duration-200
+            hover:bg-emerald-500 hover:text-black hover:border-emerald-400
+            hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(16,185,129,0.25)]
+            active:scale-[0.98] active:translate-y-0
+            disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+        >
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            {loading ? (
+              <>
+                <div className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:0ms]" />
+                <div className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:150ms]" />
+                <div className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:300ms]" />
+              </>
+            ) : (
+              <>
+                Siguiente puzzle
+                <svg className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </>
+            )}
+          </span>
+        </button>
+      )}
     </div>
   );
 }
@@ -403,22 +406,19 @@ export default function PuzzlesPremiumPage() {
   const [feedback, setFeedback]         = useState({ text: "TU TURNO", color: "text-white" });
   const [wrongMoveCount, setWrongMoveCount] = useState(0);
   const [gaveUp, setGaveUp]             = useState(false);
+  const [currentSolved, setCurrentSolved] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<PuzzleResult[]>([]);
 
   const currentPuzzleRef   = useRef<ApiPuzzle | null>(null);
   const puzzleSolvedRef    = useRef(false);
   const wrongMoveCountRef  = useRef(0);
   const gaveUpRef          = useRef(false);
-  const giveUpTimerRef     = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialLoadDone    = useRef(false);
 
   useEffect(() => { currentPuzzleRef.current = puzzle; }, [puzzle]);
 
   // ── Load puzzle ─────────────────────────────────────────────────────────────
   const loadPuzzle = useCallback(async (specificId?: string) => {
-    // Cancel any pending give-up auto-advance
-    if (giveUpTimerRef.current) { clearTimeout(giveUpTimerRef.current); giveUpTimerRef.current = null; }
-
     // Commit result of the previous puzzle to session history
     if (currentPuzzleRef.current) {
       if (puzzleSolvedRef.current) {
@@ -440,6 +440,7 @@ export default function PuzzlesPremiumPage() {
     gaveUpRef.current         = false;
     setWrongMoveCount(0);
     setGaveUp(false);
+    setCurrentSolved(false);
     setLoading(true);
     setError(null);
     setFeedback({ text: "TU TURNO", color: "text-white" });
@@ -488,6 +489,7 @@ export default function PuzzlesPremiumPage() {
   const handleSuccess = useCallback(() => {
     setSolvedCount(c => c + 1);
     puzzleSolvedRef.current = true;
+    setCurrentSolved(true);
     if (currentPuzzleRef.current) {
       submitPuzzleAttempt(currentPuzzleRef.current.id, true);
     }
@@ -503,11 +505,12 @@ export default function PuzzlesPremiumPage() {
     gaveUpRef.current = true;
     setGaveUp(true);
     setFeedback({ text: "SOLUCIÓN", color: "text-sky-400" });
-    // Submit failure immediately (not lazily)
     submitPuzzleAttempt(currentPuzzleRef.current.id, false);
     setFailedCount(c => c + 1);
-    // Auto-advance after showing the solution for 2.5 s
-    giveUpTimerRef.current = setTimeout(() => loadPuzzle(), 2500);
+  }, []);
+
+  const handleGiveUpDone = useCallback(() => {
+    loadPuzzle();
   }, [loadPuzzle]);
 
   const totalSteps = puzzle ? Math.ceil(puzzle.solution.length / 2) : 0;
@@ -531,10 +534,11 @@ export default function PuzzlesPremiumPage() {
             feedback={feedback}
             objective={objective}
             onNext={() => loadPuzzle()}
-            hasFailed={wrongMoveCount > 0 && !puzzleSolvedRef.current}
+            hasFailed={wrongMoveCount > 0 && !currentSolved}
             gaveUp={gaveUp}
             onGiveUp={handleGiveUp}
             totalSteps={totalSteps}
+            currentSolved={currentSolved}
           />
         </div>
 
@@ -583,6 +587,7 @@ export default function PuzzlesPremiumPage() {
               onFeedback={handleFeedback}
               onWrongMove={handleWrongMove}
               giveUp={gaveUp}
+              onGiveUpDone={handleGiveUpDone}
             />
           )}
         </div>

@@ -18,6 +18,7 @@ interface PuzzleBoardProps {
   onFeedback: (msg: string, color: string) => void;
   onWrongMove?: () => void;
   giveUp?: boolean;
+  onGiveUpDone?: () => void;
 }
 
 const PIECE_MAP: Record<string, string> = {
@@ -37,7 +38,7 @@ function getPuzzleOrientation(puzzle: ApiPuzzle): 'w' | 'b' {
 }
 
 export default function PuzzleBoard({
-  puzzle, onSuccess, onFeedback, onWrongMove, giveUp = false,
+  puzzle, onSuccess, onFeedback, onWrongMove, giveUp = false, onGiveUpDone,
 }: PuzzleBoardProps) {
   const initFen = () => buildStartPosition(puzzle).fen();
 
@@ -53,23 +54,60 @@ export default function PuzzleBoard({
   const [stepIndex, setStepIndex]           = useState(0);
   const [stepStartFen, setStepStartFen]     = useState<string>(initFen);
 
-  const gameRef         = useRef(game);
-  const solvedRef       = useRef(false);
-  const stepIndexRef    = useRef(0);
-  const stepStartFenRef = useRef(stepStartFen);
+  const gameRef          = useRef(game);
+  const solvedRef        = useRef(false);
+  const stepIndexRef     = useRef(0);
+  const stepStartFenRef  = useRef(stepStartFen);
+  const onGiveUpDoneRef  = useRef(onGiveUpDone);
+  const giveUpTimersRef  = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  useEffect(() => { gameRef.current        = game;         }, [game]);
-  useEffect(() => { solvedRef.current      = solved;       }, [solved]);
-  useEffect(() => { stepIndexRef.current   = stepIndex;    }, [stepIndex]);
-  useEffect(() => { stepStartFenRef.current = stepStartFen; }, [stepStartFen]);
+  useEffect(() => { gameRef.current         = game;          }, [game]);
+  useEffect(() => { solvedRef.current       = solved;        }, [solved]);
+  useEffect(() => { stepIndexRef.current    = stepIndex;     }, [stepIndex]);
+  useEffect(() => { stepStartFenRef.current = stepStartFen;  }, [stepStartFen]);
+  useEffect(() => { onGiveUpDoneRef.current = onGiveUpDone;  }, [onGiveUpDone]);
 
-  // Highlight the solution move when giving up
+  // Play through all remaining solution moves when giving up
   useEffect(() => {
     if (!giveUp || solvedRef.current) return;
-    const target = puzzle.solution[stepIndexRef.current];
-    if (!target) return;
-    setLastMove({ from: target.slice(0, 2), to: target.slice(2, 4) });
+
+    giveUpTimersRef.current.forEach(clearTimeout);
+    giveUpTimersRef.current = [];
+
+    const remaining = puzzle.solution.slice(stepIndexRef.current);
+    const g = new Chess(gameRef.current.fen());
+
+    if (remaining.length === 0) {
+      const t = setTimeout(() => onGiveUpDoneRef.current?.(), 800);
+      giveUpTimersRef.current.push(t);
+      return;
+    }
+
+    // Highlight first move immediately
+    setLastMove({ from: remaining[0].slice(0, 2), to: remaining[0].slice(2, 4) });
     setSelectedSquare(null);
+
+    remaining.forEach((moveStr, idx) => {
+      const t = setTimeout(() => {
+        const from = moveStr.slice(0, 2) as Square;
+        const to   = moveStr.slice(2, 4) as Square;
+        const prom = moveStr.length > 4 ? moveStr[4] : 'q';
+        try { g.move({ from, to, promotion: prom }); } catch { /* ignore */ }
+        setGame(new Chess(g.fen()));
+        setLastMove({ from, to });
+
+        if (idx === remaining.length - 1) {
+          const t2 = setTimeout(() => onGiveUpDoneRef.current?.(), 1500);
+          giveUpTimersRef.current.push(t2);
+        }
+      }, 800 + idx * 1300);
+      giveUpTimersRef.current.push(t);
+    });
+
+    return () => {
+      giveUpTimersRef.current.forEach(clearTimeout);
+      giveUpTimersRef.current = [];
+    };
   }, [giveUp, puzzle]);
 
   const getSquareOffset = useCallback((from: Square, to: Square): { x: number; y: number } | null => {
