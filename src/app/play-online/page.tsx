@@ -581,6 +581,17 @@ export default function OnlinePremiumPage() {
     setOpponentDisconnectedAt(null);
     localStorage.removeItem("active_game_id");
     window.dispatchEvent(new CustomEvent('active-game-change'));
+
+    // Actualizar ELO real tras la partida
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/api/users/me/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(r => r.json()).then(fresh => {
+        setMyProfile(fresh);
+        setMyData(null); // fuerza a usar el perfil fresco con el ELO actualizado
+      }).catch(() => {});
+    }
   }, []);
 
   const handleDrawOffered = useCallback((sender: string) => setDrawOfferSender(sender), []);
