@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { FormEvent, useState, useEffect, useRef, useCallback } from 'react';
-import { Send, X, Shield, Loader2 } from 'lucide-react';
+import { Send, X, Loader2 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 interface ChatMessage {
@@ -241,8 +241,14 @@ export default function ChatWindow() {
                   {friendUsername ?? 'Chat'}
                 </h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <Shield size={12} className="text-gold" />
-                  <span className="text-[10px] font-sans font-bold tracking-[0.2em] text-zinc-400 in-[.light]:text-zinc-500 uppercase">
+                  <div className={`w-2 h-2 rounded-full shrink-0 transition-all duration-300 ${
+                    wsReady
+                      ? 'bg-emerald-400 shadow-[0_0_6px_rgba(74,222,128,0.7)] animate-pulse'
+                      : 'bg-zinc-600'
+                  }`} />
+                  <span className={`text-[10px] font-sans font-bold tracking-[0.2em] uppercase transition-colors ${
+                    wsReady ? 'text-emerald-400/70' : 'text-zinc-600'
+                  }`}>
                     {wsReady ? 'Conectado' : 'Conectando...'}
                   </span>
                 </div>

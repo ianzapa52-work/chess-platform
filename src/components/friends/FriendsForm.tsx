@@ -619,8 +619,18 @@ function FriendRow({ friend, rank, onChat, onDelete, onChallenge, actionLoading 
       <div className="w-7 h-7 rounded-lg bg-white/3 border border-white/5 flex items-center justify-center shrink-0 group-hover:border-gold/20 transition-colors">
         <span className="text-[10px] text-zinc-600 font-bold group-hover:text-gold/60 transition-colors">{rank}</span>
       </div>
-      <div className="avatar-container group-hover:scale-105 shrink-0 w-14 h-14">
-        <img src={friend.avatar ?? '/avatars/b_king_avatar.png'} className="avatar-img border-gold shadow-gold/20 w-14 h-14" alt="" />
+      <div className="relative shrink-0 group-hover:scale-105 transition-transform duration-300">
+        <div
+          className="absolute -inset-0.5 rounded-[20px] opacity-50 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ background: 'linear-gradient(135deg, #d4af37 0%, #7a5c1e 50%, #d4af37 100%)' }}
+        />
+        <div className="relative w-15 h-15 rounded-[18px] overflow-hidden bg-zinc-900">
+          <img
+            src={friend.avatar ?? '/avatars/b_king_avatar.png'}
+            className="w-full h-full object-cover"
+            alt=""
+          />
+        </div>
       </div>
       <div className="grow min-w-0">
         <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-2xl tracking-widest uppercase truncate group-hover:text-gold transition-colors">{friend.username}</h3>
