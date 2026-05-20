@@ -342,7 +342,7 @@ export default function ProfileForm() {
           </div>
 
           {/* Nombre */}
-          <h3 className="text-white in-[.light]:text-zinc-900 font-black text-base tracking-[0.08em] truncate mb-3 text-center">{user.name}</h3>
+          <h3 className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] font-bold text-base tracking-[0.12em] uppercase truncate mb-3 text-center">{user.name}</h3>
 
           {/* ── BLOQUE DE RANGO DESTACADO ── */}
           <div className={`w-full flex flex-col items-center gap-1 px-4 py-3 rounded-2xl border mb-4 ${mainTitle.borderColor} ${mainTitle.bgColor}`}>

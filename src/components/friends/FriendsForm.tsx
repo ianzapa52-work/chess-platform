@@ -277,7 +277,11 @@ export default function FriendsForm() {
     try {
       await apiFetch(`/api/users/${username}/send_friend_request/`, { method: 'POST' });
       showToast(`Solicitud enviada a ${username}.`);
-    } catch (e: unknown) { showToast(e instanceof Error ? e.message : 'Error', false); }
+    } catch (e: unknown) {
+      const raw = e instanceof Error ? e.message : 'Error';
+      const msg = /no user|not found|no.*match/i.test(raw) ? 'Usuario no encontrado' : raw;
+      showToast(msg, false);
+    }
     finally { setActionLoading(null); }
   };
 
@@ -455,10 +459,10 @@ export default function FriendsForm() {
             <div className="relative grow max-w-md">
               <input
                 type="text"
-                placeholder="Buscar contacto..."
+                placeholder="Buscar amigo..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="chess-input pl-12 text-[11px] tracking-[0.3em] uppercase font-bold cursor-text"
+                className="chess-input pl-12 text-[11px] tracking-[0.3em] uppercase font-bold font-['Cinzel'] cursor-text"
               />
             </div>
           </div>
@@ -576,7 +580,7 @@ function InvitePanel({ onSend, actionLoading }: { onSend: (u: string) => void; a
           onKeyDown={e => e.key === 'Enter' && submit()}
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
           placeholder="Nombre de usuario..."
-          className="chess-input text-[11px] tracking-[0.05em] font-bold w-full mb-3"
+          className="chess-input text-[11px] tracking-[0.2em] uppercase font-bold font-['Cinzel'] w-full mb-3"
         />
       </div>
       <button onClick={submit} disabled={!username.trim() || !!actionLoading}
