@@ -154,7 +154,7 @@ export default function HistoryForm() {
                       {game.result}
                     </span>
                   </div>
-                  <p className="text-zinc-400 in-[.light]:text-gray-500 text-xs font-bold tracking-widest">
+                  <p className="text-zinc-400 in-[.light]:text-gray-500 text-xs font-bold uppercase tracking-widest">
                     vs <span className="text-white in-[.light]:text-gray-900">{opponent}</span>
                   </p>
                 </div>
