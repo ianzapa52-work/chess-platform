@@ -9,6 +9,7 @@ interface PlayIAProps {
   difficulty: number;
   onGameStateChange: (status: string) => void;
   onMove: (history: string[], capturedW: string[], capturedB: string[]) => void;
+  onGameOver?: (result: 'win' | 'loss' | 'draw') => void;
   resetSignal: number;
   orientation: 'w' | 'b';
 }
@@ -17,7 +18,7 @@ const PIECE_MAP: Record<string, string> = {
   p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king"
 };
 
-export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSignal, orientation }: PlayIAProps) {
+export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOver, resetSignal, orientation }: PlayIAProps) {
   const [game, setGame]               = useState(new Chess());
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [lastMove, setLastMove]       = useState<{ from: string; to: string } | null>(null);
@@ -92,10 +93,19 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
   }, [onMove]);
 
   const checkGameOver = useCallback((g: Chess): boolean => {
-    if (g.isCheckmate()) { onGameStateChange('¡JAQUE MATE!'); return true; }
-    if (g.isDraw())      { onGameStateChange('TABLAS');       return true; }
+    if (g.isCheckmate()) {
+      onGameStateChange('¡JAQUE MATE!');
+      // g.turn() is the side that is checkmated (can't move)
+      onGameOver?.(g.turn() === orientation ? 'loss' : 'win');
+      return true;
+    }
+    if (g.isDraw()) {
+      onGameStateChange('TABLAS');
+      onGameOver?.('draw');
+      return true;
+    }
     return false;
-  }, [onGameStateChange]);
+  }, [onGameStateChange, onGameOver, orientation]);
 
   const handleMove = useCallback(async (from: Square, to: Square) => {
     const currentGame = gameRef.current;
@@ -141,7 +151,14 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, resetSig
       setIsAIThinking(false);
 
       if (response.gameOver) {
-        onGameStateChange(response.result === '1/2-1/2' ? 'TABLAS' : '¡JAQUE MATE!');
+        if (response.result === '1/2-1/2') {
+          onGameStateChange('TABLAS');
+          onGameOver?.('draw');
+        } else {
+          onGameStateChange('¡JAQUE MATE!');
+          const whiteWins = response.result === '1-0';
+          onGameOver?.((whiteWins && orientation === 'w') || (!whiteWins && orientation === 'b') ? 'win' : 'loss');
+        }
         return;
       }
 

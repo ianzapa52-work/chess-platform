@@ -7,6 +7,7 @@ import { useDragController } from '@/hooks/useDragController';
 interface PlayLocalProps {
   onGameStateChange: (status: string) => void;
   onMove: (history: string[], capturedW: string[], capturedB: string[]) => void;
+  onGameOver?: (winner: 'w' | 'b' | 'draw') => void;
   resetSignal: number;
   orientation: 'w' | 'b';
 }
@@ -15,7 +16,7 @@ const PIECE_MAP: Record<string, string> = {
   p: "pawn", r: "rook", n: "horse", b: "bishop", q: "queen", k: "king"
 };
 
-export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orientation }: PlayLocalProps) {
+export default function PlayLocal({ onGameStateChange, onMove, onGameOver, resetSignal, orientation }: PlayLocalProps) {
   const [game, setGame]               = useState(new Chess());
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [lastMove, setLastMove]       = useState<{ from: string; to: string } | null>(null);
@@ -70,8 +71,14 @@ export default function PlayLocal({ onGameStateChange, onMove, resetSignal, orie
       setLastMove({ from: result.from, to: result.to });
 
       let status = gameCopy.turn() === 'w' ? "TURNO BLANCAS" : "TURNO NEGRAS";
-      if (gameCopy.isCheckmate()) status = "¡JAQUE MATE!";
-      else if (gameCopy.isDraw()) status = "TABLAS";
+      if (gameCopy.isCheckmate()) {
+        status = "¡JAQUE MATE!";
+        // gameCopy.turn() is the side in checkmate; winner is the other side
+        onGameOver?.(gameCopy.turn() === 'w' ? 'b' : 'w');
+      } else if (gameCopy.isDraw()) {
+        status = "TABLAS";
+        onGameOver?.('draw');
+      }
 
       onGameStateChange(status);
       onMove(moveHistoryRef.current, newCapW, newCapB);

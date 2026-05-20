@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import PlayLocal from '@/components/game/PlayLocal';
 import GameHistory from '@/components/ui/GameHistory';
+import GameOverModal, { type GameResult } from '@/components/ui/GameOverModal';
 import { useTheme } from '@/hooks/useTheme';
 
 const TIME_MODES = [
@@ -130,6 +131,8 @@ export default function LocalPremiumPage() {
   const [isNoTimeMode, setIsNoTimeMode] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [timedOutPlayer, setTimedOutPlayer] = useState<'w' | 'b' | null>(null);
+  const [gameResult, setGameResult]   = useState<GameResult | null>(null);
+  const [gameWinner, setGameWinner]   = useState<'w' | 'b' | null>(null);
 
   useEffect(() => {
     if (isNoTimeMode || !gameStarted || status.includes("MATE") || status.includes("TABLAS") || timedOutPlayer) return;
@@ -170,6 +173,24 @@ export default function LocalPremiumPage() {
     setCapturedB(cb);
   };
 
+  const handleGameOver = (winner: 'w' | 'b' | 'draw') => {
+    if (winner === 'draw') {
+      setGameResult('draw');
+      setGameWinner(null);
+    } else {
+      setGameResult('win');
+      setGameWinner(winner);
+    }
+  };
+
+  // Timeout: the timed-out player loses, the other wins
+  useEffect(() => {
+    if (timedOutPlayer) {
+      setGameResult('win');
+      setGameWinner(timedOutPlayer === 'w' ? 'b' : 'w');
+    }
+  }, [timedOutPlayer]);
+
   const resetGame = () => {
     setResetKey(k => k + 1);
     setHistory([]);
@@ -179,6 +200,8 @@ export default function LocalPremiumPage() {
     setTimeB(currentMode.m);
     setGameStarted(false);
     setTimedOutPlayer(null);
+    setGameResult(null);
+    setGameWinner(null);
     setStatus("TURNO BLANCAS");
   };
 
@@ -312,6 +335,7 @@ export default function LocalPremiumPage() {
             <PlayLocal
               resetSignal={resetKey} onGameStateChange={setStatus}
               onMove={handleMove} orientation={boardOrientation}
+              onGameOver={handleGameOver}
             />
             {timedOutPlayer && (
               <TimeoutOverlay loser={timedOutPlayer} onReset={resetGame} />
@@ -330,6 +354,22 @@ export default function LocalPremiumPage() {
           />
         </div>
       </div>
+
+      <GameOverModal
+        result={gameResult}
+        title={
+          gameResult === 'draw' ? 'TABLAS' :
+          gameWinner === 'w'    ? '¡BLANCAS GANAN!' : '¡NEGRAS GANAN!'
+        }
+        subtitle={
+          gameResult === 'draw'          ? 'La partida termina en empate' :
+          timedOutPlayer !== null        ? `${gameWinner === 'w' ? 'Usuario Local 2' : 'Usuario Local 1'} gana por tiempo` :
+          gameWinner === 'w'             ? 'Usuario Local 2 vence a Usuario Local 1' :
+                                           'Usuario Local 1 vence a Usuario Local 2'
+        }
+        moveCount={history.length}
+        onReset={resetGame}
+      />
     </main>
   );
 }

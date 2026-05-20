@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import PlayIA from '@/components/game/PlayIA';
 import GameHistory from '@/components/ui/GameHistory';
+import GameOverModal, { type GameResult } from '@/components/ui/GameOverModal';
 import { useTheme } from '@/hooks/useTheme';
 
 const COUNTDOWN_OPTIONS = [
@@ -182,6 +183,7 @@ export default function PlayIAPage() {
   const [difficulty, setDifficulty]   = useState(1);
   const [gameStarted, setGameStarted] = useState(false);
   const [isTimedOut, setIsTimedOut]   = useState(false);
+  const [gameResult, setGameResult]   = useState<GameResult | null>(null);
 
   const [mode, setMode]             = useState<'free' | 'countdown'>('free');
   const [selectedCD, setSelectedCD] = useState(COUNTDOWN_OPTIONS[4]);
@@ -247,10 +249,20 @@ export default function PlayIAPage() {
     setTimeW(selectedCDRef.current.m);
     setGameStarted(false);
     setIsTimedOut(false);
+    setGameResult(null);
     const ns = "TU TURNO";
     setStatus(ns);
     statusRef.current = ns;
   }, []);
+
+  const handleGameOver = useCallback((result: GameResult) => {
+    setGameResult(result);
+  }, []);
+
+  // Timeout counts as a loss
+  useEffect(() => {
+    if (isTimedOut) setGameResult('loss');
+  }, [isTimedOut]);
 
   const isGameOver = status.includes("MATE") || status.includes("TABLAS") || status.includes("TIEMPO") || isTimedOut;
 
@@ -432,6 +444,7 @@ export default function PlayIAPage() {
               resetSignal={resetKey}
               onGameStateChange={handleGameStateChange}
               onMove={handleMove}
+              onGameOver={handleGameOver}
               orientation="w"
             />
             {isTimedOut && <TimeoutOverlay onReset={resetGame} />}
@@ -449,6 +462,21 @@ export default function PlayIAPage() {
           />
         </div>
       </div>
+
+      <GameOverModal
+        result={gameResult}
+        title={
+          gameResult === 'win'  ? '¡VICTORIA!' :
+          gameResult === 'loss' ? 'DERROTA'    : 'TABLAS'
+        }
+        subtitle={
+          gameResult === 'win'  ? 'Ganaste a Einstein IA' :
+          gameResult === 'loss' ? 'Einstein IA gana esta vez' :
+          'La partida termina en empate'
+        }
+        moveCount={history.length}
+        onReset={resetGame}
+      />
     </main>
   );
 }
