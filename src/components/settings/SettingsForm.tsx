@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { Check, Loader2, Shield, Volume2, Bell, UserCircle, Moon, Sun } from 'lucide-react';
+import { Check, Loader2, Shield, UserCircle, Moon, Sun } from 'lucide-react';
 
 interface SettingsFormProps { onClose?: () => void; }
 
@@ -22,9 +22,7 @@ function getSavedDarkMode(): boolean {
 }
 
 export default function SettingsForm({ onClose }: SettingsFormProps) {
-  const [volume, setVolume] = useState(80);
   const [status, setStatus] = useState('online');
-  const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -34,9 +32,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
     const saved = localStorage.getItem("user_settings");
     if (saved) {
       const parsed = JSON.parse(saved);
-      setVolume(parsed.volume ?? 80);
       setStatus(parsed.status ?? 'online');
-      setNotifications(parsed.notifications ?? true);
       setDarkMode(parsed.darkMode ?? true);
       applyTheme(parsed.darkMode ?? true);
     }
@@ -61,9 +57,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
     const token = localStorage.getItem("access_token");
 
     const settings = {
-      volume,
       status,
-      notifications,
       darkMode,
       manualAway: status === 'away',
     };
@@ -121,7 +115,6 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
               <StatusBtn label="Incógnito" active={status === 'invisible'} color="bg-zinc-500"    onClick={() => setStatus('invisible')} />
             </div>
           </div>
-          <ToggleItem label="Notificaciones" desc="Alertas de desafíos" active={notifications} onToggle={() => setNotifications(!notifications)} icon={<Bell size={20}/>} />
         </div>
 
         <div className="space-y-6">
@@ -133,13 +126,6 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
             onToggle={toggleDarkMode}
             icon={darkMode ? <Moon size={20}/> : <Sun size={20}/>}
           />
-          <div className="p-8 bg-black/60 in-[.light]:bg-zinc-100 border border-gold/20 in-[.light]:border-zinc-200 rounded-4xl space-y-5">
-            <div className="flex justify-between items-end">
-              <div className="flex items-center gap-2 text-gold/60 font-bold uppercase text-xs tracking-widest"><Volume2 size={24} /> Volumen</div>
-              <span className="text-2xl text-white in-[.light]:text-zinc-900 font-cinzel">{volume}%</span>
-            </div>
-            <input type="range" value={volume} onChange={(e) => setVolume(parseInt(e.target.value))} className="w-full h-1 accent-gold appearance-none rounded-full cursor-pointer bg-zinc-800 in-[.light]:bg-zinc-300" />
-          </div>
         </div>
       </div>
 

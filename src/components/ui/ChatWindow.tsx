@@ -46,8 +46,8 @@ const fmtTime = (iso: string) =>
 function calcFriendStatus(lastSeen: string | null): 'online' | 'away' | 'offline' {
   if (!lastSeen) return 'offline';
   const diff = Date.now() - new Date(lastSeen).getTime();
-  if (diff < 5 * 60 * 1000)  return 'online';
-  if (diff < 30 * 60 * 1000) return 'away';
+  if (diff < 8 * 60 * 1000) return 'online';
+  if (diff < 60 * 60 * 1000) return 'away';
   return 'offline';
 }
 
