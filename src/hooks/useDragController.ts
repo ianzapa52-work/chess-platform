@@ -94,7 +94,7 @@ export function useDragController({
     let pendingX = 0, pendingY = 0;
     /** Posición del pointerdown para detectar si hubo movimiento real */
     let downX = 0, downY = 0;
-    /** true si el puntero se ha movido lo suficiente como para ser un drag real */
+    /** true si el puntero se ha movido tanto como para ser un drag real */
     let didMove = false;
     const DRAG_THRESHOLD = 4; // px
 
