@@ -190,7 +190,7 @@ export default function RankingForm() {
               </div>
             </div>
 
-            <h3 className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-1">
+            <h3 className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] font-bold text-xl tracking-[0.12em] truncate w-full text-center leading-tight mb-1">
               {leader?.name ?? '· · ·'}
             </h3>
             <div className="flex items-center gap-1.5 mb-1">
@@ -368,7 +368,7 @@ function PodiumRow({ player, position, color, medal }: { player: Player; positio
         </div>
       </div>
       <div className="grow min-w-0">
-        <p className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] text-base tracking-widest font-bold uppercase truncate group-hover:text-gold transition-colors">
+        <p className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] text-base tracking-widest font-bold truncate group-hover:text-gold transition-colors">
           {player.name}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
@@ -438,7 +438,7 @@ function PlayerRow({ player, rank }: { player: Player; rank: number }) {
       </div>
 
       <div className="grow min-w-0">
-        <h3 className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] font-bold text-xl md:text-2xl tracking-[0.08em] uppercase group-hover:text-gold truncate transition-colors">
+        <h3 className="text-white in-[.light]:text-zinc-900 font-['Cinzel'] font-bold text-xl md:text-2xl tracking-[0.08em] group-hover:text-gold truncate transition-colors">
           {player.name}
         </h3>
         <div className="flex items-center gap-3 mt-0.5">

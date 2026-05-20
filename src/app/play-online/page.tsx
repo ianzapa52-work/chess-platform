@@ -86,7 +86,7 @@ function OpponentBox({ name, elo, isActive, seconds, visible, captured, isLight 
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h4 className={`font-black text-[11px] uppercase tracking-widest ${isLight ? 'text-gray-900' : 'text-white'}`}>{name}</h4>
+              <h4 className={`font-black text-[11px] tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>{name}</h4>
               <span className={`px-1.5 py-0.5 text-[7px] font-black rounded-md uppercase tracking-tight border ${title.color} ${title.borderColor} ${title.bgColor}`}>
                 {title.short}
               </span>
@@ -130,7 +130,7 @@ function MyPlayerBox({ name, elo, isActive, seconds, captured, eloChange, isLigh
             <span className={`px-2 py-0.5 text-[8px] font-black rounded-md uppercase tracking-tighter border ${title.color} ${title.borderColor} ${title.bgColor}`}>
               {title.short}
             </span>
-            <h4 className={`font-black text-sm uppercase tracking-wider ${isLight ? 'text-gray-900' : 'text-white'}`}>{name}</h4>
+            <h4 className={`font-black text-sm tracking-wide ${isLight ? 'text-gray-900' : 'text-white'}`}>{name}</h4>
           </div>
           <div className="flex items-baseline gap-2">
             <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${title.color}`}>{title.label}</span>
@@ -700,7 +700,7 @@ export default function OnlinePremiumPage() {
           }`}>
             <div className="w-2 h-2 rounded-full bg-orange-400 animate-pulse shrink-0" />
             <div>
-              <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${isLight ? 'text-orange-700' : 'text-orange-300'}`}>
+              <p className={`text-[9px] font-black tracking-[0.2em] ${isLight ? 'text-orange-700' : 'text-orange-300'}`}>
                 {opponent.name} se ha desconectado
               </p>
               <p className={`text-[9px] mt-0.5 ${isLight ? 'text-orange-600/70' : 'text-zinc-400'}`}>

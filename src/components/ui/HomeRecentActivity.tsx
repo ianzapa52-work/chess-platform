@@ -98,7 +98,7 @@ export default function HomeRecentActivity() {
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold text-white in-[.light]:text-zinc-800 uppercase tracking-tight group-hover/item:text-gold transition-colors">
+                  <p className="text-xs font-bold text-white in-[.light]:text-zinc-800 tracking-tight group-hover/item:text-gold transition-colors">
                     vs. {opponent || "Oponente"}
                   </p>
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">

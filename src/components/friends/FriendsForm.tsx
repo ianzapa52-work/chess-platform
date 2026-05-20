@@ -397,7 +397,7 @@ export default function FriendsForm() {
                 </div>
               </div>
             </div>
-            <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-xl tracking-[0.12em] uppercase truncate w-full text-center leading-tight mb-0.5">
+            <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-xl tracking-[0.08em] truncate w-full text-center leading-tight mb-0.5">
               {me?.username ?? '· · ·'}
             </h3>
             <div className="flex items-center gap-1.5 mb-5">
@@ -576,7 +576,7 @@ function InvitePanel({ onSend, actionLoading }: { onSend: (u: string) => void; a
           onKeyDown={e => e.key === 'Enter' && submit()}
           onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
           placeholder="Nombre de usuario..."
-          className="chess-input text-[11px] tracking-[0.2em] uppercase font-bold w-full mb-3"
+          className="chess-input text-[11px] tracking-[0.05em] font-bold w-full mb-3"
         />
       </div>
       <button onClick={submit} disabled={!username.trim() || !!actionLoading}
@@ -633,7 +633,7 @@ function FriendRow({ friend, rank, onChat, onDelete, onChallenge, actionLoading 
         </div>
       </div>
       <div className="grow min-w-0">
-        <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-2xl tracking-widest uppercase truncate group-hover:text-gold transition-colors">{friend.username}</h3>
+        <h3 className="text-white in-[.light]:text-zinc-900 font-serif font-bold text-2xl tracking-wide truncate group-hover:text-gold transition-colors">{friend.username}</h3>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gold font-bold tracking-widest flex items-center gap-1"><Zap size={12} /> {friend.elo_blitz} Blitz</span>
           <span className="text-xs text-zinc-600 italic">{friend.elo_rapid} Rapid · {friend.elo_bullet} Bullet</span>

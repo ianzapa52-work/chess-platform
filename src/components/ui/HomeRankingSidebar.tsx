@@ -88,7 +88,7 @@ export default function HomeRankingSidebar() {
                   {i + 1}
                 </span>
                 <div className="flex flex-col">
-                  <span className="text-[11px] font-bold text-zinc-300 in-[.light]:text-zinc-800 group-hover:text-white in-[.light]:group-hover:text-black uppercase tracking-tighter">
+                  <span className="text-[11px] font-bold text-zinc-300 in-[.light]:text-zinc-800 group-hover:text-white in-[.light]:group-hover:text-black tracking-tighter">
                     {p.username}
                   </span>
                 </div>

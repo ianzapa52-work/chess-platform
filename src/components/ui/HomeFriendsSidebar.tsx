@@ -142,7 +142,7 @@ export default function HomeFriendsSidebar() {
               </div>
               <div className="flex flex-col items-start min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-base font-bold uppercase tracking-widest text-white in-[.light]:text-zinc-800 group-hover:text-gold truncate font-['Cinzel']">
+                  <span className="text-base font-bold tracking-wide text-white in-[.light]:text-zinc-800 group-hover:text-gold truncate font-['Cinzel']">
                     {f.username}
                   </span>
                   <span className="text-[11px] text-gold/50 font-black font-['Cinzel']">

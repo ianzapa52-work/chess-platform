@@ -217,7 +217,7 @@ export default function ProfileForm() {
       if (userRes.ok) {
         const dbData = await userRes.json();
         localStorage.setItem("user", JSON.stringify(dbData));
-        setUser({ ...dbData, name: (dbData.username || "MAESTRO").toUpperCase() });
+        setUser({ ...dbData, name: dbData.username || "Maestro" });
       }
       if (gamesRes.ok) {
         const gamesData = await gamesRes.json();
@@ -342,7 +342,7 @@ export default function ProfileForm() {
           </div>
 
           {/* Nombre */}
-          <h3 className="text-white in-[.light]:text-zinc-900 font-black text-base tracking-[0.15em] uppercase truncate mb-3 text-center">{user.name}</h3>
+          <h3 className="text-white in-[.light]:text-zinc-900 font-black text-base tracking-[0.08em] truncate mb-3 text-center">{user.name}</h3>
 
           {/* ── BLOQUE DE RANGO DESTACADO ── */}
           <div className={`w-full flex flex-col items-center gap-1 px-4 py-3 rounded-2xl border mb-4 ${mainTitle.borderColor} ${mainTitle.bgColor}`}>
@@ -533,7 +533,7 @@ export default function ProfileForm() {
                   {(user.friends as string[]).map((username) => (
                     <div key={username} className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 in-[.light]:bg-zinc-100 border border-white/5 in-[.light]:border-zinc-200 rounded-xl">
                       <Users size={10} className="text-zinc-500 shrink-0" />
-                      <span className="text-[9px] font-black uppercase tracking-wide text-zinc-300 in-[.light]:text-zinc-700">{username}</span>
+                      <span className="text-[9px] font-black text-zinc-300 in-[.light]:text-zinc-700">{username}</span>
                     </div>
                   ))}
                 </div>
