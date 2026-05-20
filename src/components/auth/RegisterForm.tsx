@@ -57,10 +57,13 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
         throw new Error(errorMsg);
       }
 
+      localStorage.setItem('access_token', data.access);
+      localStorage.setItem('refresh_token', data.refresh);
+      window.dispatchEvent(new Event('user-auth-change'));
       setSuccess(true);
       setTimeout(() => {
-        onSwitchToLogin();
-      }, 2500);
+        window.location.href = '/profile';
+      }, 2000);
 
     } catch (err: any) {
       setError(err.message.toUpperCase());
@@ -78,8 +81,8 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-black text-white uppercase tracking-widest">¡Bienvenido, Maestro!</h2>
           <p className="text-zinc-400 text-xs uppercase tracking-widest px-4">
-            Tu cuenta ha sido creada con éxito. <br/> 
-            Redirigiendo al acceso...
+            Tu cuenta ha sido creada con éxito. <br/>
+            Redirigiendo a tu perfil...
           </p>
         </div>
         <div className="w-full max-w-[200px] h-1 bg-white/5 rounded-full overflow-hidden mt-4">
