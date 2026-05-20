@@ -108,7 +108,7 @@ export default function RegisterForm({ onSwitchToLogin }: { onSwitchToLogin: () 
             { label: 'Usuario', val: name, set: setName, type: 'text', placeholder: 'magnus_carlsen' },
             { label: 'Email', val: email, set: setEmail, type: 'email', placeholder: 'gm_chess@example.com' },
             { label: 'Contraseña', val: password, set: setPassword, type: 'password', placeholder: '••••••••' },
-            { label: 'Confirmar Clave', val: confirmPassword, set: setConfirmPassword, type: 'password', placeholder: '••••••••' }
+            { label: 'Confirmar Contraseña', val: confirmPassword, set: setConfirmPassword, type: 'password', placeholder: '••••••••' }
           ].map((field) => (
             <div key={field.label} className="chess-form-group">
               <label className="chess-label flex items-center gap-2 text-[10px] text-zinc-500 uppercase font-black tracking-widest mb-2">

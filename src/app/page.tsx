@@ -36,9 +36,12 @@ export default function HomePage() {
     document.title = "WELIKECHESS | Home";
   }, []);
 
-  const today = new Date();
-  const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
-  const quote = quotes[daysSinceEpoch % quotes.length];
+  const [quote, setQuote] = useState(quotes[0]);
+
+  useEffect(() => {
+    const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    setQuote(quotes[daysSinceEpoch % quotes.length]);
+  }, []);
 
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
@@ -244,7 +247,7 @@ export default function HomePage() {
             {/* Actividad comunidad */}
             <div className="flex flex-col gap-2">
               <ActivityBars />
-              <p className="text-[9px] text-zinc-600 uppercase font-bold text-center tracking-widest">Actividad Comunidad</p>
+              <p className="text-[9px] text-zinc-600 uppercase font-bold text-center tracking-widest">Tu Actividad · 7 días</p>
             </div>
 
             {/* Footer */}
@@ -360,7 +363,38 @@ function EloRow({ mode, elo, color, icon }: { mode: string; elo: number; color: 
 }
 
 function ActivityBars() {
-  const heights = [35, 65, 45, 80, 55, 70, 40];
+  const [heights, setHeights] = useState<number[]>([10, 10, 10, 10, 10, 10, 10]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+
+    const fetchActivity = async () => {
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+        const res = await fetch(`${API_BASE}/api/games/my-games/`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const data: { created_at: string }[] = await res.json();
+
+        const counts = Array(7).fill(0);
+        const now = new Date();
+        data.forEach((game) => {
+          const daysAgo = Math.floor((now.getTime() - new Date(game.created_at).getTime()) / (1000 * 60 * 60 * 24));
+          if (daysAgo >= 0 && daysAgo < 7) counts[6 - daysAgo]++;
+        });
+
+        const maxCount = Math.max(...counts, 1);
+        setHeights(counts.map(c => Math.max(8, Math.round((c / maxCount) * 88))));
+      } catch {
+        // mantener barras vacías si falla
+      }
+    };
+
+    fetchActivity();
+  }, []);
+
   return (
     <div className="h-16 w-full bg-black/30 in-[.light]:bg-white rounded-xl border border-white/5 in-[.light]:border-black/10 px-3 py-2 flex items-end gap-1">
       {heights.map((h, i) => (
@@ -369,7 +403,7 @@ function ActivityBars() {
           className="grow rounded-t-sm transition-all duration-700"
           style={{
             height: `${h}%`,
-            background: `linear-gradient(to top, #d4af37${Math.round(0.5 * 255).toString(16)}, #d4af37${Math.round(0.2 * 255).toString(16)})`,
+            background: `linear-gradient(to top, #d4af3780, #d4af3733)`,
           }}
         />
       ))}
