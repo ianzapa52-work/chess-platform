@@ -14,11 +14,14 @@ export interface ChessTitle {
 }
 
 export const getTitleByElo = (elo: number): ChessTitle => {
-  if (elo >= 2500) return { label: "Gran Maestro",          short: "GM",  tier: "Nivel Máximo",    color: "text-yellow-400",  borderColor: "border-yellow-400/40",  bgColor: "bg-yellow-400/10" };
-  if (elo >= 2400) return { label: "Maestro Internacional", short: "IM",  tier: "Internacional",   color: "text-orange-400",  borderColor: "border-orange-400/40",  bgColor: "bg-orange-400/10" };
-  if (elo >= 2300) return { label: "Maestro FIDE",          short: "FM",  tier: "Avanzado",        color: "text-amber-400",   borderColor: "border-amber-400/40",   bgColor: "bg-amber-400/10"  };
-  if (elo >= 2000) return { label: "Experto",               short: "EXP", tier: "Nacional",        color: "text-blue-400",    borderColor: "border-blue-400/40",    bgColor: "bg-blue-400/10"   };
-  return                   { label: "Aficionado",           short: "AFI", tier: "Iniciación",      color: "text-zinc-400",    borderColor: "border-zinc-400/40",    bgColor: "bg-zinc-400/10"   };
+  if (elo >= 3200) return { label: "Oráculo",            short: "ORC", tier: "Élite",          color: "text-red-400",     borderColor: "border-red-400/40",     bgColor: "bg-red-400/10"    };
+  if (elo >= 2500) return { label: "Gran Maestro",       short: "GM",  tier: "Nivel Máximo",   color: "text-orange-400",  borderColor: "border-orange-400/40",  bgColor: "bg-orange-400/10" };
+  if (elo >= 2400) return { label: "Maestro Intern.",    short: "IM",  tier: "Internacional",  color: "text-amber-400",   borderColor: "border-amber-400/40",   bgColor: "bg-amber-400/10"  };
+  if (elo >= 2300) return { label: "Maestro FIDE",       short: "FM",  tier: "Avanzado",       color: "text-amber-400",   borderColor: "border-amber-400/40",   bgColor: "bg-amber-400/10"  };
+  if (elo >= 2000) return { label: "Experto",            short: "EXP", tier: "Nacional",       color: "text-purple-400",  borderColor: "border-purple-400/40",  bgColor: "bg-purple-400/10" };
+  if (elo >= 1800) return { label: "Aficionado A",       short: "AFA", tier: "Competitivo",    color: "text-indigo-400",  borderColor: "border-indigo-400/40",  bgColor: "bg-indigo-400/10" };
+  if (elo >= 1400) return { label: "Aficionado B",       short: "AFB", tier: "Intermedio",     color: "text-blue-400",    borderColor: "border-blue-400/40",    bgColor: "bg-blue-400/10"   };
+  return                   { label: "Novato",            short: "NOV", tier: "Iniciación",     color: "text-emerald-400", borderColor: "border-emerald-400/40", bgColor: "bg-emerald-400/10" };
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
