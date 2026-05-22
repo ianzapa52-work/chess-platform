@@ -547,7 +547,7 @@ export default function PuzzlesPremiumPage() {
 
         <div className="col-span-12 xl:col-span-6 flex justify-center order-1 xl:order-2">
           {loading && (
-            <div className="w-[min(95vw,780px)] h-[min(95vw,780px)] rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
+            <div className="w-full max-w-195 mx-auto aspect-square rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
               border border-white/6 in-[.light]:border-gray-200 flex items-center justify-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="flex gap-1.5">
@@ -564,7 +564,7 @@ export default function PuzzlesPremiumPage() {
           )}
 
           {error && !loading && (
-            <div className="w-[min(95vw,780px)] h-[min(95vw,780px)] rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
+            <div className="w-full max-w-195 mx-auto aspect-square rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
               border border-red-500/10 in-[.light]:border-red-200 flex flex-col items-center justify-center gap-5">
               <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
                 <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

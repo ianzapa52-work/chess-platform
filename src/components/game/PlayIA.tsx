@@ -273,7 +273,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
     : [];
 
   return (
-    <div className="relative flex flex-col items-center">
+    <div className="relative flex flex-col items-center w-full">
       {showDisconnected && (
         <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-950/80 border border-red-700/50 backdrop-blur-sm whitespace-nowrap pointer-events-auto">
           <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
@@ -299,7 +299,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
 
       <div
         ref={boardRef}
-        className="grid grid-cols-8 grid-rows-8 w-[min(95vw,780px)] xl:w-[min(45vw,780px)] h-[min(95vw,780px)] xl:h-[min(45vw,780px)] bg-zinc-900 overflow-hidden rounded-xl border-[4px] border-black shadow-inner"
+        className="grid grid-cols-8 grid-rows-8 w-full max-w-195 aspect-square bg-zinc-900 overflow-hidden rounded-xl border-4 border-black shadow-inner"
       >
           {displayBoard.map((row, i) =>
             row.map((piece, j) => {

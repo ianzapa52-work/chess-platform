@@ -894,7 +894,7 @@ export default function OnlinePremiumPage() {
         <div className="col-span-12 xl:col-span-6 flex flex-col items-center gap-4 order-1 xl:order-2">
           <div className="relative w-full flex justify-center">
             {gameJoined && gameId ? (
-              <div className="relative w-[min(95vw,780px)]">
+              <div className="relative w-full">
                 <PlayOnline
                   serverUrl={`${process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000'}/ws/games/${gameId}/`}
                   onGameStateChange={handleGameStateChange}
@@ -909,7 +909,7 @@ export default function OnlinePremiumPage() {
                 />
               </div>
             ) : (
-              <div className={`w-[min(95vw,780px)] aspect-square backdrop-blur-xl rounded-[3rem] border shadow-2xl flex flex-col items-center justify-center transition-all duration-1000 ${
+              <div className={`w-full max-w-195 mx-auto aspect-square backdrop-blur-xl rounded-[3rem] border shadow-2xl flex flex-col items-center justify-center transition-all duration-1000 ${
                 isLight ? 'bg-white border-gray-200' : 'bg-zinc-950/40 border-white/10'
               }`}>
                 <div className="relative w-94 h-94 flex items-center justify-center">

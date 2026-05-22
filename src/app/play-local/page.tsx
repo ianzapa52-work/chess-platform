@@ -331,7 +331,7 @@ export default function LocalPremiumPage() {
         </div>
 
         <div className="col-span-12 xl:col-span-6 flex justify-center order-1 xl:order-2">
-          <div className="relative">
+          <div className="relative w-full">
             <PlayLocal
               resetSignal={resetKey} onGameStateChange={setStatus}
               onMove={handleMove} orientation={boardOrientation}
