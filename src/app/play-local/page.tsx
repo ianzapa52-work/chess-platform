@@ -212,7 +212,7 @@ export default function LocalPremiumPage() {
   const subText = isLight ? 'text-gray-500' : 'text-zinc-400';
 
   return (
-    <main className={`h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-6 pb-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+    <main className={`min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] xl:h-[calc(100vh-6rem)] ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-4 pb-6 sm:px-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-y-auto xl:overflow-hidden`}>
       <div className="fixed inset-0 z-0 transition-opacity duration-500 opacity-100">
         <div className={`absolute inset-0 ${isLight ? 'bg-[#f5f9ff]' : 'bg-[#00050a]'}`} />
         <div className={`absolute top-[-30%] left-1/2 -translate-x-1/2 w-[90%] h-[80%] blur-[200px] rounded-full animate-pulse ${isLight ? 'bg-sky-200/55' : 'bg-blue-600/25'}`} />
@@ -221,8 +221,8 @@ export default function LocalPremiumPage() {
         <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] ${isLight ? 'opacity-[0.14] mix-blend-multiply' : 'opacity-[0.25] mix-blend-overlay'}`} />
       </div>
 
-      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-8 items-start">
-        <div className="col-span-12 xl:col-span-3 flex flex-col gap-2">
+      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
+        <div className="col-span-12 xl:col-span-3 flex flex-col gap-2 order-2 xl:order-1">
           <PlayerBox
             name="Usuario Local 2" captured={capturedW}
             isActive={gameStarted && status.includes("NEGRAS") && !timedOutPlayer}
@@ -330,7 +330,7 @@ export default function LocalPremiumPage() {
           />
         </div>
 
-        <div className="col-span-12 xl:col-span-6 flex justify-center">
+        <div className="col-span-12 xl:col-span-6 flex justify-center order-1 xl:order-2">
           <div className="relative">
             <PlayLocal
               resetSignal={resetKey} onGameStateChange={setStatus}
@@ -343,7 +343,7 @@ export default function LocalPremiumPage() {
           </div>
         </div>
 
-        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)]">
+        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)] order-3">
           <GameHistory
             history={history}
             status={gameOverStatus}

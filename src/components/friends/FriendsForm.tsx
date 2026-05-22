@@ -337,7 +337,7 @@ export default function FriendsForm() {
       : 'Aún no tienes amigos';
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-130px)] gap-8 w-full max-w-[1800px] mx-auto p-4 relative font-sans overflow-hidden">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-130px)] md:h-[calc(100vh-130px)] gap-8 w-full max-w-[1800px] mx-auto p-4 relative font-sans md:overflow-hidden">
 
       {toast && (
         <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl text-sm font-bold tracking-widest uppercase shadow-2xl transition-all
@@ -453,8 +453,8 @@ export default function FriendsForm() {
       </div>
 
       {/* CENTER PANEL */}
-      <div className="grow flex flex-col gap-8 min-w-0 h-full">
-        <div className="h-full flex flex-col chess-card overflow-hidden">
+      <div className="grow flex flex-col gap-8 min-w-0 md:h-full">
+        <div className="md:h-full flex flex-col chess-card overflow-hidden">
           <div className="px-10 py-7 border-b border-white/5 in-[.light]:border-zinc-200 flex flex-wrap justify-between items-center shrink-0 gap-4">
             <div className="flex items-center gap-4 cursor-default">
               <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center">

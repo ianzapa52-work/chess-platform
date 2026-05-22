@@ -34,11 +34,11 @@
 }
 
 .chess-panel {
-  @apply bg-black/40 border border-white/5 rounded-[40px] p-8 backdrop-blur-md shadow-lg flex flex-col in-[.light]:bg-white/80 in-[.light]:border-black/10 in-[.light]:shadow-xl;
+  @apply bg-black/40 border border-white/5 rounded-[40px] p-5 sm:p-8 backdrop-blur-md shadow-lg flex flex-col in-[.light]:bg-white/80 in-[.light]:border-black/10 in-[.light]:shadow-xl;
 }
 
 .chess-panel-gold {
-  @apply bg-linear-to-b from-gold/20 to-black/40 border border-gold/30 rounded-[40px] p-8 shadow-xl text-center in-[.light]:from-gold/10 in-[.light]:to-white/50 in-[.light]:border-gold/20;
+  @apply bg-linear-to-b from-gold/20 to-black/40 border border-gold/30 rounded-[40px] p-5 sm:p-8 shadow-xl text-center in-[.light]:from-gold/10 in-[.light]:to-white/50 in-[.light]:border-gold/20;
 }
 
 /* --- TIPOGRAFÍA Y TÍTULOS --- */

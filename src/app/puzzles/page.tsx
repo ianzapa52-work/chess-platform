@@ -520,7 +520,7 @@ export default function PuzzlesPremiumPage() {
     : "Encuentra la jugada";
 
   return (
-    <main className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] bg-[#020202] in-[.light]:bg-[#f3fff8] text-zinc-400 pt-2 px-4 pb-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-hidden">
+    <main className="min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] xl:h-[calc(100vh-6rem)] bg-[#020202] in-[.light]:bg-[#f3fff8] text-zinc-400 pt-2 px-3 pb-4 sm:px-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-y-auto xl:overflow-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[#050508] in-[.light]:bg-[#f3fff8]" />
         <div className="absolute inset-0 opacity-[0.15] in-[.light]:opacity-[0.14] mix-blend-overlay in-[.light]:mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
@@ -529,8 +529,8 @@ export default function PuzzlesPremiumPage() {
         <div className="absolute inset-0 opacity-[0.18] in-[.light]:opacity-[0.22] bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)] in-[.light]:bg-[radial-gradient(rgba(5,150,105,0.42)_1.5px,transparent_1.5px)] bg-size-[32px_32px]" />
       </div>
 
-      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
-        <div className="col-span-12 xl:col-span-3">
+      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
+        <div className="col-span-12 xl:col-span-3 order-2 xl:order-1">
           <LeftPanel
             loading={loading}
             error={error}
@@ -545,7 +545,7 @@ export default function PuzzlesPremiumPage() {
           />
         </div>
 
-        <div className="col-span-12 xl:col-span-6 flex justify-center">
+        <div className="col-span-12 xl:col-span-6 flex justify-center order-1 xl:order-2">
           {loading && (
             <div className="w-[min(95vw,780px)] h-[min(95vw,780px)] rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
               border border-white/6 in-[.light]:border-gray-200 flex items-center justify-center">
@@ -595,7 +595,7 @@ export default function PuzzlesPremiumPage() {
           )}
         </div>
 
-        <div className="col-span-12 xl:col-span-3">
+        <div className="col-span-12 xl:col-span-3 order-3">
           <RightPanel
             solvedCount={solvedCount}
             failedCount={failedCount}

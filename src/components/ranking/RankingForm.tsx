@@ -143,7 +143,7 @@ export default function RankingForm() {
       : 'No hay jugadores aún';
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-130px)] gap-6 w-full max-w-[1800px] mx-auto p-4 relative font-['Outfit'] text-[1.1rem]">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-130px)] md:h-[calc(100vh-130px)] gap-6 w-full max-w-[1800px] mx-auto p-4 relative font-['Outfit'] text-[1.1rem] md:overflow-hidden">
 
       {/* ── LEFT PANEL ── */}
       <div className="hidden lg:flex flex-col w-80 gap-3 shrink-0 overflow-hidden">

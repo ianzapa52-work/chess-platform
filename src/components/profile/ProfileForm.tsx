@@ -324,10 +324,10 @@ export default function ProfileForm() {
     : "—";
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-130px)] gap-6 w-full max-w-[1800px] mx-auto p-4 relative overflow-hidden">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-130px)] lg:h-[calc(100vh-130px)] gap-6 w-full max-w-[1800px] mx-auto p-4 relative lg:overflow-hidden">
 
       {/* ── PANEL IZQUIERDO ── */}
-      <div className="flex flex-col w-full lg:w-72 xl:w-80 gap-4 shrink-0 h-full overflow-y-auto custom-scrollbar pr-1">
+      <div className="flex flex-col w-full lg:w-72 xl:w-80 gap-4 shrink-0 lg:h-full overflow-y-auto custom-scrollbar pr-1">
         <div className="chess-panel-gold !p-7 relative flex flex-col items-center">
 
           {/* Estado online */}
@@ -425,7 +425,7 @@ export default function ProfileForm() {
       </div>
 
       {/* ── PANEL DERECHO ── */}
-      <div className="grow flex flex-col gap-4 min-w-0 h-full overflow-hidden">
+      <div className="grow flex flex-col gap-4 min-w-0 lg:h-full lg:overflow-hidden">
         <div className="grow overflow-y-auto custom-scrollbar space-y-6 pr-1">
           <div>
             <p className="text-[8px] font-black uppercase tracking-[0.4em] text-zinc-600 mb-3 px-1">Rating por Modalidad</p>

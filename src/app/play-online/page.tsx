@@ -616,7 +616,7 @@ export default function OnlinePremiumPage() {
   const labelText = isLight ? 'text-gray-500' : 'text-gold';
 
   return (
-    <main className={`h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] ${isLight ? 'bg-[#fffaf0]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-6 pb-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-hidden`}>
+    <main className={`min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] xl:h-[calc(100vh-6rem)] ${isLight ? 'bg-[#fffaf0]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-4 pb-6 sm:px-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-y-auto xl:overflow-hidden`}>
       <style>{searchAnimations}</style>
 
       <div className="fixed inset-0 z-0 transition-opacity duration-500 opacity-100">
@@ -764,9 +764,9 @@ export default function OnlinePremiumPage() {
         />
       )}
 
-      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-6 xl:gap-8 items-start">
+      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
         {/* Left sidebar */}
-        <div className="col-span-12 xl:col-span-3 flex flex-col gap-3">
+        <div className="col-span-12 xl:col-span-3 flex flex-col gap-3 order-2 xl:order-1">
           <div style={{
             maxHeight: gameJoined ? '200px' : '0px',
             opacity: gameJoined ? 1 : 0,
@@ -891,7 +891,7 @@ export default function OnlinePremiumPage() {
         </div>
 
         {/* Board */}
-        <div className="col-span-12 xl:col-span-6 flex flex-col items-center gap-4">
+        <div className="col-span-12 xl:col-span-6 flex flex-col items-center gap-4 order-1 xl:order-2">
           <div className="relative w-full flex justify-center">
             {gameJoined && gameId ? (
               <div className="relative w-[min(95vw,780px)]">
@@ -929,7 +929,7 @@ export default function OnlinePremiumPage() {
         </div>
 
         {/* Right sidebar */}
-        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)]">
+        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)] order-3">
           <GameHistoryOnline
             history={history}
             status={isGameOver ? status : ""}

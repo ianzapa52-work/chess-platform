@@ -93,8 +93,8 @@ export default function HomePage() {
     : null;
 
   return (
-    <div className="flex flex-col bg-[#070707] in-[.light]:bg-[#f4f4f5] text-zinc-300 in-[.light]:text-zinc-800 font-sans h-[calc(100vh-80px)] md:h-[calc(100vh-96px)] overflow-hidden transition-colors duration-500">
-      <div className="grow grid grid-cols-12 overflow-hidden">
+    <div className="flex flex-col bg-[#070707] in-[.light]:bg-[#f4f4f5] text-zinc-300 in-[.light]:text-zinc-800 font-sans min-h-[calc(100vh-80px)] md:min-h-[calc(100vh-96px)] xl:h-[calc(100vh-96px)] overflow-y-auto xl:overflow-hidden transition-colors duration-500">
+      <div className="grow grid grid-cols-12 xl:overflow-hidden">
 
         {/* ── SIDEBAR IZQUIERDA ── */}
         <aside className="col-span-2 hidden xl:flex border-r border-gold/10 bg-[#0a0a0a] in-[.light]:bg-white flex-col overflow-hidden">
@@ -103,11 +103,11 @@ export default function HomePage() {
 
         {/* ── MAIN ── */}
         <main className="col-span-12 xl:col-span-8 flex flex-col overflow-y-auto custom-scrollbar bg-[radial-gradient(circle_at_top,#1a1a1a_0%,#050505_100%)] in-[.light]:bg-[radial-gradient(circle_at_top,#ffffff_0%,#f4f4f5_100%)]">
-          <section className="p-8 md:p-12 max-w-350 mx-auto w-full pt-8 pb-16">
+          <section className="p-4 sm:p-8 md:p-10 max-w-350 mx-auto w-full pt-5 sm:pt-8 pb-10 sm:pb-16">
 
-            <div className="mb-12 border-l-4 border-gold pl-8 py-2 bg-linear-to-r from-gold/5 to-transparent rounded-r-xl">
+            <div className="mb-8 md:mb-12 border-l-4 border-gold pl-4 sm:pl-8 py-2 bg-linear-to-r from-gold/5 to-transparent rounded-r-xl">
               <p className="text-[11px] font-black uppercase text-gold/70 tracking-[0.5em] mb-1">Nuestro Ajedrez</p>
-              <h2 className="text-6xl font-light text-white in-[.light]:text-black italic tracking-tight leading-none font-['Cinzel']">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl xl:text-6xl font-light text-white in-[.light]:text-black italic tracking-tight leading-none font-['Cinzel']">
                 ¿Cuál será<span className="text-gold font-normal"> tu próximo movimiento?</span>
               </h2>
             </div>
