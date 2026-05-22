@@ -616,7 +616,7 @@ export default function OnlinePremiumPage() {
   const labelText = isLight ? 'text-gray-500' : 'text-gold';
 
   return (
-    <main className={`play-page min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] ${isLight ? 'bg-[#fffaf0]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-4 pb-8 sm:px-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-y-auto`}>
+    <main className={`min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] xl:h-[calc(100vh-6rem)] ${isLight ? 'bg-[#fffaf0]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-4 pb-6 sm:px-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-y-auto xl:overflow-hidden`}>
       <style>{searchAnimations}</style>
 
       <div className="fixed inset-0 z-0 transition-opacity duration-500 opacity-100">
@@ -764,9 +764,9 @@ export default function OnlinePremiumPage() {
         />
       )}
 
-      <div className="play-grid relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
+      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
         {/* Left sidebar */}
-        <div className="play-sidebar custom-scrollbar col-span-12 xl:col-span-3 flex flex-col gap-3 order-2 xl:order-1">
+        <div className="col-span-12 xl:col-span-3 flex flex-col gap-3 order-2 xl:order-1">
           <div style={{
             maxHeight: gameJoined ? '200px' : '0px',
             opacity: gameJoined ? 1 : 0,
@@ -909,7 +909,7 @@ export default function OnlinePremiumPage() {
                 />
               </div>
             ) : (
-              <div className={`play-board-shell mx-auto aspect-square backdrop-blur-xl rounded-[3rem] border shadow-2xl flex flex-col items-center justify-center transition-all duration-1000 ${
+              <div className={`w-full max-w-195 mx-auto aspect-square backdrop-blur-xl rounded-[3rem] border shadow-2xl flex flex-col items-center justify-center transition-all duration-1000 ${
                 isLight ? 'bg-white border-gray-200' : 'bg-zinc-950/40 border-white/10'
               }`}>
                 <div className="relative w-94 h-94 flex items-center justify-center">
@@ -929,7 +929,7 @@ export default function OnlinePremiumPage() {
         </div>
 
         {/* Right sidebar */}
-        <div className="play-history-shell col-span-12 xl:col-span-3 h-[min(85vw,785px)] order-3">
+        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)] xl:h-[calc(100vh-10rem)] order-3">
           <GameHistoryOnline
             history={history}
             status={isGameOver ? status : ""}

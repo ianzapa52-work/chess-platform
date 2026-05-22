@@ -141,7 +141,7 @@ export default function PlayLocal({ onGameStateChange, onMove, onGameOver, reset
   return (
     <div
       ref={boardRef}
-      className="play-board-shell grid grid-cols-8 grid-rows-8 mx-auto aspect-square bg-zinc-900 overflow-hidden rounded-xl border-4 border-black shadow-inner"
+      className="grid grid-cols-8 grid-rows-8 w-full max-w-195 mx-auto aspect-square bg-zinc-900 overflow-hidden rounded-xl border-4 border-black shadow-inner"
     >
         {displayBoard.map((row, i) =>
           row.map((piece, j) => {
