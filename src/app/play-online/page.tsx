@@ -929,7 +929,7 @@ export default function OnlinePremiumPage() {
         </div>
 
         {/* Right sidebar */}
-        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)] order-3">
+        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)] xl:h-[calc(100vh-10rem)] order-3">
           <GameHistoryOnline
             history={history}
             status={isGameOver ? status : ""}

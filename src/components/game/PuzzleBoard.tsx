@@ -292,7 +292,7 @@ export default function PuzzleBoard({
   return (
     <div
       ref={boardRef}
-      className="relative grid grid-cols-8 grid-rows-8 w-[min(95vw,780px)] h-[min(95vw,780px)] bg-zinc-900 overflow-hidden rounded-xl border-[4px] border-black shadow-inner"
+      className="relative grid grid-cols-8 grid-rows-8 w-[min(95vw,780px)] xl:w-[min(45vw,780px)] h-[min(95vw,780px)] xl:h-[min(45vw,780px)] bg-zinc-900 overflow-hidden rounded-xl border-[4px] border-black shadow-inner"
     >
       {/* Solved overlay */}
       {solved && (
