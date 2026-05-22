@@ -277,7 +277,7 @@ export default function PlayIAPage() {
   const labelText = isLight ? 'text-gray-500' : 'text-zinc-600';
 
   return (
-    <main className={`min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] xl:h-[calc(100vh-6rem)] ${isLight ? 'bg-[#fff7f8]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-4 pb-6 sm:px-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-y-auto xl:overflow-hidden`}>
+    <main className={`play-page min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] ${isLight ? 'bg-[#fff7f8]' : 'bg-[#020202]'} text-zinc-400 pt-3 px-4 pb-8 sm:px-6 xl:pt-5 xl:px-10 xl:pb-10 font-sans selection:bg-gold/30 relative overflow-y-auto`}>
       <div className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-500 opacity-100">
         <div className={`absolute inset-0 ${isLight ? 'bg-[#fff7f8]' : 'bg-[#06010a]'}`} />
         <div className={`absolute top-[-25%] left-1/2 -translate-x-1/2 w-[85%] h-[75%] blur-[180px] rounded-full animate-pulse ${isLight ? 'bg-red-200/55' : 'bg-red-500/35'}`} />
@@ -287,8 +287,8 @@ export default function PlayIAPage() {
         <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] ${isLight ? 'opacity-[0.14] mix-blend-multiply' : 'opacity-[0.22] mix-blend-overlay'}`} />
       </div>
 
-      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
-        <div className="col-span-12 xl:col-span-3 flex flex-col gap-3 order-2 xl:order-1">
+      <div className="play-grid relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
+        <div className="play-sidebar custom-scrollbar col-span-12 xl:col-span-3 flex flex-col gap-3 order-2 xl:order-1">
           <div style={{
             maxHeight: gameStarted ? '200px' : '0px',
             opacity: gameStarted ? 1 : 0,
@@ -451,7 +451,7 @@ export default function PlayIAPage() {
           </div>
         </div>
 
-        <div className="col-span-12 xl:col-span-3 h-[min(85vw,785px)] xl:h-[calc(100vh-10rem)] order-3 xl:order-3">
+        <div className="play-history-shell col-span-12 xl:col-span-3 h-[min(85vw,785px)] order-3 xl:order-3">
           <GameHistory
             history={history}
             status={status}

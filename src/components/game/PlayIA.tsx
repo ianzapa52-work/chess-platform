@@ -299,7 +299,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
 
       <div
         ref={boardRef}
-        className="grid grid-cols-8 grid-rows-8 w-full max-w-195 aspect-square bg-zinc-900 overflow-hidden rounded-xl border-4 border-black shadow-inner"
+        className="play-board-shell grid grid-cols-8 grid-rows-8 aspect-square bg-zinc-900 overflow-hidden rounded-xl border-4 border-black shadow-inner"
       >
           {displayBoard.map((row, i) =>
             row.map((piece, j) => {

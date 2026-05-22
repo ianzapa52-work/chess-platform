@@ -27,6 +27,40 @@
   }
 }
 
+/* --- LAYOUT DE PARTIDA --- */
+.play-board-shell {
+  width: 100%;
+  max-width: 48.75rem;
+}
+
+@media (min-width: 1280px) {
+  .play-page {
+    height: calc(100vh - 6rem);
+    overflow-y: auto;
+  }
+
+  .play-grid {
+    align-items: center;
+    min-height: calc(100vh - 12rem);
+    padding-bottom: 1.5rem;
+  }
+
+  .play-board-shell {
+    width: min(100%, 48.75rem, calc(100vh - 13rem));
+    max-width: 48.75rem;
+  }
+
+  .play-sidebar {
+    max-height: calc(100vh - 10rem);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+
+  .play-history-shell {
+    height: min(48.75rem, calc(100vh - 10rem));
+  }
+}
+
 /* --- CONTENEDORES MAESTROS --- */
 .chess-card {
   @apply border border-white/10 backdrop-blur-xl shadow-2xl rounded-[2.5rem] in-[.light]:border-black/10 in-[.light]:bg-white/90;

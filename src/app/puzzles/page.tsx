@@ -520,7 +520,7 @@ export default function PuzzlesPremiumPage() {
     : "Encuentra la jugada";
 
   return (
-    <main className="min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] xl:h-[calc(100vh-6rem)] bg-[#020202] in-[.light]:bg-[#f3fff8] text-zinc-400 pt-2 px-3 pb-4 sm:px-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-y-auto xl:overflow-hidden">
+    <main className="play-page min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-6rem)] bg-[#020202] in-[.light]:bg-[#f3fff8] text-zinc-400 pt-2 px-3 pb-8 sm:px-4 xl:pt-4 xl:px-10 xl:pb-10 font-sans selection:bg-emerald-500/30 relative overflow-y-auto">
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[#050508] in-[.light]:bg-[#f3fff8]" />
         <div className="absolute inset-0 opacity-[0.15] in-[.light]:opacity-[0.14] mix-blend-overlay in-[.light]:mix-blend-multiply bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
@@ -529,8 +529,8 @@ export default function PuzzlesPremiumPage() {
         <div className="absolute inset-0 opacity-[0.18] in-[.light]:opacity-[0.22] bg-[radial-gradient(#ffffff_1.5px,transparent_1.5px)] in-[.light]:bg-[radial-gradient(rgba(5,150,105,0.42)_1.5px,transparent_1.5px)] bg-size-[32px_32px]" />
       </div>
 
-      <div className="relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
-        <div className="col-span-12 xl:col-span-3 order-2 xl:order-1">
+      <div className="play-grid relative z-10 max-w-425 mx-auto grid grid-cols-12 gap-4 xl:gap-8 items-start">
+        <div className="play-sidebar custom-scrollbar col-span-12 xl:col-span-3 order-2 xl:order-1">
           <LeftPanel
             loading={loading}
             error={error}
@@ -547,7 +547,7 @@ export default function PuzzlesPremiumPage() {
 
         <div className="col-span-12 xl:col-span-6 flex justify-center order-1 xl:order-2">
           {loading && (
-            <div className="w-full max-w-195 mx-auto aspect-square rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
+            <div className="play-board-shell mx-auto aspect-square rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
               border border-white/6 in-[.light]:border-gray-200 flex items-center justify-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="flex gap-1.5">
@@ -564,7 +564,7 @@ export default function PuzzlesPremiumPage() {
           )}
 
           {error && !loading && (
-            <div className="w-full max-w-195 mx-auto aspect-square rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
+            <div className="play-board-shell mx-auto aspect-square rounded-2xl bg-zinc-900/40 in-[.light]:bg-gray-100
               border border-red-500/10 in-[.light]:border-red-200 flex flex-col items-center justify-center gap-5">
               <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
                 <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -595,7 +595,7 @@ export default function PuzzlesPremiumPage() {
           )}
         </div>
 
-        <div className="col-span-12 xl:col-span-3 order-3">
+        <div className="play-sidebar custom-scrollbar col-span-12 xl:col-span-3 order-3">
           <RightPanel
             solvedCount={solvedCount}
             failedCount={failedCount}

@@ -290,7 +290,7 @@ export default function PlayOnline({
   const range = orientation === 'w' ? [0,1,2,3,4,5,6,7] : [7,6,5,4,3,2,1,0];
 
   return (
-    <div className="relative w-full max-w-195 aspect-square flex items-center justify-center">
+    <div className="play-board-shell relative aspect-square flex items-center justify-center">
       {!isConnected && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-[2.5rem] font-black tracking-widest text-[10px] uppercase">
           Conectando...
