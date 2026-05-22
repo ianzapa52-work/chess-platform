@@ -186,6 +186,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
         capWRef.current = finalCapW; capBRef.current = finalCapB;
       }
 
+      setSelectedSquare(null);
       setGame(afterAI); gameRef.current = afterAI;
       setLastMove({ from: aiFrom, to: aiTo });
       onMove(moveHistoryRef.current, finalCapW, finalCapB);
@@ -256,7 +257,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
         handleMoveRef.current(selectedSquare, coord);
         setSelectedSquare(null);
       }
-    } else if (piece && piece.color === orientation) {
+    } else if (piece && piece.color === orientation && gameRef.current.turn() === orientation) {
       setSelectedSquare(coord);
     }
   }, [isDragging, selectedSquare, orientation, clearPremove]);
