@@ -17,10 +17,10 @@ const COUNTDOWN_OPTIONS = [
 
 function IABox({ captured, isLight }: { captured: string[]; isLight: boolean }) {
   return (
-    <div className={`p-5 rounded-4xl border backdrop-blur-xl shadow-xl ${
+    <div className={`p-3 rounded-3xl border backdrop-blur-xl shadow-xl ${
       isLight ? 'bg-white border-gray-200' : 'border-white/8 bg-black/40'
     }`}>
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-3">
           <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shadow-inner ${
             isLight ? 'bg-gray-100 border-gray-200' : 'bg-zinc-900 border-white/10'
@@ -38,8 +38,8 @@ function IABox({ captured, isLight }: { captured: string[]; isLight: boolean }) 
           ∞
         </div>
       </div>
-      <div className={`h-px mb-3 ${isLight ? 'bg-gray-100' : 'bg-white/5'}`} />
-      <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-13 flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64]">
+      <div className={`h-px mb-2 ${isLight ? 'bg-gray-100' : 'bg-white/5'}`} />
+      <div className="p-2 rounded-xl border border-black/30 shadow-inner min-h-10 flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64]">
         <div className="flex flex-wrap gap-1 max-w-full">
           {captured.length > 0 ? (
             captured.map((img, i) => (
@@ -67,7 +67,7 @@ function PlayerBox({
   const isVeryLow = showClock && seconds <= 10 && !isTimedOut;
 
   return (
-    <div className={`p-5 rounded-4xl border-2 transition-all duration-500 relative overflow-hidden ${
+    <div className={`p-3 rounded-3xl border-2 transition-all duration-500 relative overflow-hidden ${
       isTimedOut
         ? 'bg-red-950/40 border-red-500/50 shadow-[0_0_40px_rgba(239,68,68,0.15)]'
         : isActive
@@ -81,7 +81,7 @@ function PlayerBox({
       {isActive && !isTimedOut && <div className={`absolute inset-0 pointer-events-none ${isLight ? 'bg-gold/4' : 'bg-gold/3'}`} />}
       {isTimedOut && <div className="absolute inset-0 bg-red-500/5 pointer-events-none" />}
 
-      <div className="relative flex justify-between items-center mb-3">
+      <div className="relative flex justify-between items-center mb-2">
         <div className="flex items-center gap-3">
           <div className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all duration-500 ${
             isTimedOut ? 'bg-red-500/20 border-red-500/40'
@@ -119,8 +119,8 @@ function PlayerBox({
         )}
       </div>
 
-      <div className={`h-px mb-3 ${isLight ? 'bg-gray-100' : 'bg-white/5'}`} />
-      <div className="p-3 rounded-2xl border border-black/30 shadow-inner min-h-13 flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64]">
+      <div className={`h-px mb-2 ${isLight ? 'bg-gray-100' : 'bg-white/5'}`} />
+      <div className="p-2 rounded-xl border border-black/30 shadow-inner min-h-10 flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64]">
         <div className="flex flex-wrap gap-1 max-w-full">
           {captured.length > 0 ? (
             captured.map((img, i) => (
@@ -299,7 +299,7 @@ export default function PlayIAPage() {
             <IABox captured={capturedW} isLight={isLight} />
           </div>
 
-          <div className={`${panel} rounded-4xl p-5 shadow-2xl backdrop-blur-xl space-y-5`}>
+          <div className={`${panel} rounded-3xl p-4 shadow-2xl backdrop-blur-xl space-y-4`}>
             <div>
               <p className={`text-[10px] font-black tracking-[0.35em] ${labelText} uppercase mb-3`}>Nivel IA</p>
               <div className={`grid grid-cols-2 gap-1.5 p-1 ${gridBg} rounded-2xl border`}>

@@ -46,7 +46,7 @@ const searchAnimations = `
 
 function CapturedBar({ captured }: { captured: string[] }) {
   return (
-    <div className="p-3 mt-3 rounded-2xl border border-black/30 shadow-inner min-h-[50px] flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64] relative z-10">
+    <div className="p-2 mt-2 rounded-xl border border-black/30 shadow-inner min-h-[36px] flex items-center bg-linear-to-br from-[#d2b48c] to-[#a68a64] relative z-10">
       <div className="flex flex-wrap gap-1 max-w-full">
         {captured.length > 0 ? (
           captured.map((img, i) => (
@@ -69,7 +69,7 @@ function OpponentBox({ name, elo, isActive, seconds, visible, captured, isLight 
   const title = getTitleByElo(Number(elo) || 1200);
 
   return (
-    <div className={`p-5 rounded-4xl border transition-all duration-1000 backdrop-blur-xl ${
+    <div className={`p-3 rounded-3xl border transition-all duration-1000 backdrop-blur-xl ${
       visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
     } ${
       isActive
@@ -117,7 +117,7 @@ function MyPlayerBox({ name, elo, isActive, seconds, captured, eloChange, isLigh
   const title = getTitleByElo(Number(elo) || 1200);
 
   return (
-    <div className={`p-6 rounded-[2.5rem] border-2 transition-all duration-700 relative overflow-hidden ${
+    <div className={`p-4 rounded-[2rem] border-2 transition-all duration-700 relative overflow-hidden ${
       isActive
         ? isLight
           ? 'bg-amber-50 border-gold shadow-[0_0_40px_rgba(212,175,55,0.12)] scale-[1.03]'
@@ -785,7 +785,7 @@ export default function OnlinePremiumPage() {
             />
           </div>
 
-          <div className={`${panel} border rounded-[2.5rem] p-8 shadow-2xl backdrop-blur-xl space-y-5 flex-1 flex flex-col`}>
+          <div className={`${panel} border rounded-[2rem] p-5 shadow-2xl backdrop-blur-xl space-y-4 flex-1 flex flex-col`}>
             {!gameJoined ? (
               <div className="w-full">
                 <div className={`transition-all duration-700 ${isSearching ? 'opacity-30 pointer-events-none scale-95 blur-sm' : 'opacity-100'}`}>
