@@ -35,6 +35,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
   const capBRef        = useRef<string[]>([]);
   const moveHistoryRef = useRef<string[]>([]);
   const handleMoveRef  = useRef<(from: Square, to: Square) => void>(() => {});
+  const resetEpochRef  = useRef(0);
 
   useEffect(() => { gameRef.current = game; },  [game]);
   useEffect(() => { capWRef.current = capW; },  [capW]);
@@ -49,6 +50,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
   }, [connected, connecting]);
 
   useEffect(() => {
+    resetEpochRef.current += 1;
     const g = new Chess();
     setGame(g); gameRef.current = g;
     setLastMove(null); setSelectedSquare(null);
@@ -108,6 +110,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
   }, [onGameStateChange, onGameOver, orientation]);
 
   const handleMove = useCallback(async (from: Square, to: Square) => {
+    const epoch = resetEpochRef.current;
     const currentGame = gameRef.current;
 
     if (currentGame.turn() !== orientation) {
@@ -146,8 +149,10 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
 
     try {
       const response = await sendMove(uci);
+      if (epoch !== resetEpochRef.current) return;
       const elapsed  = Date.now() - startTime;
       await new Promise(resolve => setTimeout(resolve, Math.max(0, MIN_THINKING_TIME - elapsed)));
+      if (epoch !== resetEpochRef.current) return;
       setIsAIThinking(false);
 
       if (response.gameOver) {
@@ -209,6 +214,7 @@ export default function PlayIA({ difficulty, onGameStateChange, onMove, onGameOv
         onGameStateChange('TU TURNO');
       }
     } catch (err) {
+      if (epoch !== resetEpochRef.current) return;
       console.error('Error comunicando con Stockfish:', err);
       setIsAIThinking(false);
       onGameStateChange('TU TURNO');
