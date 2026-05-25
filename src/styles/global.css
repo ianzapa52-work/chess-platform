@@ -11,6 +11,12 @@
   body {
     @apply bg-[#050505] text-white antialiased transition-colors duration-500 in-[.light]:bg-gray-50 in-[.light]:text-black;
   }
+
+  @media (min-width: 1024px) {
+    html {
+      zoom: 0.75;
+    }
+  }
   
   input:-webkit-autofill,
   input:-webkit-autofill:hover, 
