@@ -1,5 +1,16 @@
 ﻿@import "tailwindcss";
 
+html {
+  font-size: 16px;
+}
+
+/* Laptop screens (up to ~1536px) get 75% scale */
+@media (max-width: 1536px) {
+  html {
+    font-size: 12px;
+  }
+}
+
 @theme {
   --color-gold: #d4af37;
   --font-sans: "Inter", ui-sans-serif, system-ui;
@@ -12,11 +23,6 @@
     @apply bg-[#050505] text-white antialiased transition-colors duration-500 in-[.light]:bg-gray-50 in-[.light]:text-black;
   }
 
-  @media (min-width: 1024px) {
-    html {
-      zoom: 0.75;
-    }
-  }
   
   input:-webkit-autofill,
   input:-webkit-autofill:hover, 
